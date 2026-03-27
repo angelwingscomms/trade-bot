@@ -3,6 +3,8 @@ input int ticks_to_export = 2160000; // Total ticks (~5 days of Gold)
 input string USDX_Symbol = "$USDX"; // Name of USD Index
 input string USDJPY_Symbol = "USDJPY"; // Name of USDJPY
 
+// FLAW 4.4 FIX: Optimized tick data exporting with StringFormat and Two-Pointer Merge
+
 void OnStart() { // Main script function
    MqlTick ticks[], usdx_ticks[], usdjpy_ticks[]; // Arrays to hold tick data
    
@@ -27,32 +29,42 @@ void OnStart() { // Main script function
    int h = FileOpen("achilles_ticks.csv", FILE_WRITE|FILE_CSV|FILE_ANSI, ","); // Create file
    FileWrite(h, "time_msc,bid,ask,usdx,usdjpy"); // Write CSV header
    
+   // FLAW 4.4 FIX: Two-Pointer Merge algorithm for O(N) timestamp alignment
+   // Each pointer only moves forward, eliminating nested while loops
    int usdx_idx = 0, usdjpy_idx = 0; // Indices for auxiliary tick arrays
+   double usdx_bid = 0.0, usdjpy_bid = 0.0; // Current matched prices
    
-   for(int i=0; i<copied; i++) { // Loop through every tick
+   for(int i = 0; i < copied; i++) { // Loop through every tick
       ulong t = ticks[i].time_msc; // Current tick timestamp
       
-      // Find matching USDX tick (closest timestamp <= current tick)
-      double usdx_bid = 0.0;
+      // FLAW 4.4 FIX: Two-Pointer Merge for USDX - advance pointer only when timestamp <= current
+      // This is O(N) instead of O(N^2) - each array is traversed exactly once
       if(usdx_available && usdx_copied > 0) {
-         while(usdx_idx < usdx_copied - 1 && usdx_ticks[usdx_idx].time_msc <= t) usdx_idx++;
-         if(usdx_idx > 0 && usdx_ticks[usdx_idx].time_msc > t) usdx_idx--;
+         // Advance usdx_idx while the next tick's time is <= current tick time
+         while(usdx_idx < usdx_copied - 1 && usdx_ticks[usdx_idx + 1].time_msc <= t) {
+            usdx_idx++;
+         }
          usdx_bid = usdx_ticks[usdx_idx].bid;
       }
       
-      // Find matching USDJPY tick (closest timestamp <= current tick)
-      double usdjpy_bid = 0.0;
+      // FLAW 4.4 FIX: Two-Pointer Merge for USDJPY - same O(N) algorithm
       if(usdjpy_available && usdjpy_copied > 0) {
-         while(usdjpy_idx < usdjpy_copied - 1 && usdjpy_ticks[usdjpy_idx].time_msc <= t) usdjpy_idx++;
-         if(usdjpy_idx > 0 && usdjpy_ticks[usdjpy_idx].time_msc > t) usdjpy_idx--;
+         // Advance usdjpy_idx while the next tick's time is <= current tick time
+         while(usdjpy_idx < usdjpy_copied - 1 && usdjpy_ticks[usdjpy_idx + 1].time_msc <= t) {
+            usdjpy_idx++;
+         }
          usdjpy_bid = usdjpy_ticks[usdjpy_idx].bid;
       }
       
-      FileWrite(h, IntegerToString(ticks[i].time_msc) + "," + // Time in milliseconds
-                   DoubleToString(ticks[i].bid, 5) + "," + // Current Bid
-                   DoubleToString(ticks[i].ask, 5) + "," + // Current Ask
-                   DoubleToString(usdx_bid, 5) + "," + // USDX bid (matched by time)
-                   DoubleToString(usdjpy_bid, 5)); // USDJPY bid (matched by time)
+      // FLAW 4.4 FIX: Use StringFormat() instead of string concatenation with +
+      // StringFormat is significantly faster and avoids memory fragmentation
+      string row = StringFormat("%lld,%.5f,%.5f,%.5f,%.5f",
+                                ticks[i].time_msc,
+                                ticks[i].bid,
+                                ticks[i].ask,
+                                usdx_bid,
+                                usdjpy_bid);
+      FileWrite(h, row);
    }
    FileClose(h); // Close file
    Print("✅ Exported ", copied, " ticks to MQL5\\Files\\achilles_ticks.csv"); // Success message

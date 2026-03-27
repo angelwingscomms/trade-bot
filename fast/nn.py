@@ -20,21 +20,55 @@ print("Loading data...")
 df_t = pd.read_csv(INPUT_TICK_DATA)
 
 # 2. TICK-BAR CONSTRUCTION
+# FIX FLAW 1.1: Use mathematical groupby instead of iloc slicing
+# This guarantees zero overlap and true OHLC tick-bar integrity
 print("Constructing Tick Bars...")
-df = df_t.iloc[::TICK_DENSITY].copy()
-df['open'] = df_t['bid'].iloc[::TICK_DENSITY].values  # First tick of each bar
-df['high'] = df_t['bid'].rolling(TICK_DENSITY).max().iloc[::TICK_DENSITY].values
-df['low'] = df_t['bid'].rolling(TICK_DENSITY).min().iloc[::TICK_DENSITY].values
-# FIX: Use tick at index (TICK_DENSITY-1) as close (last tick of each bar)
-# Previously used shift(-1) which leaked future data from the next bar
-df['close'] = df_t['bid'].iloc[TICK_DENSITY-1::TICK_DENSITY].values
-df['spread'] = (df_t['ask'] - df_t['bid']).rolling(TICK_DENSITY).mean().iloc[::TICK_DENSITY].values
-df['duration'] = df_t['time_msc'].diff(TICK_DENSITY).iloc[::TICK_DENSITY].values
 
-# Dummy columns for USDX/USDJPY if they don't exist in your specific tick file 
-# (Based on your original code f30/f31)
-if 'usdx' not in df.columns: df['usdx'] = df['close'] # Placeholder
-if 'usdjpy' not in df.columns: df['usdjpy'] = df['close'] # Placeholder
+# Assign bar_id to each tick - ticks 0-143 go to bar 0, ticks 144-287 go to bar 1, etc.
+df_t['bar_id'] = np.arange(len(df_t)) // TICK_DENSITY
+
+# Calculate spread per tick before aggregation
+df_t['spread_tick'] = df_t['ask'] - df_t['bid']
+
+# Aggregate ticks into bars using proper groupby
+# open = first tick of bar, high = max of bar, low = min of bar, close = last tick of bar
+agg_dict = {
+    'bid': ['first', 'max', 'min', 'last'],
+    'time_msc': ['first', 'last'],
+    'spread_tick': 'mean'
+}
+
+# Include usdx and usdjpy in aggregation if they exist
+if 'usdx' in df_t.columns:
+    agg_dict['usdx'] = 'last'
+if 'usdjpy' in df_t.columns:
+    agg_dict['usdjpy'] = 'last'
+
+df_agg = df_t.groupby('bar_id').agg(agg_dict)
+
+# Flatten column names and assign to df
+df = pd.DataFrame({
+    'open': df_agg[('bid', 'first')].values,
+    'high': df_agg[('bid', 'max')].values,
+    'low': df_agg[('bid', 'min')].values,
+    'close': df_agg[('bid', 'last')].values,
+    'spread': df_agg[('spread_tick', 'mean')].values,
+    'time_open': df_agg[('time_msc', 'first')].values,
+    'time_close': df_agg[('time_msc', 'last')].values
+})
+
+df['duration'] = df['time_close'] - df['time_open']
+
+# Handle USDX/USDJPY columns from aggregation or use placeholders
+if 'usdx' in df_t.columns:
+    df['usdx'] = df_agg[('usdx', 'last')].values
+else:
+    df['usdx'] = df['close']  # Placeholder
+    
+if 'usdjpy' in df_t.columns:
+    df['usdjpy'] = df_agg[('usdjpy', 'last')].values
+else:
+    df['usdjpy'] = df['close']  # Placeholder
 
 df.dropna(inplace=True)
 
@@ -86,6 +120,8 @@ for p, f_idx in zip([9, 18, 27], [32, 33, 34]):
 df.dropna(inplace=True)
 
 # 4. TARGETING
+# FIX FLAW 1.3: Handle simultaneous TP/SL breaches properly
+# If both TP and SL are breached in the same bar, default to Stop Loss (worst-case)
 TP, SL, H = 1.44, 0.50, 30
 def label(df, tp, sl, h):
     c, hi, lo = df.close.values, df.high.values, df.low.values
@@ -93,18 +129,47 @@ def label(df, tp, sl, h):
     for i in range(len(df)-h):
         up, lw = c[i]+tp, c[i]-sl
         for j in range(i+1, i+h+1):
-            if hi[j] >= up: t[i]=1; break
-            if lo[j] <= lw: t[i]=2; break
+            tp_hit = hi[j] >= up
+            sl_hit = lo[j] <= lw
+            # If both hit in same bar, default to SL (worst-case execution)
+            if tp_hit and sl_hit:
+                t[i] = 2  # Stop Loss takes precedence
+                break
+            elif tp_hit:
+                t[i] = 1  # Take Profit hit
+                break
+            elif sl_hit:
+                t[i] = 2  # Stop Loss hit
+                break
     return t
 
 print("Labeling data...")
 df['target'] = label(df, TP, SL, H)
 
 # 5. MODEL PREP
+# FIX FLAW 1.2: Split data BEFORE calculating normalization parameters
+# to prevent future data leakage during training
 features = [f'f{i}' for i in range(35)]
 X = df[features].values
-mean, std = X.mean(axis=0), X.std(axis=0)
-X_s = (X - mean) / (std + 1e-8)
+y = df.target.values
+
+# Split data chronologically (train/val/test) before normalization
+# 70% train, 15% val, 15% test
+n_samples = len(X)
+train_end = int(n_samples * 0.70)
+val_end = int(n_samples * 0.85)
+
+X_train, y_train = X[:train_end], y[:train_end]
+X_val, y_val = X[train_end:val_end], y[train_end:val_end]
+X_test, y_test = X[val_end:], y[val_end:]
+
+# Calculate normalization parameters ONLY from training data
+mean, std = X_train.mean(axis=0), X_train.std(axis=0)
+
+# Transform all splits using training-only parameters
+X_train_s = (X_train - mean) / (std + 1e-8)
+X_val_s = (X_val - mean) / (std + 1e-8)
+X_test_s = (X_test - mean) / (std + 1e-8)
 
 def win(X, y, horizon=30):
     xs, ys = [], []
@@ -116,20 +181,58 @@ def win(X, y, horizon=30):
         xs.append(X[i:i+120]); ys.append(y[i+119])
     return np.array(xs), np.array(ys)
 
-X_seq, y_seq = win(X_s, df.target.values, H)
+# Create sequences for each split separately
+X_train_seq, y_train_seq = win(X_train_s, y_train, H)
+X_val_seq, y_val_seq = win(X_val_s, y_val, H)
+X_test_seq, y_test_seq = win(X_test_s, y_test, H)
 
 # 6. MODEL ARCHITECTURE
+# FIX FLAW 3.1: Contextual Last-Step Extraction
+# WHY GlobalAveragePooling1D FAILS: Gives equal weight to Bar 1 and Bar 120, diluting
+# current market state with stale data.
+# WHY Flatten() FAILS: Multiplies feature dimension by 120 (4,200 inputs to Dense),
+# causing parameter explosion and catastrophic overfitting on noisy financial data.
+# WHY CONTEXTUAL LAST-STEP EXTRACTION IS SUPERIOR: MultiHeadAttention(ls, ls) means
+# the output at T=120 is already a dynamically calculated, weighted sum of ALL
+# previous 119 timesteps. Extracting the last timestep performs Attention Pooling
+# conditioned exclusively on the most recent market state.
+#
+# Tensor shape pipeline:
+# in_lay: (None, 120, 35) -> ls: (None, 120, 35) -> at: (None, 120, 35)
+# -> res_add: (None, 120, 35) -> pl: (None, 35) -> ou: (None, 3)
 in_lay = tf.keras.Input(shape=(120, 35))
 ls = tf.keras.layers.LSTM(35, return_sequences=True, activation='mish')(in_lay)
 at = tf.keras.layers.MultiHeadAttention(num_heads=4, key_dim=35)(ls, ls)
-pl = tf.keras.layers.GlobalAveragePooling1D()(tf.keras.layers.Add()([ls, at]))
+
+# 1. Compute the Residual Connection (combining sequential memory + global attention)
+res_add = tf.keras.layers.Add(name="Residual_Add")([ls, at])
+
+# 2. Extract the final causal timestep (Index -1) to serve as the context vector
+# tf2onnx perfectly supports this slicing operation via opset 13.
+pl = tf.keras.layers.Lambda(lambda x: x[:, -1, :], name="Extract_Last_Step")(res_add)
+
 ou = tf.keras.layers.Dense(3, activation='softmax')(tf.keras.layers.Dense(20, activation='mish')(pl))
 
 model = tf.keras.Model(in_lay, ou)
 model.compile(optimizer='adamw', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
+# FIX FLAW 3.2: Calculate class weights to handle unbalanced multi-class targeting
+# Financial data is heavily skewed - "Do Nothing" (Class 0) often represents 80%+ of data
+# Without class weights, the model trivially predicts Class 0 almost every time
+from sklearn.utils.class_weight import compute_class_weight
+
+classes = np.unique(y_train_seq)
+class_weights = compute_class_weight(class_weight='balanced', classes=classes, y=y_train_seq)
+class_weight_dict = dict(zip(classes, class_weights))
+print(f"Class distribution - Class 0: {np.sum(y_train_seq==0)}, Class 1: {np.sum(y_train_seq==1)}, Class 2: {np.sum(y_train_seq==2)}")
+print(f"Class weights: {class_weight_dict}")
+
 print("Starting training...")
-model.fit(X_seq, y_seq, epochs=54, batch_size=64, validation_split=0.2)
+# Use explicit validation data instead of validation_split to ensure no leakage
+# Pass class_weight to aggressively penalize the model for missing Class 1 (Buy) and Class 2 (Sell)
+model.fit(X_train_seq, y_train_seq, epochs=54, batch_size=64, 
+          validation_data=(X_val_seq, y_val_seq),
+          class_weight=class_weight_dict)
 
 # 7. EXPORT TO ONNX
 print("Exporting model to ONNX...")
