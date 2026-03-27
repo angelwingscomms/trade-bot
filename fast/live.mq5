@@ -12,8 +12,9 @@ input string USDX_Symbol   = "$USDX";  // USD Index Symbol
 input string USDJPY_Symbol = "USDJPY"; // Yield Proxy Symbol
 input int    MAGIC_NUMBER  = 144144;   // FLAW 4.3 FIX: Magic Number for position identification
 
-float means[35] = {0.0f}; // ⚠️ PASTE FROM PYTHON
-float stds[35]  = {1.0f}; // ⚠️ PASTE FROM PYTHON
+// FLAW 2 FIX: Use robust scaling (median/IQR) instead of mean/std for fat-tailed financial data
+float medians[35] = {0.0f}; // ⚠️ PASTE FROM PYTHON
+float iqrs[35]  = {1.0f}; // ⚠️ PASTE FROM PYTHON
 
 CTrade trade;
 long onnx = INVALID_HANDLE;
@@ -332,26 +333,30 @@ void Predict() {
       f[4]=(float)((MathMin(o_a[x],c_a[x])-l_a[x])/(c_a[x]+1e-8));
       f[5]=(float)((h_a[x]-l_a[x])/(c_a[x]+1e-8)); 
       f[6]=(float)((c_a[x]-l_a[x])/(h_a[x]-l_a[x]+1e-8));
-      f[7]=CRSI(x,9); f[8]=CRSI(x,18); f[9]=CRSI(x,27);
-      f[10]=CATR(x,9); f[11]=CATR(x,18); f[12]=CATR(x,27);
-      // FLAW 2.1 FIX: Use global EMA arrays (running state) instead of truncated CEMA
-      double e9=ema9_a[x], e18=ema18_a[x], e27=ema27_a[x], e54=ema54_a[x], e144=ema144_a[x];
-      // FLAW 2.2 FIX: Use proper MACD values from running state arrays
-      // f13 = MACD line, f14 = Signal line, f15 = Histogram
-      f[13]=(float)macd_a[x]; f[14]=(float)macd_signal_a[x]; f[15]=(float)macd_hist_a[x];
-      f[16]=(float)(e9-c_a[x]); f[17]=(float)(e18-c_a[x]); f[18]=(float)(e27-c_a[x]); 
-      f[19]=(float)(e54-c_a[x]); f[20]=(float)(e144-c_a[x]);
+       f[7]=CRSI(x,9); f[8]=CRSI(x,18); f[9]=CRSI(x,27);
+       // FLAW 1 FIX: ATR normalized by Close for stationarity
+       f[10]=(float)(CATR(x,9)/c_a[x]); f[11]=(float)(CATR(x,18)/c_a[x]); f[12]=(float)(CATR(x,27)/c_a[x]);
+       // FLAW 2.1 FIX: Use global EMA arrays (running state) instead of truncated CEMA
+       double e9=ema9_a[x], e18=ema18_a[x], e27=ema27_a[x], e54=ema54_a[x], e144=ema144_a[x];
+       // FLAW 2.2 FIX: Use proper MACD values from running state arrays
+       // FLAW 1 FIX: MACD normalized by Close for stationarity
+       // f13 = MACD line, f14 = Signal line, f15 = Histogram
+       f[13]=(float)(macd_a[x]/c_a[x]); f[14]=(float)(macd_signal_a[x]/c_a[x]); f[15]=(float)(macd_hist_a[x]/c_a[x]);
+       // FLAW 1 FIX: EMA distances normalized by Close for stationarity
+       f[16]=(float)((e9-c_a[x])/c_a[x]); f[17]=(float)((e18-c_a[x])/c_a[x]); f[18]=(float)((e27-c_a[x])/c_a[x]); 
+       f[19]=(float)((e54-c_a[x])/c_a[x]); f[20]=(float)((e144-c_a[x])/c_a[x]);
       // FLAW 2.2 FIX: Use proper CCI values from running state arrays
-      f[21]=(float)cci9_a[x]; f[22]=(float)cci18_a[x]; f[23]=(float)cci27_a[x];
-      f[24]=CWPR(x,9); f[25]=CWPR(x,18); f[26]=CWPR(x,27);
-      // FLAW 4.2 FIX: Use ring buffer indexing for lookback
-      f[27]=(float)(c_a[x]-c_a[RingIdx(119-i+9)]); 
-      f[28]=(float)(c_a[x]-c_a[RingIdx(119-i+18)]); 
-      f[29]=(float)(c_a[x]-c_a[RingIdx(119-i+27)]);
+       f[21]=(float)cci9_a[x]; f[22]=(float)cci18_a[x]; f[23]=(float)cci27_a[x];
+       f[24]=CWPR(x,9); f[25]=CWPR(x,18); f[26]=CWPR(x,27);
+       // FLAW 1 FIX: Momentum normalized by Close for stationarity
+       f[27]=(float)((c_a[x]-c_a[RingIdx(119-i+9)])/c_a[x]); 
+       f[28]=(float)((c_a[x]-c_a[RingIdx(119-i+18)])/c_a[x]); 
+       f[29]=(float)((c_a[x]-c_a[RingIdx(119-i+27)])/c_a[x]);
       f[30]=(float)((dx_a[x]-dx_a[x1])/(dx_a[x1]+1e-8)); 
       f[31]=(float)((jp_a[x]-jp_a[x1])/(jp_a[x1]+1e-8));
       f[32]=CBBW(x,9); f[33]=CBBW(x,18); f[34]=CBBW(x,27);
-      for(int k=0; k<35; k++) input_data[i*35+k]=(f[k]-means[k])/(stds[k]+1e-8f);
+       // FLAW 2 FIX: Robust scaling using median/IQR instead of mean/std
+       for(int k=0; k<35; k++) input_data[i*35+k]=(f[k]-medians[k])/(iqrs[k]+1e-8f);
    }
    float out[3]; OnnxRun(onnx, ONNX_DEFAULT, input_data, out);
    if(out[0]>0.5) return;

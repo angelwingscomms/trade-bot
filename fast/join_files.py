@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Combines all files in the fast/ directory (except FLAWS.md) into a single pipeline.md file.
+Combines data.mq5, nn.py, and live.mq5 into a single pipeline.md file.
 Each file is wrapped in a code block with appropriate language tagging.
 """
 
@@ -36,23 +36,11 @@ def main():
     # Get the directory this script is in
     script_dir = Path(__file__).parent.resolve()
     
-    # Files to exclude
-    exclude_files = {'FLAWS.md', 'combine_to_pipeline.py', 'pipeline.md', 'join_files.py'}
+    # Only include these specific files
+    include_files = ['data.mq5', 'nn.py', 'live.mq5']
     
-    # Extensions to include (text files only)
-    text_extensions = {'.mq5', '.py', '.txt', '.csv', '.json', '.md', '.yaml', '.yml', 
-                       '.xml', '.html', '.css', '.js', '.ts', '.sql', '.sh', '.bat', '.ps1'}
-    
-    # Get all files in the directory (not recursive)
-    files = []
-    for item in script_dir.iterdir():
-        if item.is_file() and item.name not in exclude_files:
-            # Only include files with known text extensions
-            if item.suffix.lower() in text_extensions:
-                files.append(item)
-    
-    # Sort files for consistent output
-    files.sort(key=lambda x: x.name)
+    # Get the specified files
+    files = [script_dir / name for name in include_files if (script_dir / name).exists()]
     
     # Build the pipeline.md content
     output_lines = []

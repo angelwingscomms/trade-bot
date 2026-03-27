@@ -4,13 +4,21 @@ import pandas_ta as ta
 import tensorflow as tf
 import tf2onnx
 import os
+import argparse
 
 # 1. SETUP & PATHS
 # Adjust these paths to where your files actually are on your computer
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_TICK_DATA = os.path.join(SCRIPT_DIR, 'achilles_ticks.csv')
-OUTPUT_ONNX_MODEL = os.path.join(SCRIPT_DIR, 'achilles_144.onnx')
-TICK_DENSITY = 144 
+
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Train Achilles neural network model')
+parser.add_argument('--tick-density', type=int, default=144,
+                    help='Tick bar density - number of ticks per bar (default: 144)')
+args = parser.parse_args()
+
+TICK_DENSITY = args.tick_density
+OUTPUT_ONNX_MODEL = os.path.join(SCRIPT_DIR, f'achilles_{TICK_DENSITY}.onnx') 
 
 if not os.path.exists(INPUT_TICK_DATA):
     print(f"Error: {INPUT_TICK_DATA} not found. Please place the CSV in the same folder.")
@@ -85,18 +93,21 @@ df['f6'] = (df['close'] - df['low']) / (df['high'] - df['low'] + 1e-8)
 df['f7'] = ta.rsi(df['close'], length=9)
 df['f8'] = ta.rsi(df['close'], length=18)
 df['f9'] = ta.rsi(df['close'], length=27)
-df['f10'] = ta.atr(df['high'], df['low'], df['close'], length=9)
-df['f11'] = ta.atr(df['high'], df['low'], df['close'], length=18)
-df['f12'] = ta.atr(df['high'], df['low'], df['close'], length=27)
+# FLAW 1 FIX: ATR normalized by Close for stationarity
+df['f10'] = ta.atr(df['high'], df['low'], df['close'], length=9) / df['close']
+df['f11'] = ta.atr(df['high'], df['low'], df['close'], length=18) / df['close']
+df['f12'] = ta.atr(df['high'], df['low'], df['close'], length=27) / df['close']
 
+# FLAW 1 FIX: MACD normalized by Close for stationarity
 m = ta.macd(df['close'], 9, 18, 9)
-df['f13'], df['f14'], df['f15'] = m.iloc[:,0], m.iloc[:,2], m.iloc[:,1]
+df['f13'], df['f14'], df['f15'] = m.iloc[:,0] / df['close'], m.iloc[:,2] / df['close'], m.iloc[:,1] / df['close']
 
-df['f16'] = ta.ema(df['close'], 9) - df['close']
-df['f17'] = ta.ema(df['close'], 18) - df['close']
-df['f18'] = ta.ema(df['close'], 27) - df['close']
-df['f19'] = ta.ema(df['close'], 54) - df['close']
-df['f20'] = ta.ema(df['close'], 144) - df['close']
+# FLAW 1 FIX: EMA distances normalized by Close for stationarity
+df['f16'] = (ta.ema(df['close'], 9) - df['close']) / df['close']
+df['f17'] = (ta.ema(df['close'], 18) - df['close']) / df['close']
+df['f18'] = (ta.ema(df['close'], 27) - df['close']) / df['close']
+df['f19'] = (ta.ema(df['close'], 54) - df['close']) / df['close']
+df['f20'] = (ta.ema(df['close'], 144) - df['close']) / df['close']
 
 df['f21'] = ta.cci(df['high'], df['low'], df['close'], 9)
 df['f22'] = ta.cci(df['high'], df['low'], df['close'], 18)
@@ -106,9 +117,10 @@ df['f24'] = ta.willr(df['high'], df['low'], df['close'], 9)
 df['f25'] = ta.willr(df['high'], df['low'], df['close'], 18)
 df['f26'] = ta.willr(df['high'], df['low'], df['close'], 27)
 
-df['f27'] = ta.mom(df['close'], 9)
-df['f28'] = ta.mom(df['close'], 18)
-df['f29'] = ta.mom(df['close'], 27)
+# FLAW 1 FIX: Momentum normalized by Close for stationarity
+df['f27'] = ta.mom(df['close'], 9) / df['close']
+df['f28'] = ta.mom(df['close'], 18) / df['close']
+df['f29'] = ta.mom(df['close'], 27) / df['close']
 
 df['f30'] = df['usdx'].pct_change()
 df['f31'] = df['usdjpy'].pct_change()
@@ -163,13 +175,16 @@ X_train, y_train = X[:train_end], y[:train_end]
 X_val, y_val = X[train_end:val_end], y[train_end:val_end]
 X_test, y_test = X[val_end:], y[val_end:]
 
-# Calculate normalization parameters ONLY from training data
-mean, std = X_train.mean(axis=0), X_train.std(axis=0)
+# FLAW 2 FIX: Use Robust Scaling (Median/IQR) instead of Mean/Std
+# Financial data has fat tails - standard scaling compresses 99% of normal
+# market movements into a tiny range to accommodate massive outliers
+median = np.median(X_train, axis=0)
+iqr = np.percentile(X_train, 75, axis=0) - np.percentile(X_train, 25, axis=0)
 
-# Transform all splits using training-only parameters
-X_train_s = (X_train - mean) / (std + 1e-8)
-X_val_s = (X_val - mean) / (std + 1e-8)
-X_test_s = (X_test - mean) / (std + 1e-8)
+# Transform all splits using training-only robust parameters
+X_train_s = (X_train - median) / (iqr + 1e-8)
+X_val_s = (X_val - median) / (iqr + 1e-8)
+X_test_s = (X_test - median) / (iqr + 1e-8)
 
 def win(X, y, horizon=30):
     xs, ys = [], []
@@ -236,7 +251,9 @@ model.fit(X_train_seq, y_train_seq, epochs=54, batch_size=64,
 
 # 7. EXPORT TO ONNX
 print("Exporting model to ONNX...")
-spec = (tf.TensorSpec((None, 120, 35), tf.float32, name="input"),)
+# FIX: Use fixed batch size of 1 instead of None for MQL5 compatibility
+# MQL5 OnnxSetInputShape requires static dimensions in the ONNX model
+spec = (tf.TensorSpec((1, 120, 35), tf.float32, name="input"),)
 model_proto, _ = tf2onnx.convert.from_keras(model, input_signature=spec, opset=13)
 
 with open(OUTPUT_ONNX_MODEL, "wb") as f:
@@ -245,18 +262,13 @@ with open(OUTPUT_ONNX_MODEL, "wb") as f:
 print(f"Model saved to {OUTPUT_ONNX_MODEL}")
 
 # PRINT STATS FOR MQL5 / TRADING BOT
+# FLAW 2 FIX: Export medians and iqrs for robust scaling
 print("\n--- Copy these into your C++ / MQL5 code ---")
-means_str = f"float means[35]={{{','.join([f'{m:.6f}f' for m in mean])}}};".replace(',', ', ')
-stds_str = f"float stds[35]={{{','.join([f'{s:.6f}f' for s in std])}}};"
+medians_str = f"float medians[35]={{{','.join([f'{m:.6f}f' for m in median])}}};".replace(',', ', ')
+iqrs_str = f"float iqrs[35]={{{','.join([f'{s:.6f}f' for s in iqr])}}};"
 
-print(means_str)
-print(stds_str)
-
-# Save to file for easy reference
-with open(os.path.join(SCRIPT_DIR, 'normalization_params.txt'), 'w') as f:
-    f.write("// Copy these lines into live.mq5 (lines 14-15)\n\n")
-    f.write(means_str + "\n")
-    f.write(stds_str + "\n")
+print(medians_str)
+print(iqrs_str)
 
 # Auto-generate updated live.mq5 with correct normalization params
 print("\n✅ Generated live_updated.mq5 with correct normalization parameters")
@@ -265,13 +277,13 @@ if os.path.exists(live_template):
     with open(live_template, 'r') as f_in:
         content = f_in.read()
     
-    # Replace placeholder lines 14-15
+    # FLAW 2 FIX: Replace placeholder lines with medians and iqrs
     content_updated = content.replace(
-        'float means[35] = {0.0f}; // ⚠️ PASTE FROM PYTHON',
-        means_str
+        'float medians[35] = {0.0f}; // ⚠️ PASTE FROM PYTHON',
+        medians_str
     ).replace(
-        'float stds[35]  = {1.0f}; // ⚠️ PASTE FROM PYTHON',
-        stds_str
+        'float iqrs[35]  = {1.0f}; // ⚠️ PASTE FROM PYTHON',
+        iqrs_str
     )
     
     output_file = os.path.join(SCRIPT_DIR, 'live_updated.mq5')
