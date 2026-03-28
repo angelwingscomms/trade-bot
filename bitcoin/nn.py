@@ -132,7 +132,7 @@ weights = compute_class_weight('balanced', classes=classes, y=y_seq)
 class_weight = {c: w for c, w in zip(classes, weights)}
 
 print("Training Network...")
-model.fit(X_seq_flat, y_seq, epochs=54, batch_size=64, class_weight=class_weight)
+model.fit(X_seq_flat, y_seq, epochs=9, batch_size=64, class_weight=class_weight)
 
 print("Exporting model to ONNX...")
 spec = (tf.TensorSpec((None, 3960), tf.float32, name="input"),) 
