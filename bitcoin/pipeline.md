@@ -106,12 +106,14 @@ tvwp = (df['close'] * df['volume']).rolling(144).sum() / (df['volume'].rolling(1
 df['f16'] = (df['close'] - tvwp) / df['close']
 
 df.dropna(inplace=True)
+df.reset_index(drop=True, inplace=True)
 df['target'] = get_symmetric_labels(df)
 X = df[[f'f{i}' for i in range(17)]].values
 y = df['target'].values
 
 # 3. ROBUST SCALING
-split = int(len(X) * 0.9)
+raw_split = int(len(X) * 0.9)
+split = raw_split - SEQ_LEN
 median = np.median(X[:split], axis=0)
 iqr = np.percentile(X[:split], 75, axis=0) - np.percentile(X[:split], 25, axis=0)
 iqr = np.where(iqr < 1e-6, 1.0, iqr)
@@ -159,7 +161,8 @@ model.compile(optimizer=tf.keras.optimizers.AdamW(1e-3), loss='sparse_categorica
 
 # Train with Class Weights
 from sklearn.utils.class_weight import compute_class_weight
-cw = compute_class_weight('balanced', classes=np.unique(y_seq), y=y_seq)
+cw = compute_class_weight('balanced', classes=np.unique(y_seq[:split]), y=y_seq[:split])
+assert split > 0 and split < len(X_seq), f"Split {split} out of range for X_seq len {len(X_seq)}"
 model.fit(X_seq[:split].reshape(-1, 2040), y_seq[:split], 
           validation_data=(X_seq[split:].reshape(-1, 2040), y_seq[split:]),
           epochs=100, batch_size=64, class_weight=dict(enumerate(cw)),
@@ -228,7 +231,7 @@ void OnTick() {
       for(int i=199; i>0; i--) history[i] = history[i-1];
       history[0] = cur_b;
       ticks_in_bar = 0;
-      if(history[121].c > 0 && history[49].c > 0) Predict();
+      if(history[149].c > 0) Predict();
    }
 }
 
@@ -284,9 +287,16 @@ void Predict() {
 
 void Execute(int sig) {
    if(PositionSelect(_Symbol)) return;
-   double p = (sig==1)?SymbolInfoDouble(_Symbol,SYMBOL_ASK):SymbolInfoDouble(_Symbol,SYMBOL_BID);
-   double sl = (sig==1)?(p-history[0].atr18*0.54):(p+history[0].atr18*0.54);
-   double tp = (sig==1)?(p+history[0].atr18*2.7):(p-history[0].atr18*2.7);
+   double p   = (sig==1) ? SymbolInfoDouble(_Symbol,SYMBOL_ASK) : SymbolInfoDouble(_Symbol,SYMBOL_BID);
+   double sl  = (sig==1) ? (p - history[0].atr18*0.54) : (p + history[0].atr18*0.54);
+   double tp  = (sig==1) ? (p + history[0].atr18*2.7)  : (p - history[0].atr18*2.7);
+   
+   // NEW: validate stops are non-degenerate
+   double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   if(MathAbs(p - sl) < min_dist || MathAbs(tp - p) < min_dist) {
+      Print("[WARN] Stop/TP too close to price, skipping trade.");
+      return;
+   }
    trade.PositionOpen(_Symbol,(sig==1?ORDER_TYPE_BUY:ORDER_TYPE_SELL),0.1,p,sl,tp);
 }
 ```
