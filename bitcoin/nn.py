@@ -33,14 +33,19 @@ def get_symmetric_labels(df, tp_mult=2.7, sl_mult=0.54):
         s_tp, s_sl = c[i] - (tp_mult*atr[i]), c[i] + (sl_mult*atr[i])
 
         buy_done, sell_done = False, False
+        buy_won,  sell_won  = False, False
         for j in range(i+1, i+TARGET_HORIZON):
             if not buy_done:
-                if hi[j] >= b_tp: labels[i] = 1; buy_done = True
-                elif lo[j] <= b_sl: buy_done = True
+                if   hi[j] >= b_tp: buy_won  = True;  buy_done  = True
+                elif lo[j] <= b_sl:                    buy_done  = True
             if not sell_done:
-                if lo[j] <= s_tp: labels[i] = 2; sell_done = True
-                elif hi[j] >= s_sl: sell_done = True
+                if   lo[j] <= s_tp: sell_won = True;  sell_done = True
+                elif hi[j] >= s_sl:                    sell_done = True
             if buy_done and sell_done: break
+
+        if   buy_won and not sell_won: labels[i] = 1
+        elif sell_won and not buy_won: labels[i] = 2
+        # both or neither → stays 0 (neutral), which is the correct safe label
     return labels
 
 # 2. FEATURE ENGINEERING (17 FEATURES)
@@ -72,8 +77,9 @@ y = df['target'].values
 # 3. ROBUST SCALING
 raw_split = int(len(X) * 0.9)
 split = raw_split - SEQ_LEN
-median = np.median(X[:split], axis=0)
-iqr = np.percentile(X[:split], 75, axis=0) - np.percentile(X[:split], 25, axis=0)
+# Fit scaler on ALL training rows, not the sequence-adjusted subset
+median = np.median(X[:raw_split], axis=0)
+iqr = np.percentile(X[:raw_split], 75, axis=0) - np.percentile(X[:raw_split], 25, axis=0)
 iqr = np.where(iqr < 1e-6, 1.0, iqr)
 X_s = np.clip((X - median) / iqr, -10, 10)
 
@@ -119,7 +125,7 @@ model.compile(optimizer=tf.keras.optimizers.AdamW(1e-3), loss='sparse_categorica
 
 # Train with Class Weights
 from sklearn.utils.class_weight import compute_class_weight
-cw = compute_class_weight('balanced', classes=np.unique(y_seq[:split]), y=y_seq[:split])
+cw = compute_class_weight('balanced', classes=np.array([0, 1, 2]), y=y_seq[:split])
 assert split > 0 and split < len(X_seq), f"Split {split} out of range for X_seq len {len(X_seq)}"
 model.fit(X_seq[:split].reshape(-1, 2040), y_seq[:split], 
           validation_data=(X_seq[split:].reshape(-1, 2040), y_seq[split:]),

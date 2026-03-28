@@ -21,10 +21,19 @@ float output_data[3];
 
 int OnInit() {
    onnx_handle = OnnxCreateFromBuffer(model_buffer, ONNX_DEFAULT);
+   if(onnx_handle == INVALID_HANDLE) {
+      Print("[FATAL] OnnxCreateFromBuffer failed: ", GetLastError());
+      return(INIT_FAILED);
+   }
    const long in_shape[] = {1, 2040};
    const long out_shape[] = {1, 3};
-   OnnxSetInputShape(onnx_handle, 0, in_shape);
-   OnnxSetOutputShape(onnx_handle, 0, out_shape);
+   if(!OnnxSetInputShape(onnx_handle, 0, in_shape) ||
+      !OnnxSetOutputShape(onnx_handle, 0, out_shape)) {
+      Print("[FATAL] OnnxSetShape failed: ", GetLastError());
+      OnnxRelease(onnx_handle);
+      onnx_handle = INVALID_HANDLE;
+      return(INIT_FAILED);
+   }
    return(INIT_SUCCEEDED);
 }
 
@@ -50,17 +59,36 @@ void OnTick() {
       for(int i=199; i>0; i--) history[i] = history[i-1];
       history[0] = cur_b;
       ticks_in_bar = 0;
-      if(history[149].c > 0) Predict();
+      if(history[120].c > 0) Predict();  // h goes up to 119; h+1 = 120 is the deepest access
    }
 }
 
+// Add to Bar struct: int bar_count;  (initialise to 0 in OnInit / cold-start branch)
+// Requires a small ring buffer for TR accumulation – shown inline below.
+
+static double tr_buf[18];
+static int    tr_buf_n = 0;
+
 void UpdateIndicators(Bar &b) {
    Bar p = history[0];
-   if(p.c <= 0) { // EMA COLD START FIX
-      b.macd_ema12 = b.c; b.macd_ema26 = b.c; b.macd_sig = 0; b.atr18 = b.h-b.l; return;
+   if(p.c <= 0) {
+      b.macd_ema12 = b.c; b.macd_ema26 = b.c; b.macd_sig = 0;
+      double tr0 = b.h - b.l;
+      tr_buf[0] = tr0; tr_buf_n = 1;
+      b.atr18 = tr0;   // will be replaced once 18 TRs are collected
+      return;
    }
    double tr = MathMax(b.h-b.l, MathMax(MathAbs(b.h-p.c), MathAbs(b.l-p.c)));
-   b.atr18 = (tr - p.atr18)/18.0 + p.atr18;
+   if(tr_buf_n < 18) {
+      tr_buf[tr_buf_n++] = tr;
+      // Seed phase: use plain SMA, matching pandas_ta initialisation
+      double sum = 0;
+      for(int k = 0; k < tr_buf_n; k++) sum += tr_buf[k];
+      b.atr18 = sum / tr_buf_n;
+   } else {
+      // Wilder smoothing — identical to pandas_ta after the seed window
+      b.atr18 = (tr - p.atr18) / 18.0 + p.atr18;
+   }
    b.macd_ema12 = (b.c - p.macd_ema12)*(2.0/13.0) + p.macd_ema12;
    b.macd_ema26 = (b.c - p.macd_ema26)*(2.0/27.0) + p.macd_ema26;
    double macd_raw = b.macd_ema12 - b.macd_ema26;

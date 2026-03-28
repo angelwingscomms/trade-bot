@@ -22,13 +22,14 @@ void OnStart() {
       if(copied <= 0) break;
       last_time = ticks[copied-1].time_msc + 1; 
       
+      int valid_in_chunk = 0;
       for(int i = 0; i < copied; i++) {
          if(ticks[i].bid <= 0.0 || ticks[i].ask < ticks[i].bid) continue;
-         // Ensure volume is at least 0.01 to prevent math errors downstream
          double v = (ticks[i].volume > 0) ? (double)ticks[i].volume : 0.01;
          FileWrite(h, ticks[i].time_msc, ticks[i].bid, ticks[i].ask, v);
+         valid_in_chunk++;
       }
-      total_copied += copied;
+      total_copied += valid_in_chunk;
       if(last_time >= (ulong)TimeCurrent() * 1000ull) break;
    }
    FileClose(h);
