@@ -130,7 +130,7 @@ void Predict() {
    }
    if(OnnxRun(onnx_handle, ONNX_DEFAULT, input_data, output_data)) {
       int sig = ArrayMaximum(output_data);
-      if(sig > 0 && output_data[sig] > 0.75) Execute(sig);
+      if(sig > 0 && output_data[sig] > 0.72) Execute(sig);
    }
 }
 
@@ -146,5 +146,5 @@ void Execute(int sig) {
       Print("[WARN] Stop/TP too close to price, skipping trade.");
       return;
    }
-   trade.PositionOpen(_Symbol,(sig==1?ORDER_TYPE_BUY:ORDER_TYPE_SELL),0.1,p,sl,tp);
+   trade.PositionOpen(_Symbol,(sig==1?ORDER_TYPE_BUY:ORDER_TYPE_SELL),0.54,p,sl,tp);
 }
