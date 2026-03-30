@@ -172,7 +172,7 @@ cw = compute_class_weight('balanced', classes=np.array([0, 1, 2]), y=y_seq[:spli
 assert split > 0 and split < len(X_seq), f"Split {split} out of range for X_seq len {len(X_seq)}"
 model.fit(X_seq[:split].reshape(-1, 2040), y_seq[:split], 
           validation_data=(X_seq[split:].reshape(-1, 2040), y_seq[split:]),
-          epochs=100, batch_size=64, class_weight=dict(enumerate(cw)),
+          epochs=1, batch_size=64, class_weight=dict(enumerate(cw)),
           callbacks=[tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)])
 
 # Export
@@ -180,22 +180,25 @@ spec = (tf.TensorSpec((1, 2040), tf.float32, name="input"),)
 model_proto, _ = tf2onnx.convert.from_keras(model, input_signature=spec, opset=13)
 with open("bitcoin_144.onnx", "wb") as f: f.write(model_proto.SerializeToString())
 
-print(f"Medians: {list(median)}")
-print(f"IQRs: {list(iqr)}")
+print("\n--- PASTE THESE INTO live.mq5 ---")
+print(f"float medians[17] = {{{', '.join([f'{m:.8f}f' for m in median])}}};")
+print(f"float iqrs[17] = {{{', '.join([f'{s:.8f}f' for s in iqr])}}};")
 ```
 
 live.mq5
 ```cpp
 ﻿#include <Trade\Trade.mqh>
-#resource "\\Experts\\nn\\bitcoin_144.onnx" as uchar model_buffer[]
+#resource "\\Experts\\nn\\bitcoin\\bitcoin_144.onnx" as uchar model_buffer[]
 
 input int TICK_DENSITY = 144;
+input double SL_MULTIPLIER = 5.4;
+input double TP_MULTIPLIER = 27;
 long onnx_handle = INVALID_HANDLE;
 CTrade trade;
 
 // PASTE FROM PYTHON OUTPUT
-float medians[17] = {0.0f...}; 
-float iqrs[17]    = {1.0f...};
+float medians[17] = {0.00000000f, 27.00000000f, 70.73900000f, 0.00012056f, 0.00012359f, 0.00068856f, 0.50000000f, -0.00000263f, -0.00000316f, -0.00000581f, 0.00071232f, 0.00000000f, -0.00000000f, 0.00000000f, -0.22252093f, 0.89199804f, 0.00026568f};
+float iqrs[17] = {0.00065647f, 0.03472222f, 30.58600000f, 0.00020881f, 0.00021586f, 0.00048541f, 0.62345182f, 0.00075497f, 0.00072372f, 0.00021932f, 0.00032388f, 1.41421356f, 1.41421356f, 1.56366296f, 1.52445867f, 1.00000000f, 0.00450346f};
 
 struct Bar { 
    double o, h, l, c, v, spread, tvwp, atr18, macd_ema12, macd_ema26, macd_sig; 
@@ -316,15 +319,15 @@ void Predict() {
    }
    if(OnnxRun(onnx_handle, ONNX_DEFAULT, input_data, output_data)) {
       int sig = ArrayMaximum(output_data);
-      if(sig > 0 && output_data[sig] > 0.75) Execute(sig);
+      if(sig > 0 && output_data[sig] > 0.72) Execute(sig);
    }
 }
 
 void Execute(int sig) {
    if(PositionSelect(_Symbol)) return;
    double p   = (sig==1) ? SymbolInfoDouble(_Symbol,SYMBOL_ASK) : SymbolInfoDouble(_Symbol,SYMBOL_BID);
-   double sl  = (sig==1) ? (p - history[0].atr18*0.54) : (p + history[0].atr18*0.54);
-   double tp  = (sig==1) ? (p + history[0].atr18*2.7)  : (p - history[0].atr18*2.7);
+   double sl  = (sig==1) ? (p - history[0].atr18*SL_MULTIPLIER) : (p + history[0].atr18*SL_MULTIPLIER);
+   double tp  = (sig==1) ? (p + history[0].atr18*TP_MULTIPLIER)  : (p - history[0].atr18*TP_MULTIPLIER);
    
    // NEW: validate stops are non-degenerate
    double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
@@ -332,6 +335,6 @@ void Execute(int sig) {
       Print("[WARN] Stop/TP too close to price, skipping trade.");
       return;
    }
-   trade.PositionOpen(_Symbol,(sig==1?ORDER_TYPE_BUY:ORDER_TYPE_SELL),0.1,p,sl,tp);
+   trade.PositionOpen(_Symbol,(sig==1?ORDER_TYPE_BUY:ORDER_TYPE_SELL),0.54,p,sl,tp);
 }
 ```
