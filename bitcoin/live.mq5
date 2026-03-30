@@ -2,8 +2,8 @@
 #resource "\\Experts\\nn\\bitcoin\\bitcoin_144.onnx" as uchar model_buffer[]
 
 input int TICK_DENSITY = 144;
-input double SL_MULTIPLIER = 0.09;
-input double TP_MULTIPLIER = 2.7;
+input double SL_MULTIPLIER = 5.4;
+input double TP_MULTIPLIER = 27;
 long onnx_handle = INVALID_HANDLE;
 CTrade trade;
 
