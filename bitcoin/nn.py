@@ -129,7 +129,7 @@ cw = compute_class_weight('balanced', classes=np.array([0, 1, 2]), y=y_seq[:spli
 assert split > 0 and split < len(X_seq), f"Split {split} out of range for X_seq len {len(X_seq)}"
 model.fit(X_seq[:split].reshape(-1, 2040), y_seq[:split], 
           validation_data=(X_seq[split:].reshape(-1, 2040), y_seq[split:]),
-          epochs=1, batch_size=64, class_weight=dict(enumerate(cw)),
+          epochs=54, batch_size=64, class_weight=dict(enumerate(cw)),
           callbacks=[tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)])
 
 # Export
