@@ -1,18 +1,17 @@
 #include <Trade\Trade.mqh>
+#include "gold_shared_config.mqh"
 #include "gold_model_config.mqh"
 
 #resource "\\Experts\\nn\\gold\\gold_mamba.onnx" as uchar model_buffer[]
 
-#define SEQ_LEN 27
-#define FEATURE_COUNT 9
-#define REQUIRED_HISTORY_INDEX (SEQ_LEN + 8)
-#define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 #define INPUT_BUFFER_SIZE (SEQ_LEN * MODEL_FEATURE_COUNT)
+#define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 
-input double SL_MULTIPLIER = 0.54;
-input double TP_MULTIPLIER = 0.54;
-input double LOT_SIZE = 0.54;
+input double SL_MULTIPLIER = DEFAULT_SL_MULTIPLIER;
+input double TP_MULTIPLIER = DEFAULT_TP_MULTIPLIER;
+input double LOT_SIZE = DEFAULT_LOT_SIZE;
 input int MAGIC_NUMBER = 777777;
+input bool DEBUG_LOG = true;
 
 long onnx_handle = INVALID_HANDLE;
 CTrade trade;
@@ -24,7 +23,8 @@ struct Bar {
    double c;
    double spread;
    double tick_imbalance;
-   double atr9;
+   double atr_feature;
+   double atr_trade;
    ulong time_msc;
    bool valid;
 };
@@ -39,7 +39,8 @@ double last_bid = 0.0;
 int last_sign = 1;
 double primary_expected_abs_theta = 60.0;
 int warmup_count = 0;
-double warmup_sum9 = 0.0;
+double warmup_sum_feature = 0.0;
+double warmup_sum_trade = 0.0;
 float input_data[INPUT_BUFFER_SIZE];
 float output_data[3];
 
@@ -59,6 +60,8 @@ void ExtractFeatures(int h, float &features[]);
 void Softmax(const float &logits[], float &probs[]);
 void Predict();
 void Execute(int signal);
+void DebugPrint(string message);
+string SignalName(int signal);
 
 int OnInit() {
    onnx_handle = OnnxCreateFromBuffer(model_buffer, ONNX_DEFAULT);
@@ -88,6 +91,20 @@ int OnInit() {
    ArrayInitialize(input_data, 0.0f);
    trade.SetExpertMagicNumber(MAGIC_NUMBER);
    primary_expected_abs_theta = MathMax(2.0, (double)MathMax(2, IMBALANCE_MIN_TICKS / 3));
+   DebugPrint(
+      StringFormat(
+         "init seq=%d horizon=%d history=%d imbalance_min_ticks=%d imbalance_span=%d sl=%.2f tp=%.2f lot=%.2f primary_conf=%.2f",
+         SEQ_LEN,
+         TARGET_HORIZON,
+         REQUIRED_HISTORY_INDEX,
+         IMBALANCE_MIN_TICKS,
+         IMBALANCE_EMA_SPAN,
+         SL_MULTIPLIER,
+         TP_MULTIPLIER,
+         LOT_SIZE,
+         PRIMARY_CONFIDENCE
+      )
+   );
 
    MqlTick tick;
    if(SymbolInfoTick(_Symbol, tick)) {
@@ -104,6 +121,22 @@ void OnDeinit(const int reason) {
    if(onnx_handle != INVALID_HANDLE) {
       OnnxRelease(onnx_handle);
    }
+}
+
+void DebugPrint(string message) {
+   if(DEBUG_LOG) {
+      Print("[DEBUG] ", message);
+   }
+}
+
+string SignalName(int signal) {
+   if(signal == 1) {
+      return "BUY";
+   }
+   if(signal == 2) {
+      return "SELL";
+   }
+   return "HOLD";
 }
 
 int UpdateTickSign(double bid) {
@@ -158,16 +191,24 @@ void UpdateIndicators(Bar &bar) {
       : MathMax(bar.h - bar.l, MathMax(MathAbs(bar.h - prev.c), MathAbs(bar.l - prev.c)));
    int next_count = warmup_count + 1;
 
-   if(next_count <= 9) {
-      warmup_sum9 += tr;
-      bar.atr9 = warmup_sum9 / next_count;
+   if(next_count <= FEATURE_ATR_PERIOD) {
+      warmup_sum_feature += tr;
+      bar.atr_feature = warmup_sum_feature / next_count;
    } else {
-      double prev_atr9 = (prev.atr9 > 0.0 ? prev.atr9 : tr);
-      bar.atr9 = prev_atr9 + (tr - prev_atr9) / 9.0;
+      double prev_atr_feature = (prev.atr_feature > 0.0 ? prev.atr_feature : tr);
+      bar.atr_feature = prev_atr_feature + (tr - prev_atr_feature) / FEATURE_ATR_PERIOD;
+   }
+
+   if(next_count <= TARGET_ATR_PERIOD) {
+      warmup_sum_trade += tr;
+      bar.atr_trade = warmup_sum_trade / next_count;
+   } else {
+      double prev_atr_trade = (prev.atr_trade > 0.0 ? prev.atr_trade : tr);
+      bar.atr_trade = prev_atr_trade + (tr - prev_atr_trade) / TARGET_ATR_PERIOD;
    }
 
    warmup_count = next_count;
-   bar.valid = (warmup_count >= 9);
+   bar.valid = (warmup_count >= WARMUP_BARS);
 }
 
 bool ShouldClosePrimaryBar(double &observed_abs_theta) {
@@ -221,10 +262,28 @@ void OnTick() {
 
       double observed_abs_theta = 0.0;
       if(ShouldClosePrimaryBar(observed_abs_theta)) {
+         int closed_tick_count = ticks_in_bar;
          CloseBar();
          UpdatePrimaryImbalanceThreshold(observed_abs_theta);
+         DebugPrint(
+            StringFormat(
+               "bar closed ticks=%d theta=%.2f next_threshold=%.2f atr_trade=%.5f close=%.5f",
+               closed_tick_count,
+               observed_abs_theta,
+               primary_expected_abs_theta,
+               history[0].atr_trade,
+               history[0].c
+            )
+         );
          if(history[REQUIRED_HISTORY_INDEX].valid) {
             Predict();
+         } else {
+            DebugPrint(
+               StringFormat(
+                  "history not ready yet: need index %d valid before predicting",
+                  REQUIRED_HISTORY_INDEX
+               )
+            );
          }
       }
    }
@@ -278,7 +337,7 @@ double ReturnOverBars(int h, int bars) {
 }
 
 double RollingStdReturn(int h, int window) {
-   double values[9];
+   double values[RV_PERIOD];
    double mean = 0.0;
    for(int i = 0; i < window; i++) {
       values[i] = LogReturnAt(h + i);
@@ -299,15 +358,18 @@ void ExtractFeatures(int h, float &features[]) {
    Bar prev = history[h + 1];
    double close = bar.c;
 
-   features[0] = ScaleAndClip((float)LogReturnAt(h), 0);
-   features[1] = ScaleAndClip((float)SafeLogRatio(bar.h, prev.c), 1);
-   features[2] = ScaleAndClip((float)SafeLogRatio(bar.l, prev.c), 2);
-   features[3] = ScaleAndClip((float)(bar.spread / (close + 1e-10)), 3);
-   features[4] = ScaleAndClip((float)((close - bar.l) / (bar.h - bar.l + 1e-8)), 4);
-   features[5] = ScaleAndClip((float)(bar.atr9 / (close + 1e-10)), 5);
-   features[6] = ScaleAndClip((float)RollingStdReturn(h, 9), 6);
-   features[7] = ScaleAndClip((float)ReturnOverBars(h, 9), 7);
-   features[8] = ScaleAndClip((float)bar.tick_imbalance, 8);
+   features[FEATURE_IDX_RET1] = ScaleAndClip((float)LogReturnAt(h), FEATURE_IDX_RET1);
+   features[FEATURE_IDX_HIGH_REL_PREV] = ScaleAndClip((float)SafeLogRatio(bar.h, prev.c), FEATURE_IDX_HIGH_REL_PREV);
+   features[FEATURE_IDX_LOW_REL_PREV] = ScaleAndClip((float)SafeLogRatio(bar.l, prev.c), FEATURE_IDX_LOW_REL_PREV);
+   features[FEATURE_IDX_SPREAD_REL] = ScaleAndClip((float)(bar.spread / (close + 1e-10)), FEATURE_IDX_SPREAD_REL);
+   features[FEATURE_IDX_CLOSE_IN_RANGE] = ScaleAndClip(
+      (float)((close - bar.l) / (bar.h - bar.l + 1e-8)),
+      FEATURE_IDX_CLOSE_IN_RANGE
+   );
+   features[FEATURE_IDX_ATR_REL] = ScaleAndClip((float)(bar.atr_feature / (close + 1e-10)), FEATURE_IDX_ATR_REL);
+   features[FEATURE_IDX_RV] = ScaleAndClip((float)RollingStdReturn(h, RV_PERIOD), FEATURE_IDX_RV);
+   features[FEATURE_IDX_RETURN_N] = ScaleAndClip((float)ReturnOverBars(h, RETURN_PERIOD), FEATURE_IDX_RETURN_N);
+   features[FEATURE_IDX_TICK_IMBALANCE] = ScaleAndClip((float)bar.tick_imbalance, FEATURE_IDX_TICK_IMBALANCE);
 }
 
 void Softmax(const float &logits[], float &probs[]) {
@@ -325,24 +387,43 @@ void Predict() {
    for(int i = 0; i < SEQ_LEN; i++) {
       int h = SEQ_LEN - 1 - i;
       int offset = i * MODEL_FEATURE_COUNT;
-      float features[FEATURE_COUNT];
+      float features[MODEL_FEATURE_COUNT];
       ExtractFeatures(h, features);
-      for(int k = 0; k < FEATURE_COUNT; k++) {
+      for(int k = 0; k < MODEL_FEATURE_COUNT; k++) {
          input_data[offset + k] = features[k];
       }
    }
 
    if(!OnnxRun(onnx_handle, ONNX_DEFAULT, input_data, output_data)) {
+      DebugPrint(StringFormat("OnnxRun failed err=%d", GetLastError()));
       return;
    }
 
    float probs[3];
    Softmax(output_data, probs);
    int signal = ArrayMaximum(probs);
+   DebugPrint(
+      StringFormat(
+         "predict probs=[%.4f, %.4f, %.4f] signal=%s conf=%.4f",
+         probs[0],
+         probs[1],
+         probs[2],
+         SignalName(signal),
+         probs[signal]
+      )
+   );
    if(signal <= 0) {
+      DebugPrint("skip trade: model chose HOLD");
       return;
    }
    if(probs[signal] < PRIMARY_CONFIDENCE) {
+      DebugPrint(
+         StringFormat(
+            "skip trade: confidence %.4f below threshold %.4f",
+            probs[signal],
+            PRIMARY_CONFIDENCE
+         )
+      );
       return;
    }
 
@@ -351,17 +432,52 @@ void Predict() {
 
 void Execute(int signal) {
    if(PositionSelect(_Symbol)) {
+      DebugPrint("skip trade: a position is already open on this symbol");
       return;
    }
 
    double price = (signal == 1) ? SymbolInfoDouble(_Symbol, SYMBOL_ASK) : SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double sl = (signal == 1) ? (price - history[0].atr9 * SL_MULTIPLIER) : (price + history[0].atr9 * SL_MULTIPLIER);
-   double tp = (signal == 1) ? (price + history[0].atr9 * TP_MULTIPLIER) : (price - history[0].atr9 * TP_MULTIPLIER);
+   double sl = (signal == 1)
+      ? (price - history[0].atr_trade * SL_MULTIPLIER)
+      : (price + history[0].atr_trade * SL_MULTIPLIER);
+   double tp = (signal == 1)
+      ? (price + history[0].atr_trade * TP_MULTIPLIER)
+      : (price - history[0].atr_trade * TP_MULTIPLIER);
 
    double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
    if(MathAbs(price - sl) < min_dist || MathAbs(tp - price) < min_dist) {
+      DebugPrint(
+         StringFormat(
+            "skip trade: stops too close price=%.5f sl=%.5f tp=%.5f min_dist=%.5f",
+            price,
+            sl,
+            tp,
+            min_dist
+         )
+      );
       return;
    }
 
-   trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), LOT_SIZE, price, sl, tp);
+   bool opened = trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), LOT_SIZE, price, sl, tp);
+   if(opened) {
+      DebugPrint(
+         StringFormat(
+            "trade opened %s lot=%.2f price=%.5f sl=%.5f tp=%.5f",
+            SignalName(signal),
+            LOT_SIZE,
+            price,
+            sl,
+            tp
+         )
+      );
+   } else {
+      DebugPrint(
+         StringFormat(
+            "trade open failed %s retcode=%d last_error=%d",
+            SignalName(signal),
+            trade.ResultRetcode(),
+            GetLastError()
+         )
+      );
+   }
 }
