@@ -5,8 +5,9 @@ import torch
 import sys
 from pathlib import Path
 from torch import nn
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset, Dataset
 from sklearn.utils.class_weight import compute_class_weight
+import gc
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
@@ -237,9 +238,27 @@ def get_symmetric_labels(df_gold, tp_mult=9.0, sl_mult=5.4):
     return labels
 
 
+class TimeSeriesDataset(Dataset):
+    def __init__(self, X, y, seq_len, valid_indices):
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.int64)
+        self.seq_len = seq_len
+        self.valid_indices = valid_indices
+
+    def __len__(self):
+        return len(self.valid_indices)
+
+    def __getitem__(self, idx):
+        i = self.valid_indices[idx]
+        return self.X[i : i + self.seq_len], self.y[i + self.seq_len - 1]
+
 def main():
+    # Optimise PyTorch for 4-core CPU
+    torch.set_num_threads(4)
+
     # ─────────────────────────────────────────────────────────────
     # 4. LOAD DATA & BUILD FEATURES
+
     # ─────────────────────────────────────────────────────────────
     bars_by_symbol = build_aligned_bars(DATA_FILE, SYMBOL_ORDER, TICK_DENSITY)
     df_gold   = bars_by_symbol[SYMBOL_ORDER[0]]
@@ -288,52 +307,56 @@ def main():
     X_s = np.clip((X - median) / iqr, -10, 10).astype(np.float32)
 
     # ─────────────────────────────────────────────────────────────
-    # 6. SEQUENCE CONSTRUCTION  (N_seq, SEQ_LEN, 48)
+    # 6. SEQUENCE CONSTRUCTION  (Memory Optimized)
     # ─────────────────────────────────────────────────────────────
     # Re-evaluate valid_mask after scaling/clipping
     valid_mask = ~np.isnan(X_s).any(axis=1)
 
-    X_seq_train, y_seq_train = [], []
+    train_indices = []
+    y_seq_train_vals = []
     for i in range(raw_split - SEQ_LEN):
         # A sequence is valid if all bars in the sequence are valid and the label is within the valid range
         if valid_mask[i : i + SEQ_LEN].all() and (i + SEQ_LEN - 1 + TARGET_HORIZON < N):
-            X_seq_train.append(X_s[i : i + SEQ_LEN])
-            y_seq_train.append(y[i + SEQ_LEN - 1])
+            train_indices.append(i)
+            y_seq_train_vals.append(y[i + SEQ_LEN - 1])
         
-    X_seq_val, y_seq_val = [], []
+    val_indices = []
+    y_seq_val_vals = []
     # Prevent lookahead leakage: Validation features must not overlap with training label horizons
     for i in range(raw_split + TARGET_HORIZON, N - SEQ_LEN):
         if valid_mask[i : i + SEQ_LEN].all() and (i + SEQ_LEN - 1 + TARGET_HORIZON < N):
-            X_seq_val.append(X_s[i : i + SEQ_LEN])
-            y_seq_val.append(y[i + SEQ_LEN - 1])
+            val_indices.append(i)
+            y_seq_val_vals.append(y[i + SEQ_LEN - 1])
 
-    X_train = torch.tensor(np.array(X_seq_train), dtype=torch.float32)
-    y_train = torch.tensor(np.array(y_seq_train), dtype=torch.int64)
-    X_val   = torch.tensor(np.array(X_seq_val), dtype=torch.float32)
-    y_val   = torch.tensor(np.array(y_seq_val), dtype=torch.int64)
+    # Clean up large unused variables
+    del X, feat_gold, feat_usdx, feat_usdjpy, bars_by_symbol
+    gc.collect()
 
     # ─────────────────────────────────────────────────────────────
     # 7. DATASETS & CLASS WEIGHTS
     # ─────────────────────────────────────────────────────────────
-    unique_classes = np.unique(y_seq_train)
-    cw = compute_class_weight('balanced', classes=unique_classes, y=np.array(y_seq_train))
+    unique_classes = np.unique(y_seq_train_vals)
+    cw = compute_class_weight('balanced', classes=unique_classes, y=np.array(y_seq_train_vals))
     weight_dict = {c: w for c, w in zip(unique_classes, cw)}
     cw_full = [weight_dict.get(i, 1.0) for i in range(3)]
     class_weights = torch.tensor(cw_full, dtype=torch.float32)
     print(f"[INFO] Class weights: {cw_full}")
 
+    train_dataset = TimeSeriesDataset(X_s, y, SEQ_LEN, train_indices)
+    val_dataset = TimeSeriesDataset(X_s, y, SEQ_LEN, val_indices)
+
     # For CPU, we use smaller batch size and num_workers=0 (default) for stability, but we can try to optimize
-    train_loader = DataLoader(TensorDataset(X_train, y_train), batch_size=32,  shuffle=True,  drop_last=True)
-    val_loader   = DataLoader(TensorDataset(X_val,   y_val),   batch_size=128)
+    train_loader = DataLoader(train_dataset, batch_size=16,  shuffle=True,  drop_last=True)
+    val_loader   = DataLoader(val_dataset,   batch_size=32)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[INFO] Using device: {device}")
 
     # ─────────────────────────────────────────────────────────────
-    # 8. MAMBA MODEL  (d_model = 128)
+    # 8. MAMBA MODEL  (Reduced for 8GB RAM i5)
     # ─────────────────────────────────────────────────────────────
     # Reduce model size slightly for faster CPU training without losing too much capacity
-    model     = SharedMambaClassifier(n_features=N_FEATURES, d_model=64, hidden=128).to(device)
+    model     = SharedMambaClassifier(n_features=N_FEATURES, d_model=32, hidden=64, n_layers=1).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     class_weights = class_weights.to(device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
