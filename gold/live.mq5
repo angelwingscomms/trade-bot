@@ -3,20 +3,16 @@
 
 #resource "\\Experts\\nn\\gold\\gold_mamba.onnx" as uchar model_buffer[]
 
-#define SEQ_LEN 120
-#define SYMBOL_COUNT 3
-#define GOLD_FEATURE_COUNT 13
-#define AUX_FEATURE_COUNT 5
-#define REQUIRED_HISTORY_INDEX 136
+#define SEQ_LEN 54
+#define FEATURE_COUNT 9
+#define REQUIRED_HISTORY_INDEX (SEQ_LEN + 7)
 #define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 #define INPUT_BUFFER_SIZE (SEQ_LEN * MODEL_FEATURE_COUNT)
 
-input double SL_MULTIPLIER = 5.4;
-input double TP_MULTIPLIER = 9.0;
-input double LOT_SIZE = 0.01;
+input double SL_MULTIPLIER = 0.54;
+input double TP_MULTIPLIER = 0.54;
+input double LOT_SIZE = 0.54;
 input int MAGIC_NUMBER = 777777;
-input string USDX_SYMBOL = "USDX";
-input string USDJPY_SYMBOL = "USDJPY";
 
 long onnx_handle = INVALID_HANDLE;
 CTrade trade;
@@ -29,40 +25,39 @@ struct Bar {
    double spread;
    double tick_imbalance;
    double atr14;
+   double atr9;
    ulong time_msc;
    bool valid;
 };
 
-Bar history[SYMBOL_COUNT][HISTORY_SIZE];
-Bar current_bar[SYMBOL_COUNT];
-int ticks_in_bar[SYMBOL_COUNT];
-bool bar_started[SYMBOL_COUNT];
-ulong last_tick_time[SYMBOL_COUNT];
-double tick_imbalance_sum[SYMBOL_COUNT];
-double last_bid[SYMBOL_COUNT];
-int last_sign[SYMBOL_COUNT];
+Bar history[HISTORY_SIZE];
+Bar current_bar;
+int ticks_in_bar = 0;
+bool bar_started = false;
+ulong last_tick_time = 0;
+double tick_imbalance_sum = 0.0;
+double last_bid = 0.0;
+int last_sign = 1;
 double primary_expected_abs_theta = 60.0;
-int warmup_count[SYMBOL_COUNT];
-double warmup_sum[SYMBOL_COUNT];
+int warmup_count = 0;
+double warmup_sum14 = 0.0;
+double warmup_sum9 = 0.0;
 float input_data[INPUT_BUFFER_SIZE];
 float output_data[3];
 
-string SymbolForIndex(int s);
-int UpdateTickSign(int s, double bid);
-void ProcessTick(int s, MqlTick &tick);
-void ProcessSymbolSnapshotToTime(int s, ulong end_time_msc);
-void UpdateIndicators(int s, Bar &bar);
+int UpdateTickSign(double bid);
+void ProcessTick(MqlTick &tick);
+void UpdateIndicators(Bar &bar);
 bool ShouldClosePrimaryBar(double &observed_abs_theta);
 void UpdatePrimaryImbalanceThreshold(double observed_abs_theta);
 void CloseBar();
 void LoadHistory();
 float ScaleAndClip(float value, int feature_index);
 double SafeLogRatio(double num, double den);
-double LogReturnAt(int s, int h);
-double ReturnOverBars(int s, int h, int bars);
-double RollingStdReturn(int s, int h, int window);
-void ExtractGoldFeatures(int h, float &features[]);
-void ExtractAuxFeatures(int s, int h, float &features[]);
+double LogReturnAt(int h);
+double ReturnOverBars(int h, int bars);
+double RollingStdReturn(int h, int window);
+void ExtractFeatures(int h, float &features[]);
 void Softmax(const float &logits[], float &probs[]);
 void Predict();
 void Execute(int signal);
@@ -88,33 +83,21 @@ int OnInit() {
       return INIT_FAILED;
    }
 
-   ArrayInitialize(ticks_in_bar, 0);
-   ArrayInitialize(bar_started, false);
-   ArrayInitialize(last_tick_time, 0);
-   ArrayInitialize(tick_imbalance_sum, 0.0);
-   ArrayInitialize(last_bid, 0.0);
-   ArrayInitialize(last_sign, 1);
-   ArrayInitialize(warmup_count, 0);
-   ArrayInitialize(warmup_sum, 0.0);
-   ArrayInitialize(input_data, 0.0f);
-
-   for(int s = 0; s < SYMBOL_COUNT; s++) {
-      for(int i = 0; i < HISTORY_SIZE; i++) {
-         history[s][i].valid = false;
-      }
-
-      string symbol = SymbolForIndex(s);
-      SymbolSelect(symbol, true);
-      MqlTick tick;
-      if(SymbolInfoTick(symbol, tick)) {
-         last_tick_time[s] = tick.time_msc;
-      } else {
-         last_tick_time[s] = TimeCurrent() * 1000ULL;
-      }
+   for(int i = 0; i < HISTORY_SIZE; i++) {
+      history[i].valid = false;
    }
 
+   ArrayInitialize(input_data, 0.0f);
    trade.SetExpertMagicNumber(MAGIC_NUMBER);
    primary_expected_abs_theta = MathMax(2.0, (double)MathMax(2, IMBALANCE_MIN_TICKS / 3));
+
+   MqlTick tick;
+   if(SymbolInfoTick(_Symbol, tick)) {
+      last_tick_time = tick.time_msc;
+   } else {
+      last_tick_time = TimeCurrent() * 1000ULL;
+   }
+
    LoadHistory();
    return INIT_SUCCEEDED;
 }
@@ -125,22 +108,12 @@ void OnDeinit(const int reason) {
    }
 }
 
-string SymbolForIndex(int s) {
-   if(s == 0) {
-      return _Symbol;
-   }
-   if(s == 1) {
-      return USDX_SYMBOL;
-   }
-   return USDJPY_SYMBOL;
-}
-
-int UpdateTickSign(int s, double bid) {
-   int sign = last_sign[s];
-   if(last_bid[s] <= 0.0) {
+int UpdateTickSign(double bid) {
+   int sign = last_sign;
+   if(last_bid <= 0.0) {
       sign = 1;
    } else {
-      double diff = bid - last_bid[s];
+      double diff = bid - last_bid;
       if(diff > 0.0) {
          sign = 1;
       } else if(diff < 0.0) {
@@ -148,85 +121,72 @@ int UpdateTickSign(int s, double bid) {
       }
    }
 
-   last_bid[s] = bid;
-   last_sign[s] = sign;
+   last_bid = bid;
+   last_sign = sign;
    return sign;
 }
 
-void ProcessTick(int s, MqlTick &tick) {
+void ProcessTick(MqlTick &tick) {
    if(tick.bid <= 0.0) {
       return;
    }
 
-   if(!bar_started[s]) {
-      current_bar[s].o = tick.bid;
-      current_bar[s].h = tick.bid;
-      current_bar[s].l = tick.bid;
-      current_bar[s].c = tick.bid;
-      current_bar[s].spread = tick.ask - tick.bid;
-      current_bar[s].tick_imbalance = 0.0;
-      current_bar[s].time_msc = tick.time_msc;
-      ticks_in_bar[s] = 0;
-      tick_imbalance_sum[s] = 0.0;
-      bar_started[s] = true;
+   if(!bar_started) {
+      current_bar.o = tick.bid;
+      current_bar.h = tick.bid;
+      current_bar.l = tick.bid;
+      current_bar.c = tick.bid;
+      current_bar.spread = tick.ask - tick.bid;
+      current_bar.tick_imbalance = 0.0;
+      current_bar.time_msc = tick.time_msc;
+      ticks_in_bar = 0;
+      tick_imbalance_sum = 0.0;
+      bar_started = true;
    }
 
-   int tick_sign = UpdateTickSign(s, tick.bid);
-   current_bar[s].h = MathMax(current_bar[s].h, tick.bid);
-   current_bar[s].l = MathMin(current_bar[s].l, tick.bid);
-   current_bar[s].c = tick.bid;
-   current_bar[s].spread = tick.ask - tick.bid;
-   ticks_in_bar[s]++;
-   tick_imbalance_sum[s] += tick_sign;
+   int tick_sign = UpdateTickSign(tick.bid);
+   current_bar.h = MathMax(current_bar.h, tick.bid);
+   current_bar.l = MathMin(current_bar.l, tick.bid);
+   current_bar.c = tick.bid;
+   current_bar.spread = tick.ask - tick.bid;
+   ticks_in_bar++;
+   tick_imbalance_sum += tick_sign;
 }
 
-void ProcessSymbolSnapshotToTime(int s, ulong end_time_msc) {
-   if(last_tick_time[s] >= end_time_msc) {
-      return;
-   }
-
-   MqlTick ticks[];
-   int count = CopyTicksRange(SymbolForIndex(s), ticks, COPY_TICKS_ALL, last_tick_time[s] + 1, end_time_msc);
-   if(count <= 0) {
-      last_tick_time[s] = end_time_msc;
-      return;
-   }
-
-   for(int i = 0; i < count; i++) {
-      if(ticks[i].bid > 0.0) {
-         ProcessTick(s, ticks[i]);
-      }
-   }
-
-   last_tick_time[s] = end_time_msc;
-}
-
-void UpdateIndicators(int s, Bar &bar) {
-   Bar prev = history[s][0];
-   double tr = (warmup_count[s] == 0)
+void UpdateIndicators(Bar &bar) {
+   Bar prev = history[0];
+   double tr = (warmup_count == 0)
       ? (bar.h - bar.l)
       : MathMax(bar.h - bar.l, MathMax(MathAbs(bar.h - prev.c), MathAbs(bar.l - prev.c)));
+   int next_count = warmup_count + 1;
 
-   if(warmup_count[s] < 14) {
-      warmup_sum[s] += tr;
-      warmup_count[s]++;
-      bar.atr14 = warmup_sum[s] / warmup_count[s];
+   if(next_count <= 14) {
+      warmup_sum14 += tr;
+      bar.atr14 = warmup_sum14 / next_count;
    } else {
-      double prev_atr = (prev.atr14 > 0.0 ? prev.atr14 : tr);
-      bar.atr14 = prev_atr + (tr - prev_atr) / 14.0;
-      warmup_count[s]++;
+      double prev_atr14 = (prev.atr14 > 0.0 ? prev.atr14 : tr);
+      bar.atr14 = prev_atr14 + (tr - prev_atr14) / 14.0;
    }
 
-   bar.valid = (warmup_count[s] >= 16);
+   if(next_count <= 9) {
+      warmup_sum9 += tr;
+      bar.atr9 = warmup_sum9 / next_count;
+   } else {
+      double prev_atr9 = (prev.atr9 > 0.0 ? prev.atr9 : tr);
+      bar.atr9 = prev_atr9 + (tr - prev_atr9) / 9.0;
+   }
+
+   warmup_count = next_count;
+   bar.valid = (warmup_count >= 16);
 }
 
 bool ShouldClosePrimaryBar(double &observed_abs_theta) {
-   if(ticks_in_bar[0] < IMBALANCE_MIN_TICKS) {
+   if(ticks_in_bar < IMBALANCE_MIN_TICKS) {
       observed_abs_theta = 0.0;
       return false;
    }
 
-   observed_abs_theta = MathAbs(tick_imbalance_sum[0]);
+   observed_abs_theta = MathAbs(tick_imbalance_sum);
    return (observed_abs_theta >= primary_expected_abs_theta);
 }
 
@@ -241,56 +201,22 @@ void UpdatePrimaryImbalanceThreshold(double observed_abs_theta) {
 }
 
 void CloseBar() {
-   for(int s = 0; s < SYMBOL_COUNT; s++) {
-      if(ticks_in_bar[s] == 0) {
-         string symbol = SymbolForIndex(s);
-         if(history[s][0].valid || history[s][0].c > 0.0) {
-            double prev_close = history[s][0].c;
-            current_bar[s].o = prev_close;
-            current_bar[s].h = prev_close;
-            current_bar[s].l = prev_close;
-            current_bar[s].c = prev_close;
-            current_bar[s].spread = history[s][0].spread;
-            current_bar[s].tick_imbalance = 0.0;
-         } else {
-            MqlTick fallback;
-            if(SymbolInfoTick(symbol, fallback) && fallback.bid > 0.0) {
-               current_bar[s].o = fallback.bid;
-               current_bar[s].h = fallback.bid;
-               current_bar[s].l = fallback.bid;
-               current_bar[s].c = fallback.bid;
-               current_bar[s].spread = fallback.ask - fallback.bid;
-               current_bar[s].tick_imbalance = 0.0;
-            } else {
-               current_bar[s].o = 0.0;
-               current_bar[s].h = 0.0;
-               current_bar[s].l = 0.0;
-               current_bar[s].c = 0.0;
-               current_bar[s].spread = 0.0;
-               current_bar[s].tick_imbalance = 0.0;
-            }
-         }
-         current_bar[s].time_msc = current_bar[0].time_msc;
-      } else {
-         current_bar[s].tick_imbalance = tick_imbalance_sum[s] / ticks_in_bar[s];
-      }
+   current_bar.tick_imbalance = tick_imbalance_sum / MathMax(1, ticks_in_bar);
+   UpdateIndicators(current_bar);
 
-      UpdateIndicators(s, current_bar[s]);
-
-      for(int i = HISTORY_SIZE - 1; i > 0; i--) {
-         history[s][i] = history[s][i - 1];
-      }
-      history[s][0] = current_bar[s];
-
-      ticks_in_bar[s] = 0;
-      tick_imbalance_sum[s] = 0.0;
-      bar_started[s] = false;
+   for(int i = HISTORY_SIZE - 1; i > 0; i--) {
+      history[i] = history[i - 1];
    }
+   history[0] = current_bar;
+
+   ticks_in_bar = 0;
+   tick_imbalance_sum = 0.0;
+   bar_started = false;
 }
 
 void OnTick() {
    MqlTick ticks[];
-   int count = CopyTicks(_Symbol, ticks, COPY_TICKS_ALL, last_tick_time[0] + 1, 100000);
+   int count = CopyTicks(_Symbol, ticks, COPY_TICKS_ALL, last_tick_time + 1, 100000);
    if(count <= 0) {
       return;
    }
@@ -300,21 +226,14 @@ void OnTick() {
          continue;
       }
 
-      ProcessTick(0, ticks[i]);
-      last_tick_time[0] = ticks[i].time_msc;
+      ProcessTick(ticks[i]);
+      last_tick_time = ticks[i].time_msc;
 
       double observed_abs_theta = 0.0;
       if(ShouldClosePrimaryBar(observed_abs_theta)) {
-         ProcessSymbolSnapshotToTime(1, last_tick_time[0]);
-         ProcessSymbolSnapshotToTime(2, last_tick_time[0]);
          CloseBar();
          UpdatePrimaryImbalanceThreshold(observed_abs_theta);
-
-         if(
-            history[0][REQUIRED_HISTORY_INDEX].valid &&
-            history[1][REQUIRED_HISTORY_INDEX].valid &&
-            history[2][REQUIRED_HISTORY_INDEX].valid
-         ) {
+         if(history[REQUIRED_HISTORY_INDEX].valid) {
             Predict();
          }
       }
@@ -333,22 +252,17 @@ void LoadHistory() {
       return;
    }
 
-   last_tick_time[0] = ticks[0].time_msc - 1;
-   last_tick_time[1] = ticks[0].time_msc - 1;
-   last_tick_time[2] = ticks[0].time_msc - 1;
-
+   last_tick_time = ticks[0].time_msc - 1;
    for(int i = 0; i < copied; i++) {
       if(ticks[i].bid <= 0.0) {
          continue;
       }
 
-      ProcessTick(0, ticks[i]);
-      last_tick_time[0] = ticks[i].time_msc;
+      ProcessTick(ticks[i]);
+      last_tick_time = ticks[i].time_msc;
 
       double observed_abs_theta = 0.0;
       if(ShouldClosePrimaryBar(observed_abs_theta)) {
-         ProcessSymbolSnapshotToTime(1, last_tick_time[0]);
-         ProcessSymbolSnapshotToTime(2, last_tick_time[0]);
          CloseBar();
          UpdatePrimaryImbalanceThreshold(observed_abs_theta);
       }
@@ -365,19 +279,19 @@ double SafeLogRatio(double num, double den) {
    return MathLog((num + 1e-10) / (den + 1e-10));
 }
 
-double LogReturnAt(int s, int h) {
-   return SafeLogRatio(history[s][h].c, history[s][h + 1].c);
+double LogReturnAt(int h) {
+   return SafeLogRatio(history[h].c, history[h + 1].c);
 }
 
-double ReturnOverBars(int s, int h, int bars) {
-   return SafeLogRatio(history[s][h].c, history[s][h + bars].c);
+double ReturnOverBars(int h, int bars) {
+   return SafeLogRatio(history[h].c, history[h + bars].c);
 }
 
-double RollingStdReturn(int s, int h, int window) {
-   double values[16];
+double RollingStdReturn(int h, int window) {
+   double values[8];
    double mean = 0.0;
    for(int i = 0; i < window; i++) {
-      values[i] = LogReturnAt(s, h + i);
+      values[i] = LogReturnAt(h + i);
       mean += values[i];
    }
    mean /= window;
@@ -390,37 +304,20 @@ double RollingStdReturn(int s, int h, int window) {
    return MathSqrt(var / window);
 }
 
-void ExtractGoldFeatures(int h, float &features[]) {
-   Bar bar = history[0][h];
-   Bar prev = history[0][h + 1];
+void ExtractFeatures(int h, float &features[]) {
+   Bar bar = history[h];
+   Bar prev = history[h + 1];
    double close = bar.c;
-   double hour = (double)((bar.time_msc / 3600000ULL) % 24);
 
-   features[0] = ScaleAndClip((float)LogReturnAt(0, h), 0);
+   features[0] = ScaleAndClip((float)LogReturnAt(h), 0);
    features[1] = ScaleAndClip((float)SafeLogRatio(bar.h, prev.c), 1);
    features[2] = ScaleAndClip((float)SafeLogRatio(bar.l, prev.c), 2);
    features[3] = ScaleAndClip((float)(bar.spread / (close + 1e-10)), 3);
-   features[4] = ScaleAndClip((float)((double)(bar.time_msc - prev.time_msc) / 1000.0), 4);
-   features[5] = ScaleAndClip((float)((close - bar.l) / (bar.h - bar.l + 1e-8)), 5);
-   features[6] = ScaleAndClip((float)(bar.atr14 / (close + 1e-10)), 6);
-   features[7] = ScaleAndClip((float)RollingStdReturn(0, h, 4), 7);
-   features[8] = ScaleAndClip((float)RollingStdReturn(0, h, 16), 8);
-   features[9] = ScaleAndClip((float)ReturnOverBars(0, h, 8), 9);
-   features[10] = ScaleAndClip((float)bar.tick_imbalance, 10);
-   features[11] = ScaleAndClip((float)MathSin(2.0 * M_PI * hour / 24.0), 11);
-   features[12] = ScaleAndClip((float)MathCos(2.0 * M_PI * hour / 24.0), 12);
-}
-
-void ExtractAuxFeatures(int s, int h, float &features[]) {
-   Bar bar = history[s][h];
-   double close = bar.c;
-   int base = (s == 1 ? GOLD_FEATURE_COUNT : GOLD_FEATURE_COUNT + AUX_FEATURE_COUNT);
-
-   features[0] = ScaleAndClip((float)LogReturnAt(s, h), base + 0);
-   features[1] = ScaleAndClip((float)LogReturnAt(s, h + 1), base + 1);
-   features[2] = ScaleAndClip((float)((close - bar.l) / (bar.h - bar.l + 1e-8)), base + 2);
-   features[3] = ScaleAndClip((float)(bar.atr14 / (close + 1e-10)), base + 3);
-   features[4] = ScaleAndClip((float)ReturnOverBars(s, h, 8), base + 4);
+   features[4] = ScaleAndClip((float)((close - bar.l) / (bar.h - bar.l + 1e-8)), 4);
+   features[5] = ScaleAndClip((float)(bar.atr14 / (close + 1e-10)), 5);
+   features[6] = ScaleAndClip((float)RollingStdReturn(h, 4), 6);
+   features[7] = ScaleAndClip((float)ReturnOverBars(h, 8), 7);
+   features[8] = ScaleAndClip((float)bar.tick_imbalance, 8);
 }
 
 void Softmax(const float &logits[], float &probs[]) {
@@ -438,20 +335,10 @@ void Predict() {
    for(int i = 0; i < SEQ_LEN; i++) {
       int h = SEQ_LEN - 1 - i;
       int offset = i * MODEL_FEATURE_COUNT;
-      float gold_features[GOLD_FEATURE_COUNT];
-      float usdx_features[AUX_FEATURE_COUNT];
-      float usdjpy_features[AUX_FEATURE_COUNT];
-
-      ExtractGoldFeatures(h, gold_features);
-      ExtractAuxFeatures(1, h, usdx_features);
-      ExtractAuxFeatures(2, h, usdjpy_features);
-
-      for(int k = 0; k < GOLD_FEATURE_COUNT; k++) {
-         input_data[offset + k] = gold_features[k];
-      }
-      for(int k = 0; k < AUX_FEATURE_COUNT; k++) {
-         input_data[offset + GOLD_FEATURE_COUNT + k] = usdx_features[k];
-         input_data[offset + GOLD_FEATURE_COUNT + AUX_FEATURE_COUNT + k] = usdjpy_features[k];
+      float features[FEATURE_COUNT];
+      ExtractFeatures(h, features);
+      for(int k = 0; k < FEATURE_COUNT; k++) {
+         input_data[offset + k] = features[k];
       }
    }
 
@@ -461,7 +348,6 @@ void Predict() {
 
    float probs[3];
    Softmax(output_data, probs);
-
    int signal = ArrayMaximum(probs);
    if(signal <= 0) {
       return;
@@ -479,8 +365,8 @@ void Execute(int signal) {
    }
 
    double price = (signal == 1) ? SymbolInfoDouble(_Symbol, SYMBOL_ASK) : SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double sl = (signal == 1) ? (price - history[0][0].atr14 * SL_MULTIPLIER) : (price + history[0][0].atr14 * SL_MULTIPLIER);
-   double tp = (signal == 1) ? (price + history[0][0].atr14 * TP_MULTIPLIER) : (price - history[0][0].atr14 * TP_MULTIPLIER);
+   double sl = (signal == 1) ? (price - history[0].atr9 * SL_MULTIPLIER) : (price + history[0].atr9 * SL_MULTIPLIER);
+   double tp = (signal == 1) ? (price + history[0].atr9 * TP_MULTIPLIER) : (price - history[0].atr9 * TP_MULTIPLIER);
 
    double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
    if(MathAbs(price - sl) < min_dist || MathAbs(tp - price) < min_dist) {

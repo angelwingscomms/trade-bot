@@ -120,7 +120,7 @@ class PortableMambaMixer(nn.Module):
 
 
 class MambaLiteResidualBlock(nn.Module):
-    def __init__(self, d_model: int, dropout: float = 0.2):
+    def __init__(self, d_model: int, dropout: float = 0.1):
         super().__init__()
         self.norm = RMSNorm(d_model)
         self.mixer = PortableMambaMixer(d_model=d_model)
@@ -134,11 +134,11 @@ class GoldMambaLiteClassifier(nn.Module):
     def __init__(
         self,
         n_features: int,
-        d_model: int = 48,
-        hidden: int = 96,
+        d_model: int = 32,
+        hidden: int = 64,
         n_classes: int = 3,
-        dropout: float = 0.2,
-        n_layers: int = 2,
+        dropout: float = 0.1,
+        n_layers: int = 1,
     ):
         super().__init__()
         self.d_model = d_model
