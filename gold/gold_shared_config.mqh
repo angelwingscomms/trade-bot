@@ -25,15 +25,15 @@
 
 // Fixed stop/target distance in absolute price units, used when the trainer runs with -r
 // and when live.mq5 input R is true.
-#define DEFAULT_FIXED_MOVE 1.44
+#define DEFAULT_FIXED_MOVE 0.54
 
 // Training labels: ATR multipliers used in the default ATR-risk mode.
-#define LABEL_SL_MULTIPLIER 0.01
-#define LABEL_TP_MULTIPLIER 5.4
+#define LABEL_SL_MULTIPLIER 0.54
+#define LABEL_TP_MULTIPLIER 0.54
 
 // Live execution defaults used when live.mq5 input R is false / ATR-risk mode is enabled.
-#define DEFAULT_SL_MULTIPLIER 2.7
-#define DEFAULT_TP_MULTIPLIER 5.4
+#define DEFAULT_SL_MULTIPLIER 0.54
+#define DEFAULT_TP_MULTIPLIER 0.54
 #define DEFAULT_LOT_SIZE 0.54
 
 // Trainer window usage: 1 = use every eligible window in each split, 0 = obey the max_* caps below.
