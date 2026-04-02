@@ -11,13 +11,13 @@
 - return_period: 9
 - warmup_bars: 9
 - label_risk_mode: ATR
-- fixed_move: 1.44
-- label_sl_multiplier: 0.01
+- fixed_move: 0.54
+- label_sl_multiplier: 0.54
 - label_tp_multiplier: 0.54
 - execution_sl_multiplier: 0.54
 - execution_tp_multiplier: 0.54
 - use_all_windows: 0
-- primary_confidence: 0.7250
+- primary_confidence: 0.4000
 
 ## Bar Stats
 - bars: 161775
@@ -36,20 +36,20 @@
 
 ## Label Counts
 - full bars:
-  - HOLD: 24168
-  - BUY: 20501
-  - SELL: 117097
+  - HOLD: 96
+  - BUY: 44572
+  - SELL: 117098
 - train windows:
-  - HOLD: 869
-  - BUY: 721
+  - HOLD: 2
+  - BUY: 1588
   - SELL: 3810
 - validation windows:
-  - HOLD: 93
-  - BUY: 67
+  - HOLD: 0
+  - BUY: 160
   - SELL: 380
 - holdout windows:
-  - HOLD: 52
-  - BUY: 37
+  - HOLD: 0
+  - BUY: 89
   - SELL: 451
 
 ## Window Usage
@@ -61,14 +61,14 @@
 - holdout_used: 540
 
 ## Validation
-- selected_trades: 432
-- trade_coverage: 0.8000
-- mean_confidence: 0.9755
+- selected_trades: 540
+- trade_coverage: 1.0000
+- mean_confidence: 0.9999
 
 ## Holdout
-- selected_trades: 477
-- trade_coverage: 0.8833
-- mean_confidence: 0.9759
+- selected_trades: 540
+- trade_coverage: 1.0000
+- mean_confidence: 0.9997
 
 ## Files
 - bars.csv
