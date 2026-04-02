@@ -1,3 +1,7 @@
 bitcoin/bitcoin_ticks.csv filter=lfs diff=lfs merge=lfs -text
 achilles_ticks.csv filter=lfs diff=lfs merge=lfs -text
 bitcoin/bitcoin__ticks.csv filter=lfs diff=lfs merge=lfs -text
+
+.codex_tmp/MambaLite-Micro
+gold/tests/
+gold/diagnostics/
