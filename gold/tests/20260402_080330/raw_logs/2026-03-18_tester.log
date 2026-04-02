@@ -1,0 +1,1306 @@
+HF	0	08:14:54.365	Tester	Local network farm switched off
+PK	0	08:14:54.365	Tester	Cloud servers switched off
+NS	0	08:14:57.934	Tester	"nn\gold\live.ex5" X64
+JH	0	08:14:58.070	Tester	XAUUSD: history data begins from 2004.06.11 00:00
+IN	0	08:14:58.074	Tester	XAUUSD: preliminary downloading of history ticks started, it may take quite a long time
+FS	0	08:14:58.074	Tester	XAUUSD: preliminary downloading of history ticks completed
+JJ	0	08:14:58.074	Tester	XAUUSD: ticks data begins from 2026.02.02 00:00
+CE	0	08:14:58.078	Core 1	agent process started on 127.0.0.1:3000
+FR	0	08:14:58.078	Core 1	connecting to 127.0.0.1:3000
+QS	0	08:14:59.119	Core 1	connected
+KJ	0	08:14:59.130	Core 1	authorized (agent build 5699)
+PS	0	08:14:59.135	Tester	XAUUSD,M1 (EGlobalTrade-Demo): testing of Experts\nn\gold\live.ex5 from 2026.03.18 00:00 to 2026.03.19 00:00
+KQ	0	08:14:59.149	Core 1	common synchronization completed
+MF	0	08:14:59.172	Core 1	XAUUSD: ticks synchronized already [43 bytes]
+OR	0	08:15:05.276	Core 1	MetaTester 5 started on 127.0.0.1:3000
+OH	0	08:15:05.276	Core 1	cloud network mode is off
+RS	0	08:15:05.276	Core 1	initialization finished
+QJ	0	08:15:05.276	Core 1	login (build 5699)
+FE	0	08:15:05.276	Core 1	12968 bytes of account info loaded
+FQ	0	08:15:05.276	Core 1	1478 bytes of tester parameters loaded
+GF	0	08:15:05.276	Core 1	3780 bytes of input parameters loaded
+KS	0	08:15:05.276	Core 1	2293 bytes of symbols list loaded (360 symbols)
+KE	0	08:15:05.276	Core 1	expert file added: Experts\nn\gold\live.ex5. 111522 bytes loaded
+NH	0	08:15:05.276	Core 1	3851 Mb available, 48 blocks set for ticks generating
+GR	0	08:15:05.276	Core 1	initial deposit 10000.00 USD, leverage 1:2000
+OJ	0	08:15:05.276	Core 1	successfully initialized
+OP	0	08:15:05.276	Core 1	112 Kb of total initialization data received
+FH	0	08:15:05.276	Core 1	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+DL	0	08:15:05.276	Core 1	XAUUSD: symbol to be synchronized
+KI	0	08:15:05.276	Core 1	XAUUSD: symbol synchronized, 3720 bytes of symbol info received
+NE	0	08:15:05.276	Core 1	XAUUSD: load 27 bytes of history data to synchronize in 0:00:00.003
+NM	0	08:15:05.276	Core 1	XAUUSD: history synchronized from 2004.06.11 to 2026.03.31
+QK	0	08:15:05.276	Core 1	XAUUSD: ticks synchronization started
+JL	0	08:15:05.276	Core 1	XAUUSD: load 34 bytes of tick data to synchronize in 0:00:00.000
+MS	0	08:15:05.276	Core 1	XAUUSD: history ticks synchronized from 2026.02.02 to 2026.03.30
+HF	0	08:15:05.276	Core 1	XAUUSD,M1: history cache allocated for 427432 bars and contains 426403 bars from 2025.01.02 00:00 to 2026.03.17 23:59
+NE	0	08:15:05.276	Core 1	XAUUSD,M1: history begins from 2025.01.02 00:00
+QG	0	08:15:05.276	Core 1	XAUUSD,M1 (EGlobalTrade-Demo): generating based on real ticks
+HM	0	08:15:05.276	Core 1	XAUUSD,M1: testing of Experts\nn\gold\live.ex5 from 2026.03.18 00:00 to 2026.03.19 00:00 started with inputs:
+PN	0	08:15:05.276	Core 1	  R=false
+PI	0	08:15:05.276	Core 1	  FIXED_MOVE=1.44
+IK	0	08:15:05.276	Core 1	  SL_MULTIPLIER=0.54
+FP	0	08:15:05.276	Core 1	  TP_MULTIPLIER=0.54
+OK	0	08:15:05.276	Core 1	  LOT_SIZE=0.54
+RF	0	08:15:05.276	Core 1	  MAGIC_NUMBER=777777
+HN	0	08:15:05.276	Core 1	  DEBUG_LOG=false
+OD	0	08:15:05.276	Core 1	api version 1.24.2 initialized
+NO	0	08:15:05.276	Core 1	2026.03.18 00:00:00   ONNX: CPU selected
+CH	0	08:15:05.276	Core 1	XAUUSD : real ticks begin from 2026.02.02 00:00:00
+OS	0	08:15:05.276	Core 1	2026.03.18 00:00:00   market buy 0.54 XAUUSD sl: 4998.520 tp: 5001.400 (4999.870 / 4999.960)
+QL	0	08:15:05.276	Core 1	2026.03.18 00:00:00   deal #2 buy 0.54 XAUUSD at 4999.960 done (based on order #2)
+OP	0	08:15:05.276	Core 1	2026.03.18 00:00:00   deal performed [#2 buy 0.54 XAUUSD at 4999.960]
+IE	0	08:15:05.276	Core 1	2026.03.18 00:00:00   order performed buy 0.54 at 4999.960 [#2 buy 0.54 XAUUSD at 4999.960]
+GH	0	08:15:05.276	Core 1	2026.03.18 00:00:00   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4998.520 tp: 5001.400 [done at 4999.960]
+KE	0	08:15:23.587	Core 1	2026.03.18 00:00:35   take profit triggered #2 buy 0.54 XAUUSD 4999.960 sl: 4998.520 tp: 5001.400 [#3 sell 0.54 XAUUSD at 5001.400]
+OP	0	08:15:23.587	Core 1	2026.03.18 00:00:35   deal #3 sell 0.54 XAUUSD at 5001.520 done (based on order #3)
+LJ	0	08:15:23.587	Core 1	2026.03.18 00:00:35   deal performed [#3 sell 0.54 XAUUSD at 5001.520]
+NH	0	08:15:23.587	Core 1	2026.03.18 00:00:35   order performed sell 0.54 at 5001.520 [#3 sell 0.54 XAUUSD at 5001.400]
+EG	0	08:15:23.587	Core 1	2026.03.18 00:02:03   market buy 0.54 XAUUSD sl: 5000.260 tp: 5003.140 (5001.550 / 5001.700)
+RP	0	08:15:23.587	Core 1	2026.03.18 00:02:03   deal #4 buy 0.54 XAUUSD at 5001.700 done (based on order #4)
+NM	0	08:15:23.587	Core 1	2026.03.18 00:02:03   deal performed [#4 buy 0.54 XAUUSD at 5001.700]
+CP	0	08:15:23.587	Core 1	2026.03.18 00:02:03   order performed buy 0.54 at 5001.700 [#4 buy 0.54 XAUUSD at 5001.700]
+GS	0	08:15:23.587	Core 1	2026.03.18 00:02:03   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5000.260 tp: 5003.140 [done at 5001.700]
+CQ	0	08:15:23.587	Core 1	2026.03.18 00:07:31   stop loss triggered #4 buy 0.54 XAUUSD 5001.700 sl: 5000.260 tp: 5003.140 [#5 sell 0.54 XAUUSD at 5000.260]
+DL	0	08:15:23.587	Core 1	2026.03.18 00:07:31   deal #5 sell 0.54 XAUUSD at 5000.000 done (based on order #5)
+EM	0	08:15:23.587	Core 1	2026.03.18 00:07:31   deal performed [#5 sell 0.54 XAUUSD at 5000.000]
+DG	0	08:15:23.587	Core 1	2026.03.18 00:07:31   order performed sell 0.54 at 5000.000 [#5 sell 0.54 XAUUSD at 5000.260]
+QJ	0	08:15:23.587	Core 1	2026.03.18 00:33:57   market buy 0.54 XAUUSD sl: 5001.230 tp: 5004.110 (5002.430 / 5002.670)
+DK	0	08:15:23.587	Core 1	2026.03.18 00:33:57   deal #6 buy 0.54 XAUUSD at 5002.670 done (based on order #6)
+JI	0	08:15:23.587	Core 1	2026.03.18 00:33:57   deal performed [#6 buy 0.54 XAUUSD at 5002.670]
+LL	0	08:15:23.587	Core 1	2026.03.18 00:33:57   order performed buy 0.54 at 5002.670 [#6 buy 0.54 XAUUSD at 5002.670]
+OO	0	08:15:23.587	Core 1	2026.03.18 00:33:57   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5001.230 tp: 5004.110 [done at 5002.670]
+QL	0	08:15:23.587	Core 1	2026.03.18 01:03:37   take profit triggered #6 buy 0.54 XAUUSD 5002.670 sl: 5001.230 tp: 5004.110 [#7 sell 0.54 XAUUSD at 5004.110]
+CI	0	08:15:23.587	Core 1	2026.03.18 01:03:37   deal #7 sell 0.54 XAUUSD at 5004.280 done (based on order #7)
+LP	0	08:15:23.587	Core 1	2026.03.18 01:03:37   deal performed [#7 sell 0.54 XAUUSD at 5004.280]
+MR	0	08:15:23.587	Core 1	2026.03.18 01:03:37   order performed sell 0.54 at 5004.280 [#7 sell 0.54 XAUUSD at 5004.110]
+JM	0	08:15:23.587	Core 1	2026.03.18 01:06:22   market buy 0.54 XAUUSD sl: 5007.620 tp: 5010.500 (5008.930 / 5009.060)
+ON	0	08:15:23.587	Core 1	2026.03.18 01:06:22   deal #8 buy 0.54 XAUUSD at 5009.060 done (based on order #8)
+GF	0	08:15:23.587	Core 1	2026.03.18 01:06:22   deal performed [#8 buy 0.54 XAUUSD at 5009.060]
+IK	0	08:15:23.587	Core 1	2026.03.18 01:06:22   order performed buy 0.54 at 5009.060 [#8 buy 0.54 XAUUSD at 5009.060]
+MJ	0	08:15:23.587	Core 1	2026.03.18 01:06:22   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5007.620 tp: 5010.500 [done at 5009.060]
+RK	0	08:15:23.587	Core 1	2026.03.18 01:06:30   take profit triggered #8 buy 0.54 XAUUSD 5009.060 sl: 5007.620 tp: 5010.500 [#9 sell 0.54 XAUUSD at 5010.500]
+HF	0	08:15:23.587	Core 1	2026.03.18 01:06:30   deal #9 sell 0.54 XAUUSD at 5010.590 done (based on order #9)
+MD	0	08:15:23.587	Core 1	2026.03.18 01:06:30   deal performed [#9 sell 0.54 XAUUSD at 5010.590]
+LN	0	08:15:23.587	Core 1	2026.03.18 01:06:30   order performed sell 0.54 at 5010.590 [#9 sell 0.54 XAUUSD at 5010.500]
+FQ	0	08:15:23.587	Core 1	2026.03.18 01:14:37   market buy 0.54 XAUUSD sl: 5009.290 tp: 5012.170 (5010.420 / 5010.730)
+PR	0	08:15:23.587	Core 1	2026.03.18 01:14:37   deal #10 buy 0.54 XAUUSD at 5010.730 done (based on order #10)
+CP	0	08:15:23.587	Core 1	2026.03.18 01:14:37   deal performed [#10 buy 0.54 XAUUSD at 5010.730]
+QE	0	08:15:23.587	Core 1	2026.03.18 01:14:37   order performed buy 0.54 at 5010.730 [#10 buy 0.54 XAUUSD at 5010.730]
+NE	0	08:15:23.587	Core 1	2026.03.18 01:14:37   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5009.290 tp: 5012.170 [done at 5010.730]
+QG	0	08:15:23.587	Core 1	2026.03.18 01:16:50   stop loss triggered #10 buy 0.54 XAUUSD 5010.730 sl: 5009.290 tp: 5012.170 [#11 sell 0.54 XAUUSD at 5009.290]
+JS	0	08:15:23.587	Core 1	2026.03.18 01:16:50   deal #11 sell 0.54 XAUUSD at 5009.140 done (based on order #11)
+PM	0	08:15:23.587	Core 1	2026.03.18 01:16:50   deal performed [#11 sell 0.54 XAUUSD at 5009.140]
+IG	0	08:15:23.587	Core 1	2026.03.18 01:16:50   order performed sell 0.54 at 5009.140 [#11 sell 0.54 XAUUSD at 5009.290]
+EK	0	08:15:23.587	Core 1	2026.03.18 01:19:26   market buy 0.54 XAUUSD sl: 5006.970 tp: 5009.850 (5008.150 / 5008.410)
+OD	0	08:15:23.587	Core 1	2026.03.18 01:19:26   deal #12 buy 0.54 XAUUSD at 5008.410 done (based on order #12)
+NJ	0	08:15:23.587	Core 1	2026.03.18 01:19:26   deal performed [#12 buy 0.54 XAUUSD at 5008.410]
+HO	0	08:15:23.587	Core 1	2026.03.18 01:19:26   order performed buy 0.54 at 5008.410 [#12 buy 0.54 XAUUSD at 5008.410]
+LO	0	08:15:23.587	Core 1	2026.03.18 01:19:26   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5006.970 tp: 5009.850 [done at 5008.410]
+OM	0	08:15:23.587	Core 1	2026.03.18 01:19:49   stop loss triggered #12 buy 0.54 XAUUSD 5008.410 sl: 5006.970 tp: 5009.850 [#13 sell 0.54 XAUUSD at 5006.970]
+FI	0	08:15:23.587	Core 1	2026.03.18 01:19:49   deal #13 sell 0.54 XAUUSD at 5006.940 done (based on order #13)
+NS	0	08:15:23.587	Core 1	2026.03.18 01:19:49   deal performed [#13 sell 0.54 XAUUSD at 5006.940]
+EQ	0	08:15:23.587	Core 1	2026.03.18 01:19:49   order performed sell 0.54 at 5006.940 [#13 sell 0.54 XAUUSD at 5006.970]
+EM	0	08:15:23.587	Core 1	2026.03.18 02:23:40   market buy 0.54 XAUUSD sl: 5012.360 tp: 5015.240 (5013.520 / 5013.800)
+PN	0	08:15:23.587	Core 1	2026.03.18 02:23:40   deal #14 buy 0.54 XAUUSD at 5013.800 done (based on order #14)
+GD	0	08:15:23.587	Core 1	2026.03.18 02:23:40   deal performed [#14 buy 0.54 XAUUSD at 5013.800]
+HI	0	08:15:23.587	Core 1	2026.03.18 02:23:40   order performed buy 0.54 at 5013.800 [#14 buy 0.54 XAUUSD at 5013.800]
+KI	0	08:15:23.587	Core 1	2026.03.18 02:23:40   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5012.360 tp: 5015.240 [done at 5013.800]
+FK	0	08:15:23.587	Core 1	2026.03.18 02:24:28   stop loss triggered #14 buy 0.54 XAUUSD 5013.800 sl: 5012.360 tp: 5015.240 [#15 sell 0.54 XAUUSD at 5012.360]
+OF	0	08:15:23.587	Core 1	2026.03.18 02:24:28   deal #15 sell 0.54 XAUUSD at 5012.100 done (based on order #15)
+EH	0	08:15:23.587	Core 1	2026.03.18 02:24:28   deal performed [#15 sell 0.54 XAUUSD at 5012.100]
+PK	0	08:15:23.587	Core 1	2026.03.18 02:24:28   order performed sell 0.54 at 5012.100 [#15 sell 0.54 XAUUSD at 5012.360]
+OG	0	08:15:23.587	Core 1	2026.03.18 02:37:32   market buy 0.54 XAUUSD sl: 5001.310 tp: 5004.190 (5002.590 / 5002.750)
+FP	0	08:15:23.587	Core 1	2026.03.18 02:37:32   deal #16 buy 0.54 XAUUSD at 5002.750 done (based on order #16)
+CO	0	08:15:23.587	Core 1	2026.03.18 02:37:32   deal performed [#16 buy 0.54 XAUUSD at 5002.750]
+FS	0	08:15:23.587	Core 1	2026.03.18 02:37:32   order performed buy 0.54 at 5002.750 [#16 buy 0.54 XAUUSD at 5002.750]
+HD	0	08:15:23.587	Core 1	2026.03.18 02:37:32   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5001.310 tp: 5004.190 [done at 5002.750]
+JQ	0	08:15:23.587	Core 1	2026.03.18 02:38:02   take profit triggered #16 buy 0.54 XAUUSD 5002.750 sl: 5001.310 tp: 5004.190 [#17 sell 0.54 XAUUSD at 5004.190]
+LL	0	08:15:23.587	Core 1	2026.03.18 02:38:02   deal #17 sell 0.54 XAUUSD at 5004.420 done (based on order #17)
+HN	0	08:15:23.587	Core 1	2026.03.18 02:38:02   deal performed [#17 sell 0.54 XAUUSD at 5004.420]
+CE	0	08:15:23.587	Core 1	2026.03.18 02:38:02   order performed sell 0.54 at 5004.420 [#17 sell 0.54 XAUUSD at 5004.190]
+EI	0	08:15:23.587	Core 1	2026.03.18 02:39:27   market buy 0.54 XAUUSD sl: 5002.640 tp: 5005.520 (5003.910 / 5004.080)
+HJ	0	08:15:23.587	Core 1	2026.03.18 02:39:27   deal #18 buy 0.54 XAUUSD at 5004.080 done (based on order #18)
+KI	0	08:15:23.587	Core 1	2026.03.18 02:39:27   deal performed [#18 buy 0.54 XAUUSD at 5004.080]
+JM	0	08:15:23.587	Core 1	2026.03.18 02:39:27   order performed buy 0.54 at 5004.080 [#18 buy 0.54 XAUUSD at 5004.080]
+QN	0	08:15:23.587	Core 1	2026.03.18 02:39:27   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5002.640 tp: 5005.520 [done at 5004.080]
+MO	0	08:15:23.587	Core 1	2026.03.18 02:39:54   take profit triggered #18 buy 0.54 XAUUSD 5004.080 sl: 5002.640 tp: 5005.520 [#19 sell 0.54 XAUUSD at 5005.520]
+PJ	0	08:15:23.587	Core 1	2026.03.18 02:39:54   deal #19 sell 0.54 XAUUSD at 5005.540 done (based on order #19)
+RD	0	08:15:23.587	Core 1	2026.03.18 02:39:54   deal performed [#19 sell 0.54 XAUUSD at 5005.540]
+GO	0	08:15:23.587	Core 1	2026.03.18 02:39:54   order performed sell 0.54 at 5005.540 [#19 sell 0.54 XAUUSD at 5005.520]
+QS	0	08:15:23.587	Core 1	2026.03.18 02:40:39   market buy 0.54 XAUUSD sl: 5003.210 tp: 5006.090 (5004.455 / 5004.650)
+RL	0	08:15:23.587	Core 1	2026.03.18 02:40:39   deal #20 buy 0.54 XAUUSD at 5004.650 done (based on order #20)
+LS	0	08:15:23.587	Core 1	2026.03.18 02:40:39   deal performed [#20 buy 0.54 XAUUSD at 5004.650]
+PG	0	08:15:23.587	Core 1	2026.03.18 02:40:39   order performed buy 0.54 at 5004.650 [#20 buy 0.54 XAUUSD at 5004.650]
+LH	0	08:15:23.587	Core 1	2026.03.18 02:40:39   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5003.210 tp: 5006.090 [done at 5004.650]
+RD	0	08:15:23.587	Core 1	2026.03.18 02:41:18   stop loss triggered #20 buy 0.54 XAUUSD 5004.650 sl: 5003.210 tp: 5006.090 [#21 sell 0.54 XAUUSD at 5003.210]
+NP	0	08:15:23.587	Core 1	2026.03.18 02:41:18   deal #21 sell 0.54 XAUUSD at 5003.130 done (based on order #21)
+EJ	0	08:15:23.587	Core 1	2026.03.18 02:41:18   deal performed [#21 sell 0.54 XAUUSD at 5003.130]
+FH	0	08:15:23.587	Core 1	2026.03.18 02:41:18   order performed sell 0.54 at 5003.130 [#21 sell 0.54 XAUUSD at 5003.210]
+LF	0	08:15:23.587	Core 1	2026.03.18 02:41:19   market buy 0.54 XAUUSD sl: 5001.910 tp: 5004.790 (5003.140 / 5003.350)
+EG	0	08:15:23.587	Core 1	2026.03.18 02:41:19   deal #22 buy 0.54 XAUUSD at 5003.350 done (based on order #22)
+QM	0	08:15:23.587	Core 1	2026.03.18 02:41:19   deal performed [#22 buy 0.54 XAUUSD at 5003.350]
+CP	0	08:15:23.587	Core 1	2026.03.18 02:41:19   order performed buy 0.54 at 5003.350 [#22 buy 0.54 XAUUSD at 5003.350]
+CR	0	08:15:23.587	Core 1	2026.03.18 02:41:19   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5001.910 tp: 5004.790 [done at 5003.350]
+DS	0	08:15:23.587	Core 1	2026.03.18 02:41:32   take profit triggered #22 buy 0.54 XAUUSD 5003.350 sl: 5001.910 tp: 5004.790 [#23 sell 0.54 XAUUSD at 5004.790]
+ON	0	08:15:23.587	Core 1	2026.03.18 02:41:32   deal #23 sell 0.54 XAUUSD at 5004.930 done (based on order #23)
+JP	0	08:15:23.587	Core 1	2026.03.18 02:41:32   deal performed [#23 sell 0.54 XAUUSD at 5004.930]
+OR	0	08:15:23.587	Core 1	2026.03.18 02:41:32   order performed sell 0.54 at 5004.930 [#23 sell 0.54 XAUUSD at 5004.790]
+EH	0	08:15:23.587	Core 1	2026.03.18 02:46:07   market buy 0.54 XAUUSD sl: 4996.590 tp: 4999.470 (4997.780 / 4998.030)
+HI	0	08:15:23.587	Core 1	2026.03.18 02:46:07   deal #24 buy 0.54 XAUUSD at 4998.030 done (based on order #24)
+RG	0	08:15:23.587	Core 1	2026.03.18 02:46:07   deal performed [#24 buy 0.54 XAUUSD at 4998.030]
+QJ	0	08:15:23.587	Core 1	2026.03.18 02:46:07   order performed buy 0.54 at 4998.030 [#24 buy 0.54 XAUUSD at 4998.030]
+GL	0	08:15:23.587	Core 1	2026.03.18 02:46:07   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4996.590 tp: 4999.470 [done at 4998.030]
+NH	0	08:15:23.587	Core 1	2026.03.18 02:46:25   stop loss triggered #24 buy 0.54 XAUUSD 4998.030 sl: 4996.590 tp: 4999.470 [#25 sell 0.54 XAUUSD at 4996.590]
+HD	0	08:15:23.587	Core 1	2026.03.18 02:46:25   deal #25 sell 0.54 XAUUSD at 4996.580 done (based on order #25)
+KF	0	08:15:23.587	Core 1	2026.03.18 02:46:25   deal performed [#25 sell 0.54 XAUUSD at 4996.580]
+ML	0	08:15:23.587	Core 1	2026.03.18 02:46:25   order performed sell 0.54 at 4996.580 [#25 sell 0.54 XAUUSD at 4996.590]
+FR	0	08:15:23.587	Core 1	2026.03.18 03:30:57   market buy 0.54 XAUUSD sl: 4999.250 tp: 5002.130 (5000.470 / 5000.690)
+DS	0	08:15:23.587	Core 1	2026.03.18 03:30:57   deal #26 buy 0.54 XAUUSD at 5000.690 done (based on order #26)
+DQ	0	08:15:23.587	Core 1	2026.03.18 03:30:57   deal performed [#26 buy 0.54 XAUUSD at 5000.690]
+PD	0	08:15:23.587	Core 1	2026.03.18 03:30:57   order performed buy 0.54 at 5000.690 [#26 buy 0.54 XAUUSD at 5000.690]
+JF	0	08:15:23.587	Core 1	2026.03.18 03:30:57   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4999.250 tp: 5002.130 [done at 5000.690]
+IG	0	08:15:23.587	Core 1	2026.03.18 03:31:33   take profit triggered #26 buy 0.54 XAUUSD 5000.690 sl: 4999.250 tp: 5002.130 [#27 sell 0.54 XAUUSD at 5002.130]
+PR	0	08:15:23.587	Core 1	2026.03.18 03:31:33   deal #27 sell 0.54 XAUUSD at 5002.170 done (based on order #27)
+EL	0	08:15:23.587	Core 1	2026.03.18 03:31:33   deal performed [#27 sell 0.54 XAUUSD at 5002.170]
+NF	0	08:15:23.587	Core 1	2026.03.18 03:31:33   order performed sell 0.54 at 5002.170 [#27 sell 0.54 XAUUSD at 5002.130]
+LD	0	08:15:23.587	Core 1	2026.03.18 03:51:40   market buy 0.54 XAUUSD sl: 4999.160 tp: 5002.040 (5000.340 / 5000.600)
+LE	0	08:15:23.587	Core 1	2026.03.18 03:51:40   deal #28 buy 0.54 XAUUSD at 5000.600 done (based on order #28)
+JK	0	08:15:23.587	Core 1	2026.03.18 03:51:40   deal performed [#28 buy 0.54 XAUUSD at 5000.600]
+EN	0	08:15:23.587	Core 1	2026.03.18 03:51:40   order performed buy 0.54 at 5000.600 [#28 buy 0.54 XAUUSD at 5000.600]
+LP	0	08:15:23.587	Core 1	2026.03.18 03:51:40   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4999.160 tp: 5002.040 [done at 5000.600]
+FM	0	08:15:23.587	Core 1	2026.03.18 03:52:18   take profit triggered #28 buy 0.54 XAUUSD 5000.600 sl: 4999.160 tp: 5002.040 [#29 sell 0.54 XAUUSD at 5002.040]
+OH	0	08:15:23.587	Core 1	2026.03.18 03:52:18   deal #29 sell 0.54 XAUUSD at 5002.290 done (based on order #29)
+PR	0	08:15:23.587	Core 1	2026.03.18 03:52:18   deal performed [#29 sell 0.54 XAUUSD at 5002.290]
+EP	0	08:15:23.587	Core 1	2026.03.18 03:52:18   order performed sell 0.54 at 5002.290 [#29 sell 0.54 XAUUSD at 5002.040]
+EN	0	08:15:23.587	Core 1	2026.03.18 03:56:24   market buy 0.54 XAUUSD sl: 4992.230 tp: 4995.110 (4993.450 / 4993.670)
+LO	0	08:15:23.587	Core 1	2026.03.18 03:56:24   deal #30 buy 0.54 XAUUSD at 4993.670 done (based on order #30)
+QE	0	08:15:23.587	Core 1	2026.03.18 03:56:24   deal performed [#30 buy 0.54 XAUUSD at 4993.670]
+QH	0	08:15:23.587	Core 1	2026.03.18 03:56:24   order performed buy 0.54 at 4993.670 [#30 buy 0.54 XAUUSD at 4993.670]
+IJ	0	08:15:23.587	Core 1	2026.03.18 03:56:24   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4992.230 tp: 4995.110 [done at 4993.670]
+OJ	0	08:15:23.587	Core 1	2026.03.18 03:57:29   stop loss triggered #30 buy 0.54 XAUUSD 4993.670 sl: 4992.230 tp: 4995.110 [#31 sell 0.54 XAUUSD at 4992.230]
+JF	0	08:15:23.587	Core 1	2026.03.18 03:57:29   deal #31 sell 0.54 XAUUSD at 4992.130 done (based on order #31)
+RH	0	08:15:23.587	Core 1	2026.03.18 03:57:29   deal performed [#31 sell 0.54 XAUUSD at 4992.130]
+OJ	0	08:15:23.587	Core 1	2026.03.18 03:57:29   order performed sell 0.54 at 4992.130 [#31 sell 0.54 XAUUSD at 4992.230]
+RP	0	08:15:23.587	Core 1	2026.03.18 04:15:27   market buy 0.54 XAUUSD sl: 4993.690 tp: 4996.570 (4994.870 / 4995.130)
+FQ	0	08:15:23.587	Core 1	2026.03.18 04:15:27   deal #32 buy 0.54 XAUUSD at 4995.130 done (based on order #32)
+QO	0	08:15:23.587	Core 1	2026.03.18 04:15:27   deal performed [#32 buy 0.54 XAUUSD at 4995.130]
+FR	0	08:15:23.587	Core 1	2026.03.18 04:15:27   order performed buy 0.54 at 4995.130 [#32 buy 0.54 XAUUSD at 4995.130]
+MD	0	08:15:23.587	Core 1	2026.03.18 04:15:27   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4993.690 tp: 4996.570 [done at 4995.130]
+NQ	0	08:15:23.587	Core 1	2026.03.18 04:24:01   take profit triggered #32 buy 0.54 XAUUSD 4995.130 sl: 4993.690 tp: 4996.570 [#33 sell 0.54 XAUUSD at 4996.570]
+LL	0	08:15:23.587	Core 1	2026.03.18 04:24:01   deal #33 sell 0.54 XAUUSD at 4996.670 done (based on order #33)
+FN	0	08:15:23.587	Core 1	2026.03.18 04:24:01   deal performed [#33 sell 0.54 XAUUSD at 4996.670]
+JD	0	08:15:23.587	Core 1	2026.03.18 04:24:01   order performed sell 0.54 at 4996.670 [#33 sell 0.54 XAUUSD at 4996.570]
+FJ	0	08:15:23.587	Core 1	2026.03.18 04:26:44   market buy 0.54 XAUUSD sl: 4994.410 tp: 4997.290 (4995.580 / 4995.850)
+LK	0	08:15:23.587	Core 1	2026.03.18 04:26:44   deal #34 buy 0.54 XAUUSD at 4995.850 done (based on order #34)
+EI	0	08:15:23.587	Core 1	2026.03.18 04:26:44   deal performed [#34 buy 0.54 XAUUSD at 4995.850]
+CL	0	08:15:23.587	Core 1	2026.03.18 04:26:44   order performed buy 0.54 at 4995.850 [#34 buy 0.54 XAUUSD at 4995.850]
+HN	0	08:15:23.587	Core 1	2026.03.18 04:26:44   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4994.410 tp: 4997.290 [done at 4995.850]
+KO	0	08:15:23.587	Core 1	2026.03.18 04:37:57   take profit triggered #34 buy 0.54 XAUUSD 4995.850 sl: 4994.410 tp: 4997.290 [#35 sell 0.54 XAUUSD at 4997.290]
+MJ	0	08:15:23.587	Core 1	2026.03.18 04:37:57   deal #35 sell 0.54 XAUUSD at 4997.310 done (based on order #35)
+ID	0	08:15:23.587	Core 1	2026.03.18 04:37:57   deal performed [#35 sell 0.54 XAUUSD at 4997.310]
+MN	0	08:15:23.587	Core 1	2026.03.18 04:37:57   order performed sell 0.54 at 4997.310 [#35 sell 0.54 XAUUSD at 4997.290]
+LL	0	08:15:23.587	Core 1	2026.03.18 04:40:12   market buy 0.54 XAUUSD sl: 4993.910 tp: 4996.790 (4995.100 / 4995.350)
+DM	0	08:15:23.587	Core 1	2026.03.18 04:40:12   deal #36 buy 0.54 XAUUSD at 4995.350 done (based on order #36)
+KS	0	08:15:23.587	Core 1	2026.03.18 04:40:12   deal performed [#36 buy 0.54 XAUUSD at 4995.350]
+DF	0	08:15:23.587	Core 1	2026.03.18 04:40:12   order performed buy 0.54 at 4995.350 [#36 buy 0.54 XAUUSD at 4995.350]
+FH	0	08:15:23.587	Core 1	2026.03.18 04:40:12   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4993.910 tp: 4996.790 [done at 4995.350]
+LE	0	08:15:23.587	Core 1	2026.03.18 04:42:22   take profit triggered #36 buy 0.54 XAUUSD 4995.350 sl: 4993.910 tp: 4996.790 [#37 sell 0.54 XAUUSD at 4996.790]
+DP	0	08:15:23.587	Core 1	2026.03.18 04:42:22   deal #37 sell 0.54 XAUUSD at 4996.910 done (based on order #37)
+RJ	0	08:15:23.587	Core 1	2026.03.18 04:42:22   deal performed [#37 sell 0.54 XAUUSD at 4996.910]
+JH	0	08:15:23.587	Core 1	2026.03.18 04:42:22   order performed sell 0.54 at 4996.910 [#37 sell 0.54 XAUUSD at 4996.790]
+GF	0	08:15:23.587	Core 1	2026.03.18 04:54:42   market buy 0.54 XAUUSD sl: 4991.260 tp: 4994.140 (4992.390 / 4992.700)
+JG	0	08:15:23.587	Core 1	2026.03.18 04:54:42   deal #38 buy 0.54 XAUUSD at 4992.700 done (based on order #38)
+CM	0	08:15:23.587	Core 1	2026.03.18 04:54:42   deal performed [#38 buy 0.54 XAUUSD at 4992.700]
+RP	0	08:15:23.587	Core 1	2026.03.18 04:54:42   order performed buy 0.54 at 4992.700 [#38 buy 0.54 XAUUSD at 4992.700]
+ER	0	08:15:23.587	Core 1	2026.03.18 04:54:42   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4991.260 tp: 4994.140 [done at 4992.700]
+JR	0	08:15:23.587	Core 1	2026.03.18 04:56:01   stop loss triggered #38 buy 0.54 XAUUSD 4992.700 sl: 4991.260 tp: 4994.140 [#39 sell 0.54 XAUUSD at 4991.260]
+QM	0	08:15:23.587	Core 1	2026.03.18 04:56:01   deal #39 sell 0.54 XAUUSD at 4991.080 done (based on order #39)
+QO	0	08:15:23.587	Core 1	2026.03.18 04:56:01   deal performed [#39 sell 0.54 XAUUSD at 4991.080]
+FR	0	08:15:23.587	Core 1	2026.03.18 04:56:01   order performed sell 0.54 at 4991.080 [#39 sell 0.54 XAUUSD at 4991.260]
+QH	0	08:15:23.587	Core 1	2026.03.18 04:56:16   market buy 0.54 XAUUSD sl: 4989.290 tp: 4992.170 (4990.520 / 4990.730)
+DI	0	08:15:23.587	Core 1	2026.03.18 04:56:16   deal #40 buy 0.54 XAUUSD at 4990.730 done (based on order #40)
+DH	0	08:15:23.587	Core 1	2026.03.18 04:56:16   deal performed [#40 buy 0.54 XAUUSD at 4990.730]
+JJ	0	08:15:23.587	Core 1	2026.03.18 04:56:16   order performed buy 0.54 at 4990.730 [#40 buy 0.54 XAUUSD at 4990.730]
+RM	0	08:15:23.587	Core 1	2026.03.18 04:56:16   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4989.290 tp: 4992.170 [done at 4990.730]
+KN	0	08:15:23.587	Core 1	2026.03.18 05:00:14   take profit triggered #40 buy 0.54 XAUUSD 4990.730 sl: 4989.290 tp: 4992.170 [#41 sell 0.54 XAUUSD at 4992.170]
+DK	0	08:15:23.587	Core 1	2026.03.18 05:00:14   deal #41 sell 0.54 XAUUSD at 4992.750 done (based on order #41)
+QE	0	08:15:23.587	Core 1	2026.03.18 05:00:14   deal performed [#41 sell 0.54 XAUUSD at 4992.750]
+EL	0	08:15:23.587	Core 1	2026.03.18 05:00:14   order performed sell 0.54 at 4992.750 [#41 sell 0.54 XAUUSD at 4992.170]
+ER	0	08:15:23.587	Core 1	2026.03.18 05:01:18   market buy 0.54 XAUUSD sl: 4989.670 tp: 4992.550 (4990.870 / 4991.110)
+LS	0	08:15:23.587	Core 1	2026.03.18 05:01:18   deal #42 buy 0.54 XAUUSD at 4991.110 done (based on order #42)
+NR	0	08:15:23.587	Core 1	2026.03.18 05:01:18   deal performed [#42 buy 0.54 XAUUSD at 4991.110]
+KD	0	08:15:23.587	Core 1	2026.03.18 05:01:18   order performed buy 0.54 at 4991.110 [#42 buy 0.54 XAUUSD at 4991.110]
+NG	0	08:15:23.587	Core 1	2026.03.18 05:01:18   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4989.670 tp: 4992.550 [done at 4991.110]
+JD	0	08:15:23.587	Core 1	2026.03.18 05:06:47   take profit triggered #42 buy 0.54 XAUUSD 4991.110 sl: 4989.670 tp: 4992.550 [#43 sell 0.54 XAUUSD at 4992.550]
+DQ	0	08:15:23.587	Core 1	2026.03.18 05:06:47   deal #43 sell 0.54 XAUUSD at 4992.570 done (based on order #43)
+OK	0	08:15:23.587	Core 1	2026.03.18 05:06:47   deal performed [#43 sell 0.54 XAUUSD at 4992.570]
+IF	0	08:15:23.587	Core 1	2026.03.18 05:06:47   order performed sell 0.54 at 4992.570 [#43 sell 0.54 XAUUSD at 4992.550]
+LD	0	08:15:23.587	Core 1	2026.03.18 05:12:54   market buy 0.54 XAUUSD sl: 4989.200 tp: 4992.080 (4990.420 / 4990.640)
+CE	0	08:15:23.587	Core 1	2026.03.18 05:12:54   deal #44 buy 0.54 XAUUSD at 4990.640 done (based on order #44)
+GL	0	08:15:23.587	Core 1	2026.03.18 05:12:54   deal performed [#44 buy 0.54 XAUUSD at 4990.640]
+GN	0	08:15:23.587	Core 1	2026.03.18 05:12:54   order performed buy 0.54 at 4990.640 [#44 buy 0.54 XAUUSD at 4990.640]
+LQ	0	08:15:23.587	Core 1	2026.03.18 05:12:54   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4989.200 tp: 4992.080 [done at 4990.640]
+RR	0	08:15:23.587	Core 1	2026.03.18 05:17:29   take profit triggered #44 buy 0.54 XAUUSD 4990.640 sl: 4989.200 tp: 4992.080 [#45 sell 0.54 XAUUSD at 4992.080]
+QO	0	08:15:23.587	Core 1	2026.03.18 05:17:29   deal #45 sell 0.54 XAUUSD at 4992.270 done (based on order #45)
+HQ	0	08:15:23.587	Core 1	2026.03.18 05:17:29   deal performed [#45 sell 0.54 XAUUSD at 4992.270]
+JP	0	08:15:23.587	Core 1	2026.03.18 05:17:29   order performed sell 0.54 at 4992.270 [#45 sell 0.54 XAUUSD at 4992.080]
+DN	0	08:15:23.587	Core 1	2026.03.18 05:35:56   market buy 0.54 XAUUSD sl: 4985.410 tp: 4988.290 (4986.630 / 4986.850)
+RO	0	08:15:23.587	Core 1	2026.03.18 05:35:56   deal #46 buy 0.54 XAUUSD at 4986.850 done (based on order #46)
+LF	0	08:15:23.587	Core 1	2026.03.18 05:35:56   deal performed [#46 buy 0.54 XAUUSD at 4986.850]
+DH	0	08:15:23.587	Core 1	2026.03.18 05:35:56   order performed buy 0.54 at 4986.850 [#46 buy 0.54 XAUUSD at 4986.850]
+HK	0	08:15:23.587	Core 1	2026.03.18 05:35:56   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4985.410 tp: 4988.290 [done at 4986.850]
+CI	0	08:15:23.587	Core 1	2026.03.18 05:36:10   stop loss triggered #46 buy 0.54 XAUUSD 4986.850 sl: 4985.410 tp: 4988.290 [#47 sell 0.54 XAUUSD at 4985.410]
+EE	0	08:15:23.587	Core 1	2026.03.18 05:36:10   deal #47 sell 0.54 XAUUSD at 4985.165 done (based on order #47)
+NG	0	08:15:23.587	Core 1	2026.03.18 05:36:10   deal performed [#47 sell 0.54 XAUUSD at 4985.165]
+MM	0	08:15:23.587	Core 1	2026.03.18 05:36:10   order performed sell 0.54 at 4985.165 [#47 sell 0.54 XAUUSD at 4985.410]
+DQ	0	08:15:23.587	Core 1	2026.03.18 05:39:06   market buy 0.54 XAUUSD sl: 4982.360 tp: 4985.240 (4983.570 / 4983.800)
+MR	0	08:15:23.587	Core 1	2026.03.18 05:39:06   deal #48 buy 0.54 XAUUSD at 4983.800 done (based on order #48)
+MP	0	08:15:23.587	Core 1	2026.03.18 05:39:06   deal performed [#48 buy 0.54 XAUUSD at 4983.800]
+ME	0	08:15:23.587	Core 1	2026.03.18 05:39:06   order performed buy 0.54 at 4983.800 [#48 buy 0.54 XAUUSD at 4983.800]
+RE	0	08:15:23.587	Core 1	2026.03.18 05:39:06   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4982.360 tp: 4985.240 [done at 4983.800]
+JG	0	08:15:23.587	Core 1	2026.03.18 05:40:21   stop loss triggered #48 buy 0.54 XAUUSD 4983.800 sl: 4982.360 tp: 4985.240 [#49 sell 0.54 XAUUSD at 4982.360]
+LS	0	08:15:23.587	Core 1	2026.03.18 05:40:21   deal #49 sell 0.54 XAUUSD at 4982.320 done (based on order #49)
+QM	0	08:15:23.587	Core 1	2026.03.18 05:40:21   deal performed [#49 sell 0.54 XAUUSD at 4982.320]
+CG	0	08:15:23.587	Core 1	2026.03.18 05:40:21   order performed sell 0.54 at 4982.320 [#49 sell 0.54 XAUUSD at 4982.360]
+QK	0	08:15:23.587	Core 1	2026.03.18 05:41:51   market buy 0.54 XAUUSD sl: 4981.420 tp: 4984.300 (4982.600 / 4982.860)
+GD	0	08:15:23.587	Core 1	2026.03.18 05:41:51   deal #50 buy 0.54 XAUUSD at 4982.860 done (based on order #50)
+HJ	0	08:15:23.587	Core 1	2026.03.18 05:41:51   deal performed [#50 buy 0.54 XAUUSD at 4982.860]
+MO	0	08:15:23.587	Core 1	2026.03.18 05:41:51   order performed buy 0.54 at 4982.860 [#50 buy 0.54 XAUUSD at 4982.860]
+PO	0	08:15:23.587	Core 1	2026.03.18 05:41:51   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4981.420 tp: 4984.300 [done at 4982.860]
+PL	0	08:15:23.587	Core 1	2026.03.18 05:42:02   take profit triggered #50 buy 0.54 XAUUSD 4982.860 sl: 4981.420 tp: 4984.300 [#51 sell 0.54 XAUUSD at 4984.300]
+PI	0	08:15:23.587	Core 1	2026.03.18 05:42:02   deal #51 sell 0.54 XAUUSD at 4984.330 done (based on order #51)
+FS	0	08:15:23.587	Core 1	2026.03.18 05:42:02   deal performed [#51 sell 0.54 XAUUSD at 4984.330]
+PQ	0	08:15:23.587	Core 1	2026.03.18 05:42:02   order performed sell 0.54 at 4984.330 [#51 sell 0.54 XAUUSD at 4984.300]
+IM	0	08:15:23.587	Core 1	2026.03.18 05:53:30   market buy 0.54 XAUUSD sl: 4982.910 tp: 4985.790 (4984.120 / 4984.350)
+QN	0	08:15:23.587	Core 1	2026.03.18 05:53:30   deal #52 buy 0.54 XAUUSD at 4984.350 done (based on order #52)
+PD	0	08:15:23.587	Core 1	2026.03.18 05:53:30   deal performed [#52 buy 0.54 XAUUSD at 4984.350]
+OI	0	08:15:23.587	Core 1	2026.03.18 05:53:30   order performed buy 0.54 at 4984.350 [#52 buy 0.54 XAUUSD at 4984.350]
+II	0	08:15:23.587	Core 1	2026.03.18 05:53:30   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4982.910 tp: 4985.790 [done at 4984.350]
+QK	0	08:15:23.587	Core 1	2026.03.18 05:55:03   stop loss triggered #52 buy 0.54 XAUUSD 4984.350 sl: 4982.910 tp: 4985.790 [#53 sell 0.54 XAUUSD at 4982.910]
+LG	0	08:15:23.587	Core 1	2026.03.18 05:55:03   deal #53 sell 0.54 XAUUSD at 4982.890 done (based on order #53)
+HI	0	08:15:23.587	Core 1	2026.03.18 05:55:03   deal performed [#53 sell 0.54 XAUUSD at 4982.890]
+QK	0	08:15:23.587	Core 1	2026.03.18 05:55:03   order performed sell 0.54 at 4982.890 [#53 sell 0.54 XAUUSD at 4982.910]
+QG	0	08:15:23.587	Core 1	2026.03.18 06:18:33   market buy 0.54 XAUUSD sl: 4986.080 tp: 4988.960 (4987.320 / 4987.520)
+RP	0	08:15:23.587	Core 1	2026.03.18 06:18:33   deal #54 buy 0.54 XAUUSD at 4987.520 done (based on order #54)
+EN	0	08:15:23.587	Core 1	2026.03.18 06:18:33   deal performed [#54 buy 0.54 XAUUSD at 4987.520]
+LS	0	08:15:23.587	Core 1	2026.03.18 06:18:33   order performed buy 0.54 at 4987.520 [#54 buy 0.54 XAUUSD at 4987.520]
+JS	0	08:15:23.587	Core 1	2026.03.18 06:18:33   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4986.080 tp: 4988.960 [done at 4987.520]
+QQ	0	08:15:23.587	Core 1	2026.03.18 06:19:31   stop loss triggered #54 buy 0.54 XAUUSD 4987.520 sl: 4986.080 tp: 4988.960 [#55 sell 0.54 XAUUSD at 4986.080]
+KL	0	08:15:23.587	Core 1	2026.03.18 06:19:31   deal #55 sell 0.54 XAUUSD at 4986.020 done (based on order #55)
+EN	0	08:15:23.587	Core 1	2026.03.18 06:19:31   deal performed [#55 sell 0.54 XAUUSD at 4986.020]
+HE	0	08:15:23.587	Core 1	2026.03.18 06:19:31   order performed sell 0.54 at 4986.020 [#55 sell 0.54 XAUUSD at 4986.080]
+RI	0	08:15:23.587	Core 1	2026.03.18 06:25:26   market buy 0.54 XAUUSD sl: 4989.620 tp: 4992.500 (4990.840 / 4991.060)
+JJ	0	08:15:23.587	Core 1	2026.03.18 06:25:26   deal #56 buy 0.54 XAUUSD at 4991.060 done (based on order #56)
+CI	0	08:15:23.587	Core 1	2026.03.18 06:25:26   deal performed [#56 buy 0.54 XAUUSD at 4991.060]
+HM	0	08:15:23.587	Core 1	2026.03.18 06:25:26   order performed buy 0.54 at 4991.060 [#56 buy 0.54 XAUUSD at 4991.060]
+HN	0	08:15:23.587	Core 1	2026.03.18 06:25:26   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4989.620 tp: 4992.500 [done at 4991.060]
+CN	0	08:15:23.587	Core 1	2026.03.18 06:27:39   stop loss triggered #56 buy 0.54 XAUUSD 4991.060 sl: 4989.620 tp: 4992.500 [#57 sell 0.54 XAUUSD at 4989.620]
+FJ	0	08:15:23.587	Core 1	2026.03.18 06:27:39   deal #57 sell 0.54 XAUUSD at 4989.520 done (based on order #57)
+ND	0	08:15:23.587	Core 1	2026.03.18 06:27:39   deal performed [#57 sell 0.54 XAUUSD at 4989.520]
+JN	0	08:15:23.587	Core 1	2026.03.18 06:27:39   order performed sell 0.54 at 4989.520 [#57 sell 0.54 XAUUSD at 4989.620]
+GL	0	08:15:23.587	Core 1	2026.03.18 06:38:57   market buy 0.54 XAUUSD sl: 4997.620 tp: 5000.500 (4998.940 / 4999.060)
+LM	0	08:15:23.587	Core 1	2026.03.18 06:38:57   deal #58 buy 0.54 XAUUSD at 4999.060 done (based on order #58)
+KS	0	08:15:23.587	Core 1	2026.03.18 06:38:57   deal performed [#58 buy 0.54 XAUUSD at 4999.060]
+PF	0	08:15:23.587	Core 1	2026.03.18 06:38:57   order performed buy 0.54 at 4999.060 [#58 buy 0.54 XAUUSD at 4999.060]
+RH	0	08:15:23.587	Core 1	2026.03.18 06:38:57   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4997.620 tp: 5000.500 [done at 4999.060]
+ID	0	08:15:23.587	Core 1	2026.03.18 06:39:48   stop loss triggered #58 buy 0.54 XAUUSD 4999.060 sl: 4997.620 tp: 5000.500 [#59 sell 0.54 XAUUSD at 4997.620]
+KP	0	08:15:23.587	Core 1	2026.03.18 06:39:48   deal #59 sell 0.54 XAUUSD at 4997.530 done (based on order #59)
+QJ	0	08:15:23.587	Core 1	2026.03.18 06:39:48   deal performed [#59 sell 0.54 XAUUSD at 4997.530]
+HH	0	08:15:23.587	Core 1	2026.03.18 06:39:48   order performed sell 0.54 at 4997.530 [#59 sell 0.54 XAUUSD at 4997.620]
+DF	0	08:15:23.587	Core 1	2026.03.18 06:48:23   market buy 0.54 XAUUSD sl: 4998.800 tp: 5001.680 (5000.110 / 5000.240)
+DG	0	08:15:23.587	Core 1	2026.03.18 06:48:23   deal #60 buy 0.54 XAUUSD at 5000.240 done (based on order #60)
+FM	0	08:15:23.587	Core 1	2026.03.18 06:48:23   deal performed [#60 buy 0.54 XAUUSD at 5000.240]
+IP	0	08:15:23.587	Core 1	2026.03.18 06:48:23   order performed buy 0.54 at 5000.240 [#60 buy 0.54 XAUUSD at 5000.240]
+IR	0	08:15:23.587	Core 1	2026.03.18 06:48:23   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4998.800 tp: 5001.680 [done at 5000.240]
+NR	0	08:15:23.587	Core 1	2026.03.18 06:49:08   stop loss triggered #60 buy 0.54 XAUUSD 5000.240 sl: 4998.800 tp: 5001.680 [#61 sell 0.54 XAUUSD at 4998.800]
+GN	0	08:15:23.587	Core 1	2026.03.18 06:49:08   deal #61 sell 0.54 XAUUSD at 4998.750 done (based on order #61)
+LP	0	08:15:23.587	Core 1	2026.03.18 06:49:08   deal performed [#61 sell 0.54 XAUUSD at 4998.750]
+LR	0	08:15:23.587	Core 1	2026.03.18 06:49:08   order performed sell 0.54 at 4998.750 [#61 sell 0.54 XAUUSD at 4998.800]
+JH	0	08:15:23.587	Core 1	2026.03.18 07:05:46   market buy 0.54 XAUUSD sl: 4997.440 tp: 5000.320 (4998.680 / 4998.880)
+LI	0	08:15:23.587	Core 1	2026.03.18 07:05:46   deal #62 buy 0.54 XAUUSD at 4998.880 done (based on order #62)
+DG	0	08:15:23.587	Core 1	2026.03.18 07:05:46   deal performed [#62 buy 0.54 XAUUSD at 4998.880]
+FJ	0	08:15:23.587	Core 1	2026.03.18 07:05:46   order performed buy 0.54 at 4998.880 [#62 buy 0.54 XAUUSD at 4998.880]
+RL	0	08:15:23.587	Core 1	2026.03.18 07:05:46   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4997.440 tp: 5000.320 [done at 4998.880]
+RH	0	08:15:23.587	Core 1	2026.03.18 07:05:55   stop loss triggered #62 buy 0.54 XAUUSD 4998.880 sl: 4997.440 tp: 5000.320 [#63 sell 0.54 XAUUSD at 4997.440]
+IK	0	08:15:23.587	Core 1	2026.03.18 07:05:55   deal #63 sell 0.54 XAUUSD at 4997.130 done (based on order #63)
+LE	0	08:15:23.587	Core 1	2026.03.18 07:05:55   deal performed [#63 sell 0.54 XAUUSD at 4997.130]
+IL	0	08:15:23.587	Core 1	2026.03.18 07:05:55   order performed sell 0.54 at 4997.130 [#63 sell 0.54 XAUUSD at 4997.440]
+CR	0	08:15:23.587	Core 1	2026.03.18 07:13:02   market buy 0.54 XAUUSD sl: 5004.300 tp: 5007.180 (5005.520 / 5005.740)
+HS	0	08:15:23.587	Core 1	2026.03.18 07:13:02   deal #64 buy 0.54 XAUUSD at 5005.740 done (based on order #64)
+FR	0	08:15:23.587	Core 1	2026.03.18 07:13:02   deal performed [#64 buy 0.54 XAUUSD at 5005.740]
+ID	0	08:15:23.587	Core 1	2026.03.18 07:13:02   order performed buy 0.54 at 5005.740 [#64 buy 0.54 XAUUSD at 5005.740]
+HG	0	08:15:23.587	Core 1	2026.03.18 07:13:02   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5004.300 tp: 5007.180 [done at 5005.740]
+MD	0	08:15:23.587	Core 1	2026.03.18 07:13:23   take profit triggered #64 buy 0.54 XAUUSD 5005.740 sl: 5004.300 tp: 5007.180 [#65 sell 0.54 XAUUSD at 5007.180]
+FQ	0	08:15:23.587	Core 1	2026.03.18 07:13:23   deal #65 sell 0.54 XAUUSD at 5007.220 done (based on order #65)
+MK	0	08:15:23.587	Core 1	2026.03.18 07:13:23   deal performed [#65 sell 0.54 XAUUSD at 5007.220]
+PF	0	08:15:23.587	Core 1	2026.03.18 07:13:23   order performed sell 0.54 at 5007.220 [#65 sell 0.54 XAUUSD at 5007.180]
+MD	0	08:15:23.587	Core 1	2026.03.18 07:15:31   market buy 0.54 XAUUSD sl: 5006.190 tp: 5009.070 (5007.400 / 5007.630)
+JE	0	08:15:23.587	Core 1	2026.03.18 07:15:31   deal #66 buy 0.54 XAUUSD at 5007.630 done (based on order #66)
+FL	0	08:15:23.587	Core 1	2026.03.18 07:15:31   deal performed [#66 buy 0.54 XAUUSD at 5007.630]
+EN	0	08:15:23.587	Core 1	2026.03.18 07:15:31   order performed buy 0.54 at 5007.630 [#66 buy 0.54 XAUUSD at 5007.630]
+QQ	0	08:15:23.587	Core 1	2026.03.18 07:15:31   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5006.190 tp: 5009.070 [done at 5007.630]
+CR	0	08:15:23.587	Core 1	2026.03.18 07:16:21   take profit triggered #66 buy 0.54 XAUUSD 5007.630 sl: 5006.190 tp: 5009.070 [#67 sell 0.54 XAUUSD at 5009.070]
+LO	0	08:15:23.587	Core 1	2026.03.18 07:16:21   deal #67 sell 0.54 XAUUSD at 5009.120 done (based on order #67)
+EQ	0	08:15:23.587	Core 1	2026.03.18 07:16:21   deal performed [#67 sell 0.54 XAUUSD at 5009.120]
+HP	0	08:15:23.587	Core 1	2026.03.18 07:16:21   order performed sell 0.54 at 5009.120 [#67 sell 0.54 XAUUSD at 5009.070]
+MN	0	08:15:23.587	Core 1	2026.03.18 07:19:22   market buy 0.54 XAUUSD sl: 5007.100 tp: 5009.980 (5008.330 / 5008.540)
+EO	0	08:15:23.587	Core 1	2026.03.18 07:19:22   deal #68 buy 0.54 XAUUSD at 5008.540 done (based on order #68)
+KF	0	08:15:23.587	Core 1	2026.03.18 07:19:22   deal performed [#68 buy 0.54 XAUUSD at 5008.540]
+EH	0	08:15:23.587	Core 1	2026.03.18 07:19:22   order performed buy 0.54 at 5008.540 [#68 buy 0.54 XAUUSD at 5008.540]
+HK	0	08:15:23.587	Core 1	2026.03.18 07:19:22   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5007.100 tp: 5009.980 [done at 5008.540]
+JH	0	08:15:23.587	Core 1	2026.03.18 07:22:00   take profit triggered #68 buy 0.54 XAUUSD 5008.540 sl: 5007.100 tp: 5009.980 [#69 sell 0.54 XAUUSD at 5009.980]
+QE	0	08:15:23.587	Core 1	2026.03.18 07:22:00   deal #69 sell 0.54 XAUUSD at 5009.990 done (based on order #69)
+NG	0	08:15:23.587	Core 1	2026.03.18 07:22:00   deal performed [#69 sell 0.54 XAUUSD at 5009.990]
+MJ	0	08:15:23.587	Core 1	2026.03.18 07:22:00   order performed sell 0.54 at 5009.990 [#69 sell 0.54 XAUUSD at 5009.980]
+JP	0	08:15:23.587	Core 1	2026.03.18 07:34:14   market buy 0.54 XAUUSD sl: 5011.230 tp: 5014.110 (5012.490 / 5012.670)
+FQ	0	08:15:23.587	Core 1	2026.03.18 07:34:14   deal #70 buy 0.54 XAUUSD at 5012.670 done (based on order #70)
+CP	0	08:15:23.587	Core 1	2026.03.18 07:34:14   deal performed [#70 buy 0.54 XAUUSD at 5012.670]
+DR	0	08:15:23.587	Core 1	2026.03.18 07:34:14   order performed buy 0.54 at 5012.670 [#70 buy 0.54 XAUUSD at 5012.670]
+QE	0	08:15:23.587	Core 1	2026.03.18 07:34:14   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5011.230 tp: 5014.110 [done at 5012.670]
+MF	0	08:15:23.587	Core 1	2026.03.18 07:36:04   take profit triggered #70 buy 0.54 XAUUSD 5012.670 sl: 5011.230 tp: 5014.110 [#71 sell 0.54 XAUUSD at 5014.110]
+FS	0	08:15:23.587	Core 1	2026.03.18 07:36:04   deal #71 sell 0.54 XAUUSD at 5014.110 done (based on order #71)
+RM	0	08:15:23.587	Core 1	2026.03.18 07:36:04   deal performed [#71 sell 0.54 XAUUSD at 5014.110]
+FD	0	08:15:23.587	Core 1	2026.03.18 07:36:04   order performed sell 0.54 at 5014.110 [#71 sell 0.54 XAUUSD at 5014.110]
+FJ	0	08:15:23.587	Core 1	2026.03.18 08:14:44   market buy 0.54 XAUUSD sl: 5008.830 tp: 5011.710 (5010.150 / 5010.270)
+PK	0	08:15:23.587	Core 1	2026.03.18 08:14:44   deal #72 buy 0.54 XAUUSD at 5010.270 done (based on order #72)
+OJ	0	08:15:23.587	Core 1	2026.03.18 08:14:44   deal performed [#72 buy 0.54 XAUUSD at 5010.270]
+NL	0	08:15:23.587	Core 1	2026.03.18 08:14:44   order performed buy 0.54 at 5010.270 [#72 buy 0.54 XAUUSD at 5010.270]
+DO	0	08:15:23.587	Core 1	2026.03.18 08:14:44   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5008.830 tp: 5011.710 [done at 5010.270]
+IM	0	08:15:23.587	Core 1	2026.03.18 08:15:45   stop loss triggered #72 buy 0.54 XAUUSD 5010.270 sl: 5008.830 tp: 5011.710 [#73 sell 0.54 XAUUSD at 5008.830]
+NI	0	08:15:23.587	Core 1	2026.03.18 08:15:45   deal #73 sell 0.54 XAUUSD at 5008.820 done (based on order #73)
+HS	0	08:15:23.587	Core 1	2026.03.18 08:15:45   deal performed [#73 sell 0.54 XAUUSD at 5008.820]
+JQ	0	08:15:23.587	Core 1	2026.03.18 08:15:45   order performed sell 0.54 at 5008.820 [#73 sell 0.54 XAUUSD at 5008.830]
+MM	0	08:15:23.587	Core 1	2026.03.18 08:17:18   market buy 0.54 XAUUSD sl: 5006.440 tp: 5009.320 (5007.720 / 5007.880)
+KN	0	08:15:23.587	Core 1	2026.03.18 08:17:18   deal #74 buy 0.54 XAUUSD at 5007.880 done (based on order #74)
+JD	0	08:15:23.587	Core 1	2026.03.18 08:17:18   deal performed [#74 buy 0.54 XAUUSD at 5007.880]
+NI	0	08:15:23.587	Core 1	2026.03.18 08:17:18   order performed buy 0.54 at 5007.880 [#74 buy 0.54 XAUUSD at 5007.880]
+JI	0	08:15:23.587	Core 1	2026.03.18 08:17:18   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5006.440 tp: 5009.320 [done at 5007.880]
+EK	0	08:15:29.693	Core 1	2026.03.18 08:25:30   stop loss triggered #74 buy 0.54 XAUUSD 5007.880 sl: 5006.440 tp: 5009.320 [#75 sell 0.54 XAUUSD at 5006.440]
+HG	0	08:15:29.693	Core 1	2026.03.18 08:25:30   deal #75 sell 0.54 XAUUSD at 5006.290 done (based on order #75)
+PI	0	08:15:29.693	Core 1	2026.03.18 08:25:30   deal performed [#75 sell 0.54 XAUUSD at 5006.290]
+EK	0	08:15:29.693	Core 1	2026.03.18 08:25:30   order performed sell 0.54 at 5006.290 [#75 sell 0.54 XAUUSD at 5006.440]
+JG	0	08:15:29.693	Core 1	2026.03.18 08:25:39   market buy 0.54 XAUUSD sl: 5005.930 tp: 5008.810 (5007.240 / 5007.370)
+IP	0	08:15:29.693	Core 1	2026.03.18 08:25:39   deal #76 buy 0.54 XAUUSD at 5007.370 done (based on order #76)
+FN	0	08:15:29.693	Core 1	2026.03.18 08:25:39   deal performed [#76 buy 0.54 XAUUSD at 5007.370]
+FS	0	08:15:29.693	Core 1	2026.03.18 08:25:39   order performed buy 0.54 at 5007.370 [#76 buy 0.54 XAUUSD at 5007.370]
+DS	0	08:15:29.693	Core 1	2026.03.18 08:25:39   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5005.930 tp: 5008.810 [done at 5007.370]
+IP	0	08:15:29.693	Core 1	2026.03.18 08:29:20   take profit triggered #76 buy 0.54 XAUUSD 5007.370 sl: 5005.930 tp: 5008.810 [#77 sell 0.54 XAUUSD at 5008.810]
+RM	0	08:15:29.693	Core 1	2026.03.18 08:29:20   deal #77 sell 0.54 XAUUSD at 5009.030 done (based on order #77)
+HO	0	08:15:29.693	Core 1	2026.03.18 08:29:20   deal performed [#77 sell 0.54 XAUUSD at 5009.030]
+PE	0	08:15:29.693	Core 1	2026.03.18 08:29:20   order performed sell 0.54 at 5009.030 [#77 sell 0.54 XAUUSD at 5008.810]
+CI	0	08:15:29.693	Core 1	2026.03.18 08:35:09   market buy 0.54 XAUUSD sl: 5005.480 tp: 5008.360 (5006.710 / 5006.920)
+MJ	0	08:15:29.693	Core 1	2026.03.18 08:35:09   deal #78 buy 0.54 XAUUSD at 5006.920 done (based on order #78)
+DH	0	08:15:29.693	Core 1	2026.03.18 08:35:09   deal performed [#78 buy 0.54 XAUUSD at 5006.920]
+RM	0	08:15:29.693	Core 1	2026.03.18 08:35:09   order performed buy 0.54 at 5006.920 [#78 buy 0.54 XAUUSD at 5006.920]
+JM	0	08:15:29.693	Core 1	2026.03.18 08:35:09   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 5005.480 tp: 5008.360 [done at 5006.920]
+DO	0	08:15:29.693	Core 1	2026.03.18 08:35:20   stop loss triggered #78 buy 0.54 XAUUSD 5006.920 sl: 5005.480 tp: 5008.360 [#79 sell 0.54 XAUUSD at 5005.480]
+QK	0	08:15:29.693	Core 1	2026.03.18 08:35:20   deal #79 sell 0.54 XAUUSD at 5005.430 done (based on order #79)
+ME	0	08:15:29.693	Core 1	2026.03.18 08:35:20   deal performed [#79 sell 0.54 XAUUSD at 5005.430]
+EO	0	08:15:29.693	Core 1	2026.03.18 08:35:20   order performed sell 0.54 at 5005.430 [#79 sell 0.54 XAUUSD at 5005.480]
+OS	0	08:15:29.693	Core 1	2026.03.18 08:46:49   market buy 0.54 XAUUSD sl: 4998.330 tp: 5001.210 (4999.640 / 4999.770)
+FL	0	08:15:29.693	Core 1	2026.03.18 08:46:49   deal #80 buy 0.54 XAUUSD at 4999.770 done (based on order #80)
+JR	0	08:15:29.693	Core 1	2026.03.18 08:46:49   deal performed [#80 buy 0.54 XAUUSD at 4999.770]
+GG	0	08:15:29.693	Core 1	2026.03.18 08:46:49   order performed buy 0.54 at 4999.770 [#80 buy 0.54 XAUUSD at 4999.770]
+LG	0	08:15:29.693	Core 1	2026.03.18 08:46:49   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4998.330 tp: 5001.210 [done at 4999.770]
+KE	0	08:15:29.693	Core 1	2026.03.18 08:47:00   stop loss triggered #80 buy 0.54 XAUUSD 4999.770 sl: 4998.330 tp: 5001.210 [#81 sell 0.54 XAUUSD at 4998.330]
+PP	0	08:15:29.693	Core 1	2026.03.18 08:47:00   deal #81 sell 0.54 XAUUSD at 4998.300 done (based on order #81)
+QJ	0	08:15:29.693	Core 1	2026.03.18 08:47:00   deal performed [#81 sell 0.54 XAUUSD at 4998.300]
+QI	0	08:15:29.693	Core 1	2026.03.18 08:47:00   order performed sell 0.54 at 4998.300 [#81 sell 0.54 XAUUSD at 4998.330]
+RE	0	08:15:29.693	Core 1	2026.03.18 08:54:46   market buy 0.54 XAUUSD sl: 4989.540 tp: 4992.420 (4990.790 / 4990.980)
+FF	0	08:15:29.693	Core 1	2026.03.18 08:54:46   deal #82 buy 0.54 XAUUSD at 4990.980 done (based on order #82)
+PM	0	08:15:29.693	Core 1	2026.03.18 08:54:46   deal performed [#82 buy 0.54 XAUUSD at 4990.980]
+QQ	0	08:15:29.693	Core 1	2026.03.18 08:54:46   order performed buy 0.54 at 4990.980 [#82 buy 0.54 XAUUSD at 4990.980]
+JR	0	08:15:29.693	Core 1	2026.03.18 08:54:46   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4989.540 tp: 4992.420 [done at 4990.980]
+FS	0	08:15:29.693	Core 1	2026.03.18 08:56:30   take profit triggered #82 buy 0.54 XAUUSD 4990.980 sl: 4989.540 tp: 4992.420 [#83 sell 0.54 XAUUSD at 4992.420]
+PN	0	08:15:29.693	Core 1	2026.03.18 08:56:30   deal #83 sell 0.54 XAUUSD at 4992.930 done (based on order #83)
+OP	0	08:15:29.693	Core 1	2026.03.18 08:56:30   deal performed [#83 sell 0.54 XAUUSD at 4992.930]
+CS	0	08:15:29.693	Core 1	2026.03.18 08:56:30   order performed sell 0.54 at 4992.930 [#83 sell 0.54 XAUUSD at 4992.420]
+KO	0	08:15:29.693	Core 1	2026.03.18 09:08:04   market buy 0.54 XAUUSD sl: 4987.090 tp: 4989.970 (4988.370 / 4988.530)
+FH	0	08:15:29.693	Core 1	2026.03.18 09:08:04   deal #84 buy 0.54 XAUUSD at 4988.530 done (based on order #84)
+NG	0	08:15:29.693	Core 1	2026.03.18 09:08:04   deal performed [#84 buy 0.54 XAUUSD at 4988.530]
+IK	0	08:15:29.693	Core 1	2026.03.18 09:08:04   order performed buy 0.54 at 4988.530 [#84 buy 0.54 XAUUSD at 4988.530]
+FL	0	08:15:29.693	Core 1	2026.03.18 09:08:04   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4987.090 tp: 4989.970 [done at 4988.530]
+HI	0	08:15:29.693	Core 1	2026.03.18 09:09:35   take profit triggered #84 buy 0.54 XAUUSD 4988.530 sl: 4987.090 tp: 4989.970 [#85 sell 0.54 XAUUSD at 4989.970]
+MD	0	08:15:29.693	Core 1	2026.03.18 09:09:35   deal #85 sell 0.54 XAUUSD at 4990.320 done (based on order #85)
+PF	0	08:15:29.693	Core 1	2026.03.18 09:09:35   deal performed [#85 sell 0.54 XAUUSD at 4990.320]
+FM	0	08:15:29.693	Core 1	2026.03.18 09:09:35   order performed sell 0.54 at 4990.320 [#85 sell 0.54 XAUUSD at 4989.970]
+NQ	0	08:15:29.693	Core 1	2026.03.18 09:16:21   market buy 0.54 XAUUSD sl: 4992.740 tp: 4995.620 (4993.970 / 4994.180)
+LR	0	08:15:29.693	Core 1	2026.03.18 09:16:21   deal #86 buy 0.54 XAUUSD at 4994.180 done (based on order #86)
+FQ	0	08:15:29.693	Core 1	2026.03.18 09:16:21   deal performed [#86 buy 0.54 XAUUSD at 4994.180]
+OE	0	08:15:29.693	Core 1	2026.03.18 09:16:21   order performed buy 0.54 at 4994.180 [#86 buy 0.54 XAUUSD at 4994.180]
+CF	0	08:15:29.693	Core 1	2026.03.18 09:16:21   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4992.740 tp: 4995.620 [done at 4994.180]
+FF	0	08:15:29.693	Core 1	2026.03.18 09:16:40   stop loss triggered #86 buy 0.54 XAUUSD 4994.180 sl: 4992.740 tp: 4995.620 [#87 sell 0.54 XAUUSD at 4992.740]
+HR	0	08:15:29.693	Core 1	2026.03.18 09:16:40   deal #87 sell 0.54 XAUUSD at 4992.730 done (based on order #87)
+CL	0	08:15:29.693	Core 1	2026.03.18 09:16:40   deal performed [#87 sell 0.54 XAUUSD at 4992.730]
+DF	0	08:15:29.693	Core 1	2026.03.18 09:16:40   order performed sell 0.54 at 4992.730 [#87 sell 0.54 XAUUSD at 4992.740]
+JD	0	08:15:29.693	Core 1	2026.03.18 09:20:51   market buy 0.54 XAUUSD sl: 4986.680 tp: 4989.560 (4987.950 / 4988.120)
+CE	0	08:15:29.693	Core 1	2026.03.18 09:20:51   deal #88 buy 0.54 XAUUSD at 4988.120 done (based on order #88)
+OK	0	08:15:29.693	Core 1	2026.03.18 09:20:51   deal performed [#88 buy 0.54 XAUUSD at 4988.120]
+ON	0	08:15:29.693	Core 1	2026.03.18 09:20:51   order performed buy 0.54 at 4988.120 [#88 buy 0.54 XAUUSD at 4988.120]
+FP	0	08:15:29.693	Core 1	2026.03.18 09:20:51   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4986.680 tp: 4989.560 [done at 4988.120]
+ML	0	08:15:29.693	Core 1	2026.03.18 09:21:55   stop loss triggered #88 buy 0.54 XAUUSD 4988.120 sl: 4986.680 tp: 4989.560 [#89 sell 0.54 XAUUSD at 4986.680]
+MH	0	08:15:29.693	Core 1	2026.03.18 09:21:55   deal #89 sell 0.54 XAUUSD at 4986.640 done (based on order #89)
+DR	0	08:15:29.693	Core 1	2026.03.18 09:21:55   deal performed [#89 sell 0.54 XAUUSD at 4986.640]
+CP	0	08:15:29.693	Core 1	2026.03.18 09:21:55   order performed sell 0.54 at 4986.640 [#89 sell 0.54 XAUUSD at 4986.680]
+EN	0	08:15:29.693	Core 1	2026.03.18 09:38:03   market buy 0.54 XAUUSD sl: 4986.810 tp: 4989.690 (4988.120 / 4988.250)
+QO	0	08:15:29.693	Core 1	2026.03.18 09:38:03   deal #90 buy 0.54 XAUUSD at 4988.250 done (based on order #90)
+FE	0	08:15:29.693	Core 1	2026.03.18 09:38:03   deal performed [#90 buy 0.54 XAUUSD at 4988.250]
+RH	0	08:15:29.693	Core 1	2026.03.18 09:38:03   order performed buy 0.54 at 4988.250 [#90 buy 0.54 XAUUSD at 4988.250]
+QJ	0	08:15:29.693	Core 1	2026.03.18 09:38:03   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4986.810 tp: 4989.690 [done at 4988.250]
+OK	0	08:15:29.693	Core 1	2026.03.18 09:39:04   take profit triggered #90 buy 0.54 XAUUSD 4988.250 sl: 4986.810 tp: 4989.690 [#91 sell 0.54 XAUUSD at 4989.690]
+HF	0	08:15:29.693	Core 1	2026.03.18 09:39:04   deal #91 sell 0.54 XAUUSD at 4989.690 done (based on order #91)
+JH	0	08:15:29.693	Core 1	2026.03.18 09:39:04   deal performed [#91 sell 0.54 XAUUSD at 4989.690]
+KJ	0	08:15:29.693	Core 1	2026.03.18 09:39:04   order performed sell 0.54 at 4989.690 [#91 sell 0.54 XAUUSD at 4989.690]
+OP	0	08:15:29.693	Core 1	2026.03.18 09:42:04   market buy 0.54 XAUUSD sl: 4984.420 tp: 4987.300 (4985.670 / 4985.860)
+CQ	0	08:15:29.693	Core 1	2026.03.18 09:42:04   deal #92 buy 0.54 XAUUSD at 4985.860 done (based on order #92)
+RO	0	08:15:29.693	Core 1	2026.03.18 09:42:04   deal performed [#92 buy 0.54 XAUUSD at 4985.860]
+JR	0	08:15:29.693	Core 1	2026.03.18 09:42:04   order performed buy 0.54 at 4985.860 [#92 buy 0.54 XAUUSD at 4985.860]
+RD	0	08:15:29.693	Core 1	2026.03.18 09:42:04   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4984.420 tp: 4987.300 [done at 4985.860]
+NP	0	08:15:29.693	Core 1	2026.03.18 09:42:17   stop loss triggered #92 buy 0.54 XAUUSD 4985.860 sl: 4984.420 tp: 4987.300 [#93 sell 0.54 XAUUSD at 4984.420]
+JL	0	08:15:29.693	Core 1	2026.03.18 09:42:17   deal #93 sell 0.54 XAUUSD at 4984.390 done (based on order #93)
+JN	0	08:15:29.693	Core 1	2026.03.18 09:42:17   deal performed [#93 sell 0.54 XAUUSD at 4984.390]
+GD	0	08:15:29.693	Core 1	2026.03.18 09:42:17   order performed sell 0.54 at 4984.390 [#93 sell 0.54 XAUUSD at 4984.420]
+NJ	0	08:15:29.693	Core 1	2026.03.18 09:45:38   market buy 0.54 XAUUSD sl: 4977.110 tp: 4979.990 (4978.370 / 4978.550)
+KK	0	08:15:29.693	Core 1	2026.03.18 09:45:38   deal #94 buy 0.54 XAUUSD at 4978.550 done (based on order #94)
+LI	0	08:15:29.693	Core 1	2026.03.18 09:45:38   deal performed [#94 buy 0.54 XAUUSD at 4978.550]
+HL	0	08:15:29.693	Core 1	2026.03.18 09:45:38   order performed buy 0.54 at 4978.550 [#94 buy 0.54 XAUUSD at 4978.550]
+JN	0	08:15:29.693	Core 1	2026.03.18 09:45:38   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4977.110 tp: 4979.990 [done at 4978.550]
+OO	0	08:15:29.693	Core 1	2026.03.18 09:45:40   take profit triggered #94 buy 0.54 XAUUSD 4978.550 sl: 4977.110 tp: 4979.990 [#95 sell 0.54 XAUUSD at 4979.990]
+HJ	0	08:15:29.693	Core 1	2026.03.18 09:45:40   deal #95 sell 0.54 XAUUSD at 4980.090 done (based on order #95)
+FD	0	08:15:29.693	Core 1	2026.03.18 09:45:40   deal performed [#95 sell 0.54 XAUUSD at 4980.090]
+GN	0	08:15:29.693	Core 1	2026.03.18 09:45:40   order performed sell 0.54 at 4980.090 [#95 sell 0.54 XAUUSD at 4979.990]
+PL	0	08:15:29.693	Core 1	2026.03.18 10:37:54   market buy 0.54 XAUUSD sl: 4993.720 tp: 4996.600 (4994.920 / 4995.160)
+NM	0	08:15:29.693	Core 1	2026.03.18 10:37:54   deal #96 buy 0.54 XAUUSD at 4995.160 done (based on order #96)
+KS	0	08:15:29.693	Core 1	2026.03.18 10:37:54   deal performed [#96 buy 0.54 XAUUSD at 4995.160]
+CF	0	08:15:29.693	Core 1	2026.03.18 10:37:54   order performed buy 0.54 at 4995.160 [#96 buy 0.54 XAUUSD at 4995.160]
+OH	0	08:15:29.693	Core 1	2026.03.18 10:37:54   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4993.720 tp: 4996.600 [done at 4995.160]
+FD	0	08:15:29.693	Core 1	2026.03.18 10:39:12   stop loss triggered #96 buy 0.54 XAUUSD 4995.160 sl: 4993.720 tp: 4996.600 [#97 sell 0.54 XAUUSD at 4993.720]
+KG	0	08:15:29.693	Core 1	2026.03.18 10:39:12   deal #97 sell 0.54 XAUUSD at 4993.680 done (based on order #97)
+OI	0	08:15:29.693	Core 1	2026.03.18 10:39:12   deal performed [#97 sell 0.54 XAUUSD at 4993.680]
+EH	0	08:15:29.693	Core 1	2026.03.18 10:39:12   order performed sell 0.54 at 4993.680 [#97 sell 0.54 XAUUSD at 4993.720]
+CF	0	08:15:29.693	Core 1	2026.03.18 10:47:11   market buy 0.54 XAUUSD sl: 4990.550 tp: 4993.430 (4991.770 / 4991.990)
+MG	0	08:15:29.693	Core 1	2026.03.18 10:47:11   deal #98 buy 0.54 XAUUSD at 4991.990 done (based on order #98)
+RN	0	08:15:29.693	Core 1	2026.03.18 10:47:11   deal performed [#98 buy 0.54 XAUUSD at 4991.990]
+OP	0	08:15:29.693	Core 1	2026.03.18 10:47:11   order performed buy 0.54 at 4991.990 [#98 buy 0.54 XAUUSD at 4991.990]
+JS	0	08:15:29.693	Core 1	2026.03.18 10:47:11   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4990.550 tp: 4993.430 [done at 4991.990]
+PP	0	08:15:29.693	Core 1	2026.03.18 10:50:29   take profit triggered #98 buy 0.54 XAUUSD 4991.990 sl: 4990.550 tp: 4993.430 [#99 sell 0.54 XAUUSD at 4993.430]
+EM	0	08:15:29.693	Core 1	2026.03.18 10:50:29   deal #99 sell 0.54 XAUUSD at 4993.470 done (based on order #99)
+KO	0	08:15:29.693	Core 1	2026.03.18 10:50:29   deal performed [#99 sell 0.54 XAUUSD at 4993.470]
+GR	0	08:15:29.693	Core 1	2026.03.18 10:50:29   order performed sell 0.54 at 4993.470 [#99 sell 0.54 XAUUSD at 4993.430]
+JH	0	08:15:29.693	Core 1	2026.03.18 10:53:02   market buy 0.54 XAUUSD sl: 4991.740 tp: 4994.620 (4992.970 / 4993.180)
+II	0	08:15:29.693	Core 1	2026.03.18 10:53:02   deal #100 buy 0.54 XAUUSD at 4993.180 done (based on order #100)
+RD	0	08:15:29.693	Core 1	2026.03.18 10:53:02   deal performed [#100 buy 0.54 XAUUSD at 4993.180]
+PI	0	08:15:29.693	Core 1	2026.03.18 10:53:02   order performed buy 0.54 at 4993.180 [#100 buy 0.54 XAUUSD at 4993.180]
+HL	0	08:15:29.693	Core 1	2026.03.18 10:53:02   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4991.740 tp: 4994.620 [done at 4993.180]
+HH	0	08:15:29.693	Core 1	2026.03.18 10:57:32   stop loss triggered #100 buy 0.54 XAUUSD 4993.180 sl: 4991.740 tp: 4994.620 [#101 sell 0.54 XAUUSD at 4991.740]
+ED	0	08:15:29.693	Core 1	2026.03.18 10:57:32   deal #101 sell 0.54 XAUUSD at 4991.730 done (based on order #101)
+GE	0	08:15:29.693	Core 1	2026.03.18 10:57:32   deal performed [#101 sell 0.54 XAUUSD at 4991.730]
+GO	0	08:15:29.693	Core 1	2026.03.18 10:57:32   order performed sell 0.54 at 4991.730 [#101 sell 0.54 XAUUSD at 4991.740]
+LQ	0	08:15:29.693	Core 1	2026.03.18 11:05:17   market buy 0.54 XAUUSD sl: 4987.010 tp: 4989.890 (4988.300 / 4988.450)
+ER	0	08:15:29.693	Core 1	2026.03.18 11:05:17   deal #102 buy 0.54 XAUUSD at 4988.450 done (based on order #102)
+LS	0	08:15:29.693	Core 1	2026.03.18 11:05:17   deal performed [#102 buy 0.54 XAUUSD at 4988.450]
+LF	0	08:15:29.693	Core 1	2026.03.18 11:05:17   order performed buy 0.54 at 4988.450 [#102 buy 0.54 XAUUSD at 4988.450]
+PE	0	08:15:29.693	Core 1	2026.03.18 11:05:17   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4987.010 tp: 4989.890 [done at 4988.450]
+MF	0	08:15:29.693	Core 1	2026.03.18 11:07:18   take profit triggered #102 buy 0.54 XAUUSD 4988.450 sl: 4987.010 tp: 4989.890 [#103 sell 0.54 XAUUSD at 4989.890]
+QS	0	08:15:29.693	Core 1	2026.03.18 11:07:18   deal #103 sell 0.54 XAUUSD at 4989.890 done (based on order #103)
+EN	0	08:15:29.693	Core 1	2026.03.18 11:07:18   deal performed [#103 sell 0.54 XAUUSD at 4989.890]
+DG	0	08:15:29.693	Core 1	2026.03.18 11:07:18   order performed sell 0.54 at 4989.890 [#103 sell 0.54 XAUUSD at 4989.890]
+QJ	0	08:15:29.693	Core 1	2026.03.18 11:10:09   market buy 0.54 XAUUSD sl: 4988.830 tp: 4991.710 (4990.150 / 4990.270)
+CK	0	08:15:29.693	Core 1	2026.03.18 11:10:09   deal #104 buy 0.54 XAUUSD at 4990.270 done (based on order #104)
+PJ	0	08:15:29.693	Core 1	2026.03.18 11:10:09   deal performed [#104 buy 0.54 XAUUSD at 4990.270]
+KO	0	08:15:29.693	Core 1	2026.03.18 11:10:09   order performed buy 0.54 at 4990.270 [#104 buy 0.54 XAUUSD at 4990.270]
+ON	0	08:15:29.693	Core 1	2026.03.18 11:10:09   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4988.830 tp: 4991.710 [done at 4990.270]
+JN	0	08:15:29.693	Core 1	2026.03.18 11:11:37   stop loss triggered #104 buy 0.54 XAUUSD 4990.270 sl: 4988.830 tp: 4991.710 [#105 sell 0.54 XAUUSD at 4988.830]
+QJ	0	08:15:29.693	Core 1	2026.03.18 11:11:37   deal #105 sell 0.54 XAUUSD at 4988.820 done (based on order #105)
+GG	0	08:15:29.693	Core 1	2026.03.18 11:11:37   deal performed [#105 sell 0.54 XAUUSD at 4988.820]
+OL	0	08:15:29.693	Core 1	2026.03.18 11:11:37   order performed sell 0.54 at 4988.820 [#105 sell 0.54 XAUUSD at 4988.830]
+RS	0	08:15:29.693	Core 1	2026.03.18 11:14:23   market buy 0.54 XAUUSD sl: 4987.310 tp: 4990.190 (4988.610 / 4988.750)
+EL	0	08:15:29.693	Core 1	2026.03.18 11:14:23   deal #106 buy 0.54 XAUUSD at 4988.750 done (based on order #106)
+PQ	0	08:15:29.693	Core 1	2026.03.18 11:14:23   deal performed [#106 buy 0.54 XAUUSD at 4988.750]
+ID	0	08:15:29.693	Core 1	2026.03.18 11:14:23   order performed buy 0.54 at 4988.750 [#106 buy 0.54 XAUUSD at 4988.750]
+JG	0	08:15:29.693	Core 1	2026.03.18 11:14:23   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4987.310 tp: 4990.190 [done at 4988.750]
+FE	0	08:15:29.693	Core 1	2026.03.18 11:16:35   stop loss triggered #106 buy 0.54 XAUUSD 4988.750 sl: 4987.310 tp: 4990.190 [#107 sell 0.54 XAUUSD at 4987.310]
+KQ	0	08:15:29.693	Core 1	2026.03.18 11:16:35   deal #107 sell 0.54 XAUUSD at 4987.170 done (based on order #107)
+CH	0	08:15:29.693	Core 1	2026.03.18 11:16:35   deal performed [#107 sell 0.54 XAUUSD at 4987.170]
+QE	0	08:15:29.693	Core 1	2026.03.18 11:16:35   order performed sell 0.54 at 4987.170 [#107 sell 0.54 XAUUSD at 4987.310]
+HD	0	08:15:29.693	Core 1	2026.03.18 11:28:56   market buy 0.54 XAUUSD sl: 4982.790 tp: 4985.670 (4983.990 / 4984.230)
+CE	0	08:15:29.693	Core 1	2026.03.18 11:28:56   deal #108 buy 0.54 XAUUSD at 4984.230 done (based on order #108)
+DH	0	08:15:29.693	Core 1	2026.03.18 11:28:56   deal performed [#108 buy 0.54 XAUUSD at 4984.230]
+HM	0	08:15:29.693	Core 1	2026.03.18 11:28:56   order performed buy 0.54 at 4984.230 [#108 buy 0.54 XAUUSD at 4984.230]
+DP	0	08:15:29.693	Core 1	2026.03.18 11:28:56   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4982.790 tp: 4985.670 [done at 4984.230]
+PL	0	08:15:29.693	Core 1	2026.03.18 11:29:24   stop loss triggered #108 buy 0.54 XAUUSD 4984.230 sl: 4982.790 tp: 4985.670 [#109 sell 0.54 XAUUSD at 4982.790]
+FH	0	08:15:29.693	Core 1	2026.03.18 11:29:24   deal #109 sell 0.54 XAUUSD at 4982.730 done (based on order #109)
+HQ	0	08:15:29.693	Core 1	2026.03.18 11:29:24   deal performed [#109 sell 0.54 XAUUSD at 4982.730]
+ER	0	08:15:29.693	Core 1	2026.03.18 11:29:24   order performed sell 0.54 at 4982.730 [#109 sell 0.54 XAUUSD at 4982.790]
+GM	0	08:15:29.693	Core 1	2026.03.18 11:30:59   market buy 0.54 XAUUSD sl: 4982.670 tp: 4985.550 (4983.910 / 4984.110)
+JN	0	08:15:29.693	Core 1	2026.03.18 11:30:59   deal #110 buy 0.54 XAUUSD at 4984.110 done (based on order #110)
+RG	0	08:15:29.693	Core 1	2026.03.18 11:30:59   deal performed [#110 buy 0.54 XAUUSD at 4984.110]
+MJ	0	08:15:29.693	Core 1	2026.03.18 11:30:59   order performed buy 0.54 at 4984.110 [#110 buy 0.54 XAUUSD at 4984.110]
+KI	0	08:15:29.693	Core 1	2026.03.18 11:30:59   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4982.670 tp: 4985.550 [done at 4984.110]
+GK	0	08:15:29.693	Core 1	2026.03.18 11:31:17   stop loss triggered #110 buy 0.54 XAUUSD 4984.110 sl: 4982.670 tp: 4985.550 [#111 sell 0.54 XAUUSD at 4982.670]
+KG	0	08:15:29.693	Core 1	2026.03.18 11:31:17   deal #111 sell 0.54 XAUUSD at 4982.600 done (based on order #111)
+JJ	0	08:15:29.693	Core 1	2026.03.18 11:31:17   deal performed [#111 sell 0.54 XAUUSD at 4982.600]
+RK	0	08:15:29.693	Core 1	2026.03.18 11:31:17   order performed sell 0.54 at 4982.600 [#111 sell 0.54 XAUUSD at 4982.670]
+EF	0	08:15:29.693	Core 1	2026.03.18 11:35:38   market buy 0.54 XAUUSD sl: 4965.070 tp: 4967.950 (4965.146 / 4966.510)
+PG	0	08:15:29.693	Core 1	2026.03.18 11:35:38   deal #112 buy 0.54 XAUUSD at 4966.510 done (based on order #112)
+JN	0	08:15:29.693	Core 1	2026.03.18 11:35:38   deal performed [#112 buy 0.54 XAUUSD at 4966.510]
+MS	0	08:15:29.693	Core 1	2026.03.18 11:35:38   order performed buy 0.54 at 4966.510 [#112 buy 0.54 XAUUSD at 4966.510]
+PR	0	08:15:29.693	Core 1	2026.03.18 11:35:38   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4965.070 tp: 4967.950 [done at 4966.510]
+HR	0	08:15:29.693	Core 1	2026.03.18 11:35:38   stop loss triggered #112 buy 0.54 XAUUSD 4966.510 sl: 4965.070 tp: 4967.950 [#113 sell 0.54 XAUUSD at 4965.070]
+GN	0	08:15:29.693	Core 1	2026.03.18 11:35:38   deal #113 sell 0.54 XAUUSD at 4963.480 done (based on order #113)
+LS	0	08:15:29.693	Core 1	2026.03.18 11:35:38   deal performed [#113 sell 0.54 XAUUSD at 4963.480]
+QP	0	08:15:29.693	Core 1	2026.03.18 11:35:38   order performed sell 0.54 at 4963.480 [#113 sell 0.54 XAUUSD at 4965.070]
+QO	0	08:15:29.693	Core 1	2026.03.18 11:51:31   market buy 0.54 XAUUSD sl: 4972.570 tp: 4975.450 (4973.800 / 4974.010)
+CH	0	08:15:29.693	Core 1	2026.03.18 11:51:31   deal #114 buy 0.54 XAUUSD at 4974.010 done (based on order #114)
+OE	0	08:15:29.693	Core 1	2026.03.18 11:51:31   deal performed [#114 buy 0.54 XAUUSD at 4974.010]
+JH	0	08:15:29.693	Core 1	2026.03.18 11:51:31   order performed buy 0.54 at 4974.010 [#114 buy 0.54 XAUUSD at 4974.010]
+PK	0	08:15:29.693	Core 1	2026.03.18 11:51:31   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4972.570 tp: 4975.450 [done at 4974.010]
+DH	0	08:15:29.693	Core 1	2026.03.18 11:51:52   take profit triggered #114 buy 0.54 XAUUSD 4974.010 sl: 4972.570 tp: 4975.450 [#115 sell 0.54 XAUUSD at 4975.450]
+RE	0	08:15:29.693	Core 1	2026.03.18 11:51:52   deal #115 sell 0.54 XAUUSD at 4976.180 done (based on order #115)
+OK	0	08:15:29.693	Core 1	2026.03.18 11:51:52   deal performed [#115 sell 0.54 XAUUSD at 4976.180]
+GI	0	08:15:29.693	Core 1	2026.03.18 11:51:52   order performed sell 0.54 at 4976.180 [#115 sell 0.54 XAUUSD at 4975.450]
+KP	0	08:15:29.693	Core 1	2026.03.18 11:56:12   market buy 0.54 XAUUSD sl: 4970.010 tp: 4972.890 (4971.270 / 4971.450)
+RQ	0	08:15:29.693	Core 1	2026.03.18 11:56:12   deal #116 buy 0.54 XAUUSD at 4971.450 done (based on order #116)
+DL	0	08:15:29.693	Core 1	2026.03.18 11:56:12   deal performed [#116 buy 0.54 XAUUSD at 4971.450]
+JQ	0	08:15:29.693	Core 1	2026.03.18 11:56:12   order performed buy 0.54 at 4971.450 [#116 buy 0.54 XAUUSD at 4971.450]
+OD	0	08:15:29.693	Core 1	2026.03.18 11:56:12   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4970.010 tp: 4972.890 [done at 4971.450]
+DP	0	08:15:29.693	Core 1	2026.03.18 11:56:26   stop loss triggered #116 buy 0.54 XAUUSD 4971.450 sl: 4970.010 tp: 4972.890 [#117 sell 0.54 XAUUSD at 4970.010]
+RL	0	08:15:29.693	Core 1	2026.03.18 11:56:26   deal #117 sell 0.54 XAUUSD at 4969.740 done (based on order #117)
+QL	0	08:15:29.693	Core 1	2026.03.18 11:56:26   deal performed [#117 sell 0.54 XAUUSD at 4969.740]
+FF	0	08:15:29.693	Core 1	2026.03.18 11:56:26   order performed sell 0.54 at 4969.740 [#117 sell 0.54 XAUUSD at 4970.010]
+HI	0	08:15:29.693	Core 1	2026.03.18 11:57:36   market buy 0.54 XAUUSD sl: 4961.660 tp: 4964.540 (4962.910 / 4963.100)
+NJ	0	08:15:29.693	Core 1	2026.03.18 11:57:36   deal #118 buy 0.54 XAUUSD at 4963.100 done (based on order #118)
+NK	0	08:15:29.693	Core 1	2026.03.18 11:57:36   deal performed [#118 buy 0.54 XAUUSD at 4963.100]
+QN	0	08:15:29.693	Core 1	2026.03.18 11:57:36   order performed buy 0.54 at 4963.100 [#118 buy 0.54 XAUUSD at 4963.100]
+QM	0	08:15:29.693	Core 1	2026.03.18 11:57:36   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4961.660 tp: 4964.540 [done at 4963.100]
+IO	0	08:15:29.693	Core 1	2026.03.18 11:57:42   stop loss triggered #118 buy 0.54 XAUUSD 4963.100 sl: 4961.660 tp: 4964.540 [#119 sell 0.54 XAUUSD at 4961.660]
+JK	0	08:15:29.693	Core 1	2026.03.18 11:57:42   deal #119 sell 0.54 XAUUSD at 4961.660 done (based on order #119)
+KE	0	08:15:29.693	Core 1	2026.03.18 11:57:42   deal performed [#119 sell 0.54 XAUUSD at 4961.660]
+GO	0	08:15:29.693	Core 1	2026.03.18 11:57:42   order performed sell 0.54 at 4961.660 [#119 sell 0.54 XAUUSD at 4961.660]
+MR	0	08:15:29.693	Core 1	2026.03.18 12:04:00   market buy 0.54 XAUUSD sl: 4958.650 tp: 4961.530 (4959.870 / 4960.090)
+CS	0	08:15:29.693	Core 1	2026.03.18 12:04:00   deal #120 buy 0.54 XAUUSD at 4960.090 done (based on order #120)
+NR	0	08:15:29.693	Core 1	2026.03.18 12:04:00   deal performed [#120 buy 0.54 XAUUSD at 4960.090]
+HG	0	08:15:29.693	Core 1	2026.03.18 12:04:00   order performed buy 0.54 at 4960.090 [#120 buy 0.54 XAUUSD at 4960.090]
+QF	0	08:15:29.693	Core 1	2026.03.18 12:04:00   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4958.650 tp: 4961.530 [done at 4960.090]
+PF	0	08:15:29.693	Core 1	2026.03.18 12:04:32   stop loss triggered #120 buy 0.54 XAUUSD 4960.090 sl: 4958.650 tp: 4961.530 [#121 sell 0.54 XAUUSD at 4958.650]
+NR	0	08:15:29.693	Core 1	2026.03.18 12:04:32   deal #121 sell 0.54 XAUUSD at 4958.620 done (based on order #121)
+RN	0	08:15:29.693	Core 1	2026.03.18 12:04:32   deal performed [#121 sell 0.54 XAUUSD at 4958.620]
+MD	0	08:15:29.693	Core 1	2026.03.18 12:04:32   order performed sell 0.54 at 4958.620 [#121 sell 0.54 XAUUSD at 4958.650]
+OK	0	08:15:29.693	Core 1	2026.03.18 12:25:50   market buy 0.54 XAUUSD sl: 4962.400 tp: 4965.280 (4963.655 / 4963.840)
+CD	0	08:15:29.693	Core 1	2026.03.18 12:25:50   deal #122 buy 0.54 XAUUSD at 4963.840 done (based on order #122)
+LI	0	08:15:29.693	Core 1	2026.03.18 12:25:50   deal performed [#122 buy 0.54 XAUUSD at 4963.840]
+DL	0	08:15:29.693	Core 1	2026.03.18 12:25:50   order performed buy 0.54 at 4963.840 [#122 buy 0.54 XAUUSD at 4963.840]
+KO	0	08:15:29.693	Core 1	2026.03.18 12:25:50   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4962.400 tp: 4965.280 [done at 4963.840]
+CM	0	08:15:29.693	Core 1	2026.03.18 12:26:20   stop loss triggered #122 buy 0.54 XAUUSD 4963.840 sl: 4962.400 tp: 4965.280 [#123 sell 0.54 XAUUSD at 4962.400]
+II	0	08:15:29.693	Core 1	2026.03.18 12:26:20   deal #123 sell 0.54 XAUUSD at 4962.030 done (based on order #123)
+CG	0	08:15:29.693	Core 1	2026.03.18 12:26:20   deal performed [#123 sell 0.54 XAUUSD at 4962.030]
+NM	0	08:15:29.693	Core 1	2026.03.18 12:26:20   order performed sell 0.54 at 4962.030 [#123 sell 0.54 XAUUSD at 4962.400]
+OL	0	08:15:29.693	Core 1	2026.03.18 12:28:47   market buy 0.54 XAUUSD sl: 4945.970 tp: 4948.850 (4947.210 / 4947.410)
+GM	0	08:15:29.693	Core 1	2026.03.18 12:28:47   deal #124 buy 0.54 XAUUSD at 4947.410 done (based on order #124)
+NP	0	08:15:29.693	Core 1	2026.03.18 12:28:47   deal performed [#124 buy 0.54 XAUUSD at 4947.410]
+OE	0	08:15:29.693	Core 1	2026.03.18 12:28:47   order performed buy 0.54 at 4947.410 [#124 buy 0.54 XAUUSD at 4947.410]
+NH	0	08:15:29.693	Core 1	2026.03.18 12:28:47   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4945.970 tp: 4948.850 [done at 4947.410]
+HE	0	08:15:29.693	Core 1	2026.03.18 12:29:16   take profit triggered #124 buy 0.54 XAUUSD 4947.410 sl: 4945.970 tp: 4948.850 [#125 sell 0.54 XAUUSD at 4948.850]
+NQ	0	08:15:29.693	Core 1	2026.03.18 12:29:16   deal #125 sell 0.54 XAUUSD at 4948.880 done (based on order #125)
+FH	0	08:15:29.693	Core 1	2026.03.18 12:29:16   deal performed [#125 sell 0.54 XAUUSD at 4948.880]
+DJ	0	08:15:29.693	Core 1	2026.03.18 12:29:16   order performed sell 0.54 at 4948.880 [#125 sell 0.54 XAUUSD at 4948.850]
+GE	0	08:15:29.693	Core 1	2026.03.18 12:35:34   market buy 0.54 XAUUSD sl: 4950.420 tp: 4953.300 (4951.620 / 4951.860)
+GF	0	08:15:29.693	Core 1	2026.03.18 12:35:34   deal #126 buy 0.54 XAUUSD at 4951.860 done (based on order #126)
+LO	0	08:15:29.693	Core 1	2026.03.18 12:35:34   deal performed [#126 buy 0.54 XAUUSD at 4951.860]
+MM	0	08:15:29.693	Core 1	2026.03.18 12:35:34   order performed buy 0.54 at 4951.860 [#126 buy 0.54 XAUUSD at 4951.860]
+NP	0	08:15:29.693	Core 1	2026.03.18 12:35:34   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4950.420 tp: 4953.300 [done at 4951.860]
+RM	0	08:15:29.693	Core 1	2026.03.18 12:35:48   take profit triggered #126 buy 0.54 XAUUSD 4951.860 sl: 4950.420 tp: 4953.300 [#127 sell 0.54 XAUUSD at 4953.300]
+GH	0	08:15:29.693	Core 1	2026.03.18 12:35:48   deal #127 sell 0.54 XAUUSD at 4953.430 done (based on order #127)
+IQ	0	08:15:29.693	Core 1	2026.03.18 12:35:48   deal performed [#127 sell 0.54 XAUUSD at 4953.430]
+KS	0	08:15:29.693	Core 1	2026.03.18 12:35:48   order performed sell 0.54 at 4953.430 [#127 sell 0.54 XAUUSD at 4953.300]
+LM	0	08:15:29.693	Core 1	2026.03.18 12:48:24   market buy 0.54 XAUUSD sl: 4934.350 tp: 4937.230 (4935.590 / 4935.790)
+DN	0	08:15:29.693	Core 1	2026.03.18 12:48:24   deal #128 buy 0.54 XAUUSD at 4935.790 done (based on order #128)
+EG	0	08:15:29.693	Core 1	2026.03.18 12:48:24   deal performed [#128 buy 0.54 XAUUSD at 4935.790]
+NJ	0	08:15:29.693	Core 1	2026.03.18 12:48:24   order performed buy 0.54 at 4935.790 [#128 buy 0.54 XAUUSD at 4935.790]
+GI	0	08:15:29.693	Core 1	2026.03.18 12:48:24   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4934.350 tp: 4937.230 [done at 4935.790]
+PK	0	08:15:29.693	Core 1	2026.03.18 12:48:31   stop loss triggered #128 buy 0.54 XAUUSD 4935.790 sl: 4934.350 tp: 4937.230 [#129 sell 0.54 XAUUSD at 4934.350]
+EG	0	08:15:29.693	Core 1	2026.03.18 12:48:31   deal #129 sell 0.54 XAUUSD at 4933.740 done (based on order #129)
+QJ	0	08:15:29.693	Core 1	2026.03.18 12:48:31   deal performed [#129 sell 0.54 XAUUSD at 4933.740]
+GH	0	08:15:29.693	Core 1	2026.03.18 12:48:31   order performed sell 0.54 at 4933.740 [#129 sell 0.54 XAUUSD at 4934.350]
+HF	0	08:15:29.693	Core 1	2026.03.18 13:01:16   market buy 0.54 XAUUSD sl: 4921.800 tp: 4924.680 (4923.020 / 4923.240)
+FG	0	08:15:29.693	Core 1	2026.03.18 13:01:16   deal #130 buy 0.54 XAUUSD at 4923.240 done (based on order #130)
+LN	0	08:15:29.693	Core 1	2026.03.18 13:01:16   deal performed [#130 buy 0.54 XAUUSD at 4923.240]
+RS	0	08:15:29.693	Core 1	2026.03.18 13:01:16   order performed buy 0.54 at 4923.240 [#130 buy 0.54 XAUUSD at 4923.240]
+DR	0	08:15:29.693	Core 1	2026.03.18 13:01:16   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4921.800 tp: 4924.680 [done at 4923.240]
+IS	0	08:15:29.693	Core 1	2026.03.18 13:01:20   take profit triggered #130 buy 0.54 XAUUSD 4923.240 sl: 4921.800 tp: 4924.680 [#131 sell 0.54 XAUUSD at 4924.680]
+DN	0	08:15:29.693	Core 1	2026.03.18 13:01:20   deal #131 sell 0.54 XAUUSD at 4924.710 done (based on order #131)
+OS	0	08:15:29.693	Core 1	2026.03.18 13:01:20   deal performed [#131 sell 0.54 XAUUSD at 4924.710]
+JP	0	08:15:29.693	Core 1	2026.03.18 13:01:20   order performed sell 0.54 at 4924.710 [#131 sell 0.54 XAUUSD at 4924.680]
+HO	0	08:15:29.693	Core 1	2026.03.18 13:05:56   market buy 0.54 XAUUSD sl: 4926.580 tp: 4929.460 (4927.790 / 4928.020)
+KH	0	08:15:29.693	Core 1	2026.03.18 13:05:56   deal #132 buy 0.54 XAUUSD at 4928.020 done (based on order #132)
+CE	0	08:15:29.693	Core 1	2026.03.18 13:05:56   deal performed [#132 buy 0.54 XAUUSD at 4928.020]
+DH	0	08:15:29.693	Core 1	2026.03.18 13:05:56   order performed buy 0.54 at 4928.020 [#132 buy 0.54 XAUUSD at 4928.020]
+DK	0	08:15:29.693	Core 1	2026.03.18 13:05:56   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4926.580 tp: 4929.460 [done at 4928.020]
+DI	0	08:15:29.693	Core 1	2026.03.18 13:06:05   stop loss triggered #132 buy 0.54 XAUUSD 4928.020 sl: 4926.580 tp: 4929.460 [#133 sell 0.54 XAUUSD at 4926.580]
+HE	0	08:15:29.693	Core 1	2026.03.18 13:06:05   deal #133 sell 0.54 XAUUSD at 4926.550 done (based on order #133)
+MD	0	08:15:29.693	Core 1	2026.03.18 13:06:05   deal performed [#133 sell 0.54 XAUUSD at 4926.550]
+CI	0	08:15:29.693	Core 1	2026.03.18 13:06:05   order performed sell 0.54 at 4926.550 [#133 sell 0.54 XAUUSD at 4926.580]
+LP	0	08:15:29.693	Core 1	2026.03.18 13:07:34   market buy 0.54 XAUUSD sl: 4913.630 tp: 4916.510 (4914.830 / 4915.070)
+HQ	0	08:15:29.693	Core 1	2026.03.18 13:07:34   deal #134 buy 0.54 XAUUSD at 4915.070 done (based on order #134)
+NL	0	08:15:29.693	Core 1	2026.03.18 13:07:34   deal performed [#134 buy 0.54 XAUUSD at 4915.070]
+DQ	0	08:15:29.693	Core 1	2026.03.18 13:07:34   order performed buy 0.54 at 4915.070 [#134 buy 0.54 XAUUSD at 4915.070]
+KD	0	08:15:29.693	Core 1	2026.03.18 13:07:34   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4913.630 tp: 4916.510 [done at 4915.070]
+CQ	0	08:15:29.693	Core 1	2026.03.18 13:07:35   take profit triggered #134 buy 0.54 XAUUSD 4915.070 sl: 4913.630 tp: 4916.510 [#135 sell 0.54 XAUUSD at 4916.510]
+OL	0	08:15:29.693	Core 1	2026.03.18 13:07:35   deal #135 sell 0.54 XAUUSD at 4916.840 done (based on order #135)
+PL	0	08:15:29.693	Core 1	2026.03.18 13:07:35   deal performed [#135 sell 0.54 XAUUSD at 4916.840]
+HF	0	08:15:29.693	Core 1	2026.03.18 13:07:35   order performed sell 0.54 at 4916.840 [#135 sell 0.54 XAUUSD at 4916.510]
+OI	0	08:15:29.693	Core 1	2026.03.18 13:16:26   market buy 0.54 XAUUSD sl: 4902.400 tp: 4905.280 (4903.600 / 4903.840)
+IJ	0	08:15:29.693	Core 1	2026.03.18 13:16:26   deal #136 buy 0.54 XAUUSD at 4903.840 done (based on order #136)
+MK	0	08:15:29.693	Core 1	2026.03.18 13:16:26   deal performed [#136 buy 0.54 XAUUSD at 4903.840]
+GN	0	08:15:29.693	Core 1	2026.03.18 13:16:26   order performed buy 0.54 at 4903.840 [#136 buy 0.54 XAUUSD at 4903.840]
+QM	0	08:15:29.693	Core 1	2026.03.18 13:16:26   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4902.400 tp: 4905.280 [done at 4903.840]
+FO	0	08:15:29.693	Core 1	2026.03.18 13:16:47   stop loss triggered #136 buy 0.54 XAUUSD 4903.840 sl: 4902.400 tp: 4905.280 [#137 sell 0.54 XAUUSD at 4902.400]
+IK	0	08:15:29.693	Core 1	2026.03.18 13:16:47   deal #137 sell 0.54 XAUUSD at 4902.350 done (based on order #137)
+HE	0	08:15:29.693	Core 1	2026.03.18 13:16:47   deal performed [#137 sell 0.54 XAUUSD at 4902.350]
+KO	0	08:15:29.693	Core 1	2026.03.18 13:16:47   order performed sell 0.54 at 4902.350 [#137 sell 0.54 XAUUSD at 4902.400]
+PR	0	08:15:29.693	Core 1	2026.03.18 13:24:49   market buy 0.54 XAUUSD sl: 4898.090 tp: 4900.970 (4899.290 / 4899.530)
+IS	0	08:15:29.693	Core 1	2026.03.18 13:24:49   deal #138 buy 0.54 XAUUSD at 4899.530 done (based on order #138)
+GR	0	08:15:29.693	Core 1	2026.03.18 13:24:49   deal performed [#138 buy 0.54 XAUUSD at 4899.530]
+EG	0	08:15:29.693	Core 1	2026.03.18 13:24:49   order performed buy 0.54 at 4899.530 [#138 buy 0.54 XAUUSD at 4899.530]
+CF	0	08:15:29.693	Core 1	2026.03.18 13:24:49   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4898.090 tp: 4900.970 [done at 4899.530]
+OG	0	08:15:29.693	Core 1	2026.03.18 13:25:04   take profit triggered #138 buy 0.54 XAUUSD 4899.530 sl: 4898.090 tp: 4900.970 [#139 sell 0.54 XAUUSD at 4900.970]
+QS	0	08:15:29.693	Core 1	2026.03.18 13:25:04   deal #139 sell 0.54 XAUUSD at 4901.170 done (based on order #139)
+NN	0	08:15:29.693	Core 1	2026.03.18 13:25:04   deal performed [#139 sell 0.54 XAUUSD at 4901.170]
+ID	0	08:15:29.693	Core 1	2026.03.18 13:25:04   order performed sell 0.54 at 4901.170 [#139 sell 0.54 XAUUSD at 4900.970]
+NK	0	08:15:29.693	Core 1	2026.03.18 13:30:59   market buy 0.54 XAUUSD sl: 4891.340 tp: 4894.220 (4892.540 / 4892.780)
+GD	0	08:15:29.693	Core 1	2026.03.18 13:30:59   deal #140 buy 0.54 XAUUSD at 4892.780 done (based on order #140)
+LI	0	08:15:29.693	Core 1	2026.03.18 13:30:59   deal performed [#140 buy 0.54 XAUUSD at 4892.780]
+HO	0	08:15:29.693	Core 1	2026.03.18 13:30:59   order performed buy 0.54 at 4892.780 [#140 buy 0.54 XAUUSD at 4892.780]
+RN	0	08:15:29.693	Core 1	2026.03.18 13:30:59   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4891.340 tp: 4894.220 [done at 4892.780]
+EO	0	08:15:29.693	Core 1	2026.03.18 13:31:06   take profit triggered #140 buy 0.54 XAUUSD 4892.780 sl: 4891.340 tp: 4894.220 [#141 sell 0.54 XAUUSD at 4894.220]
+JJ	0	08:15:29.693	Core 1	2026.03.18 13:31:06   deal #141 sell 0.54 XAUUSD at 4896.740 done (based on order #141)
+HG	0	08:15:29.693	Core 1	2026.03.18 13:31:06   deal performed [#141 sell 0.54 XAUUSD at 4896.740]
+EM	0	08:15:29.693	Core 1	2026.03.18 13:31:06   order performed sell 0.54 at 4896.740 [#141 sell 0.54 XAUUSD at 4894.220]
+ES	0	08:15:29.693	Core 1	2026.03.18 13:44:43   market buy 0.54 XAUUSD sl: 4875.730 tp: 4878.610 (4876.910 / 4877.170)
+EL	0	08:15:29.693	Core 1	2026.03.18 13:44:43   deal #142 buy 0.54 XAUUSD at 4877.170 done (based on order #142)
+PQ	0	08:15:29.693	Core 1	2026.03.18 13:44:43   deal performed [#142 buy 0.54 XAUUSD at 4877.170]
+ND	0	08:15:29.693	Core 1	2026.03.18 13:44:43   order performed buy 0.54 at 4877.170 [#142 buy 0.54 XAUUSD at 4877.170]
+PG	0	08:15:29.693	Core 1	2026.03.18 13:44:43   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4875.730 tp: 4878.610 [done at 4877.170]
+CE	0	08:15:29.693	Core 1	2026.03.18 13:45:11   stop loss triggered #142 buy 0.54 XAUUSD 4877.170 sl: 4875.730 tp: 4878.610 [#143 sell 0.54 XAUUSD at 4875.730]
+LQ	0	08:15:29.693	Core 1	2026.03.18 13:45:11   deal #143 sell 0.54 XAUUSD at 4875.720 done (based on order #143)
+LH	0	08:15:29.693	Core 1	2026.03.18 13:45:11   deal performed [#143 sell 0.54 XAUUSD at 4875.720]
+HJ	0	08:15:29.693	Core 1	2026.03.18 13:45:11   order performed sell 0.54 at 4875.720 [#143 sell 0.54 XAUUSD at 4875.730]
+HD	0	08:15:29.693	Core 1	2026.03.18 13:54:38   market buy 0.54 XAUUSD sl: 4883.450 tp: 4886.330 (4884.680 / 4884.890)
+GE	0	08:15:29.693	Core 1	2026.03.18 13:54:38   deal #144 buy 0.54 XAUUSD at 4884.890 done (based on order #144)
+PH	0	08:15:29.693	Core 1	2026.03.18 13:54:38   deal performed [#144 buy 0.54 XAUUSD at 4884.890]
+CM	0	08:15:29.693	Core 1	2026.03.18 13:54:38   order performed buy 0.54 at 4884.890 [#144 buy 0.54 XAUUSD at 4884.890]
+DP	0	08:15:29.693	Core 1	2026.03.18 13:54:38   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4883.450 tp: 4886.330 [done at 4884.890]
+OM	0	08:15:29.693	Core 1	2026.03.18 13:54:47   take profit triggered #144 buy 0.54 XAUUSD 4884.890 sl: 4883.450 tp: 4886.330 [#145 sell 0.54 XAUUSD at 4886.330]
+NH	0	08:15:29.693	Core 1	2026.03.18 13:54:47   deal #145 sell 0.54 XAUUSD at 4886.370 done (based on order #145)
+HQ	0	08:15:29.693	Core 1	2026.03.18 13:54:47   deal performed [#145 sell 0.54 XAUUSD at 4886.370]
+LR	0	08:15:29.693	Core 1	2026.03.18 13:54:47   order performed sell 0.54 at 4886.370 [#145 sell 0.54 XAUUSD at 4886.330]
+PM	0	08:15:29.693	Core 1	2026.03.18 14:00:06   market buy 0.54 XAUUSD sl: 4874.340 tp: 4877.220 (4875.520 / 4875.780)
+NN	0	08:15:29.693	Core 1	2026.03.18 14:00:06   deal #146 buy 0.54 XAUUSD at 4875.780 done (based on order #146)
+CG	0	08:15:29.693	Core 1	2026.03.18 14:00:06   deal performed [#146 buy 0.54 XAUUSD at 4875.780]
+HJ	0	08:15:29.693	Core 1	2026.03.18 14:00:06   order performed buy 0.54 at 4875.780 [#146 buy 0.54 XAUUSD at 4875.780]
+II	0	08:15:29.693	Core 1	2026.03.18 14:00:06   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.340 tp: 4877.220 [done at 4875.780]
+RK	0	08:15:29.693	Core 1	2026.03.18 14:00:06   stop loss triggered #146 buy 0.54 XAUUSD 4875.780 sl: 4874.340 tp: 4877.220 [#147 sell 0.54 XAUUSD at 4874.340]
+DG	0	08:15:29.693	Core 1	2026.03.18 14:00:06   deal #147 sell 0.54 XAUUSD at 4874.220 done (based on order #147)
+PJ	0	08:15:29.693	Core 1	2026.03.18 14:00:06   deal performed [#147 sell 0.54 XAUUSD at 4874.220]
+NK	0	08:15:29.693	Core 1	2026.03.18 14:00:06   order performed sell 0.54 at 4874.220 [#147 sell 0.54 XAUUSD at 4874.340]
+JF	0	08:15:29.693	Core 1	2026.03.18 14:00:15   market buy 0.54 XAUUSD sl: 4868.740 tp: 4871.620 (4869.930 / 4870.180)
+MG	0	08:15:29.693	Core 1	2026.03.18 14:00:15   deal #148 buy 0.54 XAUUSD at 4870.180 done (based on order #148)
+RN	0	08:15:29.693	Core 1	2026.03.18 14:00:15   deal performed [#148 buy 0.54 XAUUSD at 4870.180]
+LS	0	08:15:29.693	Core 1	2026.03.18 14:00:15   order performed buy 0.54 at 4870.180 [#148 buy 0.54 XAUUSD at 4870.180]
+OR	0	08:15:29.693	Core 1	2026.03.18 14:00:15   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4868.740 tp: 4871.620 [done at 4870.180]
+OR	0	08:15:29.693	Core 1	2026.03.18 14:00:15   stop loss triggered #148 buy 0.54 XAUUSD 4870.180 sl: 4868.740 tp: 4871.620 [#149 sell 0.54 XAUUSD at 4868.740]
+MN	0	08:15:29.693	Core 1	2026.03.18 14:00:15   deal #149 sell 0.54 XAUUSD at 4868.510 done (based on order #149)
+KS	0	08:15:29.693	Core 1	2026.03.18 14:00:15   deal performed [#149 sell 0.54 XAUUSD at 4868.510]
+JP	0	08:15:29.693	Core 1	2026.03.18 14:00:15   order performed sell 0.54 at 4868.510 [#149 sell 0.54 XAUUSD at 4868.740]
+HO	0	08:15:29.693	Core 1	2026.03.18 14:00:17   market buy 0.54 XAUUSD sl: 4866.610 tp: 4869.490 (4867.830 / 4868.050)
+PH	0	08:15:29.693	Core 1	2026.03.18 14:00:17   deal #150 buy 0.54 XAUUSD at 4868.050 done (based on order #150)
+DE	0	08:15:29.693	Core 1	2026.03.18 14:00:17   deal performed [#150 buy 0.54 XAUUSD at 4868.050]
+EH	0	08:15:29.693	Core 1	2026.03.18 14:00:17   order performed buy 0.54 at 4868.050 [#150 buy 0.54 XAUUSD at 4868.050]
+DK	0	08:15:29.693	Core 1	2026.03.18 14:00:17   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4866.610 tp: 4869.490 [done at 4868.050]
+LI	0	08:15:29.693	Core 1	2026.03.18 14:00:26   stop loss triggered #150 buy 0.54 XAUUSD 4868.050 sl: 4866.610 tp: 4869.490 [#151 sell 0.54 XAUUSD at 4866.610]
+OE	0	08:15:29.693	Core 1	2026.03.18 14:00:26   deal #151 sell 0.54 XAUUSD at 4865.870 done (based on order #151)
+JD	0	08:15:29.693	Core 1	2026.03.18 14:00:26   deal performed [#151 sell 0.54 XAUUSD at 4865.870]
+EI	0	08:15:29.693	Core 1	2026.03.18 14:00:26   order performed sell 0.54 at 4865.870 [#151 sell 0.54 XAUUSD at 4866.610]
+IP	0	08:15:29.693	Core 1	2026.03.18 14:00:53   market buy 0.54 XAUUSD sl: 4862.680 tp: 4865.560 (4863.900 / 4864.120)
+JQ	0	08:15:29.693	Core 1	2026.03.18 14:00:53   deal #152 buy 0.54 XAUUSD at 4864.120 done (based on order #152)
+LL	0	08:15:29.693	Core 1	2026.03.18 14:00:53   deal performed [#152 buy 0.54 XAUUSD at 4864.120]
+CQ	0	08:15:29.693	Core 1	2026.03.18 14:00:53   order performed buy 0.54 at 4864.120 [#152 buy 0.54 XAUUSD at 4864.120]
+GD	0	08:15:29.693	Core 1	2026.03.18 14:00:53   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4862.680 tp: 4865.560 [done at 4864.120]
+FP	0	08:15:29.693	Core 1	2026.03.18 14:00:53   stop loss triggered #152 buy 0.54 XAUUSD 4864.120 sl: 4862.680 tp: 4865.560 [#153 sell 0.54 XAUUSD at 4862.680]
+DL	0	08:15:29.693	Core 1	2026.03.18 14:00:53   deal #153 sell 0.54 XAUUSD at 4862.250 done (based on order #153)
+KM	0	08:15:29.693	Core 1	2026.03.18 14:00:53   deal performed [#153 sell 0.54 XAUUSD at 4862.250]
+CF	0	08:15:29.693	Core 1	2026.03.18 14:00:53   order performed sell 0.54 at 4862.250 [#153 sell 0.54 XAUUSD at 4862.680]
+CI	0	08:15:29.693	Core 1	2026.03.18 14:01:03   market buy 0.54 XAUUSD sl: 4858.580 tp: 4861.460 (4859.800 / 4860.020)
+IJ	0	08:15:29.693	Core 1	2026.03.18 14:01:03   deal #154 buy 0.54 XAUUSD at 4860.020 done (based on order #154)
+QK	0	08:15:29.693	Core 1	2026.03.18 14:01:03   deal performed [#154 buy 0.54 XAUUSD at 4860.020]
+EN	0	08:15:29.693	Core 1	2026.03.18 14:01:03   order performed buy 0.54 at 4860.020 [#154 buy 0.54 XAUUSD at 4860.020]
+MM	0	08:15:29.693	Core 1	2026.03.18 14:01:03   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4858.580 tp: 4861.460 [done at 4860.020]
+OO	0	08:15:29.693	Core 1	2026.03.18 14:01:08   stop loss triggered #154 buy 0.54 XAUUSD 4860.020 sl: 4858.580 tp: 4861.460 [#155 sell 0.54 XAUUSD at 4858.580]
+DK	0	08:15:29.693	Core 1	2026.03.18 14:01:08   deal #155 sell 0.54 XAUUSD at 4858.450 done (based on order #155)
+QF	0	08:15:29.693	Core 1	2026.03.18 14:01:08   deal performed [#155 sell 0.54 XAUUSD at 4858.450]
+OO	0	08:15:29.693	Core 1	2026.03.18 14:01:08   order performed sell 0.54 at 4858.450 [#155 sell 0.54 XAUUSD at 4858.580]
+IR	0	08:15:29.693	Core 1	2026.03.18 14:01:10   market buy 0.54 XAUUSD sl: 4856.470 tp: 4859.350 (4857.650 / 4857.910)
+MS	0	08:15:29.693	Core 1	2026.03.18 14:01:10   deal #156 buy 0.54 XAUUSD at 4857.910 done (based on order #156)
+CR	0	08:15:29.693	Core 1	2026.03.18 14:01:10   deal performed [#156 buy 0.54 XAUUSD at 4857.910]
+EG	0	08:15:29.693	Core 1	2026.03.18 14:01:10   order performed buy 0.54 at 4857.910 [#156 buy 0.54 XAUUSD at 4857.910]
+LF	0	08:15:29.693	Core 1	2026.03.18 14:01:10   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4856.470 tp: 4859.350 [done at 4857.910]
+MG	0	08:15:29.693	Core 1	2026.03.18 14:01:12   take profit triggered #156 buy 0.54 XAUUSD 4857.910 sl: 4856.470 tp: 4859.350 [#157 sell 0.54 XAUUSD at 4859.350]
+QR	0	08:15:29.693	Core 1	2026.03.18 14:01:12   deal #157 sell 0.54 XAUUSD at 4859.550 done (based on order #157)
+NN	0	08:15:29.693	Core 1	2026.03.18 14:01:12   deal performed [#157 sell 0.54 XAUUSD at 4859.550]
+ND	0	08:15:29.693	Core 1	2026.03.18 14:01:12   order performed sell 0.54 at 4859.550 [#157 sell 0.54 XAUUSD at 4859.350]
+CK	0	08:15:29.693	Core 1	2026.03.18 14:01:14   market buy 0.54 XAUUSD sl: 4856.150 tp: 4859.030 (4857.380 / 4857.590)
+ID	0	08:15:29.693	Core 1	2026.03.18 14:01:14   deal #158 buy 0.54 XAUUSD at 4857.590 done (based on order #158)
+EI	0	08:15:29.693	Core 1	2026.03.18 14:01:14   deal performed [#158 buy 0.54 XAUUSD at 4857.590]
+OL	0	08:15:29.693	Core 1	2026.03.18 14:01:14   order performed buy 0.54 at 4857.590 [#158 buy 0.54 XAUUSD at 4857.590]
+RO	0	08:15:29.693	Core 1	2026.03.18 14:01:14   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4856.150 tp: 4859.030 [done at 4857.590]
+CM	0	08:15:29.693	Core 1	2026.03.18 14:01:22   stop loss triggered #158 buy 0.54 XAUUSD 4857.590 sl: 4856.150 tp: 4859.030 [#159 sell 0.54 XAUUSD at 4856.150]
+QI	0	08:15:29.693	Core 1	2026.03.18 14:01:22   deal #159 sell 0.54 XAUUSD at 4855.960 done (based on order #159)
+HG	0	08:15:29.693	Core 1	2026.03.18 14:01:22   deal performed [#159 sell 0.54 XAUUSD at 4855.960]
+KM	0	08:15:29.693	Core 1	2026.03.18 14:01:22   order performed sell 0.54 at 4855.960 [#159 sell 0.54 XAUUSD at 4856.150]
+IL	0	08:15:29.693	Core 1	2026.03.18 14:12:08   market buy 0.54 XAUUSD sl: 4852.230 tp: 4855.110 (4853.450 / 4853.670)
+CM	0	08:15:29.693	Core 1	2026.03.18 14:12:08   deal #160 buy 0.54 XAUUSD at 4853.670 done (based on order #160)
+RP	0	08:15:29.693	Core 1	2026.03.18 14:12:08   deal performed [#160 buy 0.54 XAUUSD at 4853.670]
+KE	0	08:15:29.693	Core 1	2026.03.18 14:12:08   order performed buy 0.54 at 4853.670 [#160 buy 0.54 XAUUSD at 4853.670]
+JH	0	08:15:29.693	Core 1	2026.03.18 14:12:08   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4852.230 tp: 4855.110 [done at 4853.670]
+PE	0	08:15:29.693	Core 1	2026.03.18 14:12:09   take profit triggered #160 buy 0.54 XAUUSD 4853.670 sl: 4852.230 tp: 4855.110 [#161 sell 0.54 XAUUSD at 4855.110]
+EQ	0	08:15:29.693	Core 1	2026.03.18 14:12:09   deal #161 sell 0.54 XAUUSD at 4855.260 done (based on order #161)
+MH	0	08:15:29.693	Core 1	2026.03.18 14:12:09   deal performed [#161 sell 0.54 XAUUSD at 4855.260]
+KJ	0	08:15:29.693	Core 1	2026.03.18 14:12:09   order performed sell 0.54 at 4855.260 [#161 sell 0.54 XAUUSD at 4855.110]
+QE	0	08:15:29.693	Core 1	2026.03.18 14:18:00   market buy 0.54 XAUUSD sl: 4839.270 tp: 4842.150 (4840.470 / 4840.710)
+FF	0	08:15:29.693	Core 1	2026.03.18 14:18:00   deal #162 buy 0.54 XAUUSD at 4840.710 done (based on order #162)
+QO	0	08:15:29.693	Core 1	2026.03.18 14:18:00   deal performed [#162 buy 0.54 XAUUSD at 4840.710]
+GM	0	08:15:29.693	Core 1	2026.03.18 14:18:00   order performed buy 0.54 at 4840.710 [#162 buy 0.54 XAUUSD at 4840.710]
+JP	0	08:15:29.693	Core 1	2026.03.18 14:18:00   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4839.270 tp: 4842.150 [done at 4840.710]
+JL	0	08:15:29.693	Core 1	2026.03.18 14:18:02   stop loss triggered #162 buy 0.54 XAUUSD 4840.710 sl: 4839.270 tp: 4842.150 [#163 sell 0.54 XAUUSD at 4839.270]
+KH	0	08:15:29.693	Core 1	2026.03.18 14:18:02   deal #163 sell 0.54 XAUUSD at 4839.270 done (based on order #163)
+EQ	0	08:15:29.693	Core 1	2026.03.18 14:18:02   deal performed [#163 sell 0.54 XAUUSD at 4839.270]
+RS	0	08:15:29.693	Core 1	2026.03.18 14:18:02   order performed sell 0.54 at 4839.270 [#163 sell 0.54 XAUUSD at 4839.270]
+LN	0	08:15:29.693	Core 1	2026.03.18 14:18:18   market buy 0.54 XAUUSD sl: 4833.170 tp: 4836.050 (4834.430 / 4834.610)
+KO	0	08:15:29.693	Core 1	2026.03.18 14:18:18   deal #164 buy 0.54 XAUUSD at 4834.610 done (based on order #164)
+FF	0	08:15:29.693	Core 1	2026.03.18 14:18:18   deal performed [#164 buy 0.54 XAUUSD at 4834.610]
+NJ	0	08:15:29.693	Core 1	2026.03.18 14:18:18   order performed buy 0.54 at 4834.610 [#164 buy 0.54 XAUUSD at 4834.610]
+JI	0	08:15:29.693	Core 1	2026.03.18 14:18:18   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4833.170 tp: 4836.050 [done at 4834.610]
+OJ	0	08:15:29.693	Core 1	2026.03.18 14:18:18   take profit triggered #164 buy 0.54 XAUUSD 4834.610 sl: 4833.170 tp: 4836.050 [#165 sell 0.54 XAUUSD at 4836.050]
+HG	0	08:15:29.693	Core 1	2026.03.18 14:18:18   deal #165 sell 0.54 XAUUSD at 4836.190 done (based on order #165)
+DJ	0	08:15:29.693	Core 1	2026.03.18 14:18:18   deal performed [#165 sell 0.54 XAUUSD at 4836.190]
+NH	0	08:15:29.693	Core 1	2026.03.18 14:18:18   order performed sell 0.54 at 4836.190 [#165 sell 0.54 XAUUSD at 4836.050]
+RF	0	08:15:29.693	Core 1	2026.03.18 14:31:01   market buy 0.54 XAUUSD sl: 4852.980 tp: 4855.860 (4854.230 / 4854.420)
+CG	0	08:15:29.693	Core 1	2026.03.18 14:31:01   deal #166 buy 0.54 XAUUSD at 4854.420 done (based on order #166)
+LN	0	08:15:29.693	Core 1	2026.03.18 14:31:01   deal performed [#166 buy 0.54 XAUUSD at 4854.420]
+QS	0	08:15:29.693	Core 1	2026.03.18 14:31:01   order performed buy 0.54 at 4854.420 [#166 buy 0.54 XAUUSD at 4854.420]
+LR	0	08:15:29.693	Core 1	2026.03.18 14:31:01   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4852.980 tp: 4855.860 [done at 4854.420]
+LS	0	08:15:29.693	Core 1	2026.03.18 14:31:04   take profit triggered #166 buy 0.54 XAUUSD 4854.420 sl: 4852.980 tp: 4855.860 [#167 sell 0.54 XAUUSD at 4855.860]
+IN	0	08:15:29.693	Core 1	2026.03.18 14:31:04   deal #167 sell 0.54 XAUUSD at 4856.070 done (based on order #167)
+KS	0	08:15:29.693	Core 1	2026.03.18 14:31:04   deal performed [#167 sell 0.54 XAUUSD at 4856.070]
+GP	0	08:15:29.693	Core 1	2026.03.18 14:31:04   order performed sell 0.54 at 4856.070 [#167 sell 0.54 XAUUSD at 4855.860]
+KO	0	08:15:29.693	Core 1	2026.03.18 14:31:52   market buy 0.54 XAUUSD sl: 4855.400 tp: 4858.280 (4856.500 / 4856.840)
+MH	0	08:15:29.693	Core 1	2026.03.18 14:31:52   deal #168 buy 0.54 XAUUSD at 4856.840 done (based on order #168)
+PE	0	08:15:29.693	Core 1	2026.03.18 14:31:52   deal performed [#168 buy 0.54 XAUUSD at 4856.840]
+MH	0	08:15:29.693	Core 1	2026.03.18 14:31:52   order performed buy 0.54 at 4856.840 [#168 buy 0.54 XAUUSD at 4856.840]
+CK	0	08:15:29.693	Core 1	2026.03.18 14:31:52   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4855.400 tp: 4858.280 [done at 4856.840]
+OI	0	08:15:29.693	Core 1	2026.03.18 14:32:10   stop loss triggered #168 buy 0.54 XAUUSD 4856.840 sl: 4855.400 tp: 4858.280 [#169 sell 0.54 XAUUSD at 4855.400]
+DE	0	08:15:29.693	Core 1	2026.03.18 14:32:10   deal #169 sell 0.54 XAUUSD at 4855.360 done (based on order #169)
+DD	0	08:15:29.693	Core 1	2026.03.18 14:32:10   deal performed [#169 sell 0.54 XAUUSD at 4855.360]
+JI	0	08:15:29.693	Core 1	2026.03.18 14:32:10   order performed sell 0.54 at 4855.360 [#169 sell 0.54 XAUUSD at 4855.400]
+IP	0	08:15:29.693	Core 1	2026.03.18 14:32:11   market buy 0.54 XAUUSD sl: 4853.640 tp: 4856.520 (4854.900 / 4855.080)
+LQ	0	08:15:29.693	Core 1	2026.03.18 14:32:11   deal #170 buy 0.54 XAUUSD at 4855.080 done (based on order #170)
+JL	0	08:15:29.693	Core 1	2026.03.18 14:32:11   deal performed [#170 buy 0.54 XAUUSD at 4855.080]
+JQ	0	08:15:29.693	Core 1	2026.03.18 14:32:11   order performed buy 0.54 at 4855.080 [#170 buy 0.54 XAUUSD at 4855.080]
+CD	0	08:15:29.693	Core 1	2026.03.18 14:32:11   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4853.640 tp: 4856.520 [done at 4855.080]
+MP	0	08:15:29.693	Core 1	2026.03.18 14:32:12   stop loss triggered #170 buy 0.54 XAUUSD 4855.080 sl: 4853.640 tp: 4856.520 [#171 sell 0.54 XAUUSD at 4853.640]
+IL	0	08:15:29.693	Core 1	2026.03.18 14:32:12   deal #171 sell 0.54 XAUUSD at 4853.600 done (based on order #171)
+RM	0	08:15:29.693	Core 1	2026.03.18 14:32:12   deal performed [#171 sell 0.54 XAUUSD at 4853.600]
+LF	0	08:15:29.693	Core 1	2026.03.18 14:32:12   order performed sell 0.54 at 4853.600 [#171 sell 0.54 XAUUSD at 4853.640]
+JI	0	08:15:29.693	Core 1	2026.03.18 14:33:47   market buy 0.54 XAUUSD sl: 4853.930 tp: 4856.810 (4855.100 / 4855.370)
+JJ	0	08:15:29.693	Core 1	2026.03.18 14:33:47   deal #172 buy 0.54 XAUUSD at 4855.370 done (based on order #172)
+NK	0	08:15:29.693	Core 1	2026.03.18 14:33:47   deal performed [#172 buy 0.54 XAUUSD at 4855.370]
+JN	0	08:15:29.693	Core 1	2026.03.18 14:33:47   order performed buy 0.54 at 4855.370 [#172 buy 0.54 XAUUSD at 4855.370]
+KM	0	08:15:29.693	Core 1	2026.03.18 14:33:47   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4853.930 tp: 4856.810 [done at 4855.370]
+JO	0	08:15:29.693	Core 1	2026.03.18 14:33:49   stop loss triggered #172 buy 0.54 XAUUSD 4855.370 sl: 4853.930 tp: 4856.810 [#173 sell 0.54 XAUUSD at 4853.930]
+QK	0	08:15:29.693	Core 1	2026.03.18 14:33:49   deal #173 sell 0.54 XAUUSD at 4853.890 done (based on order #173)
+HF	0	08:15:29.693	Core 1	2026.03.18 14:33:49   deal performed [#173 sell 0.54 XAUUSD at 4853.890]
+NO	0	08:15:29.693	Core 1	2026.03.18 14:33:49   order performed sell 0.54 at 4853.890 [#173 sell 0.54 XAUUSD at 4853.930]
+HR	0	08:15:29.693	Core 1	2026.03.18 14:50:22   market buy 0.54 XAUUSD sl: 4865.200 tp: 4868.080 (4866.345 / 4866.640)
+JS	0	08:15:29.693	Core 1	2026.03.18 14:50:22   deal #174 buy 0.54 XAUUSD at 4866.640 done (based on order #174)
+PR	0	08:15:29.693	Core 1	2026.03.18 14:50:22   deal performed [#174 buy 0.54 XAUUSD at 4866.640]
+JG	0	08:15:29.693	Core 1	2026.03.18 14:50:22   order performed buy 0.54 at 4866.640 [#174 buy 0.54 XAUUSD at 4866.640]
+LF	0	08:15:29.693	Core 1	2026.03.18 14:50:22   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4865.200 tp: 4868.080 [done at 4866.640]
+EG	0	08:15:29.693	Core 1	2026.03.18 14:50:24   take profit triggered #174 buy 0.54 XAUUSD 4866.640 sl: 4865.200 tp: 4868.080 [#175 sell 0.54 XAUUSD at 4868.080]
+NR	0	08:15:29.693	Core 1	2026.03.18 14:50:24   deal #175 sell 0.54 XAUUSD at 4868.350 done (based on order #175)
+QN	0	08:15:29.693	Core 1	2026.03.18 14:50:24   deal performed [#175 sell 0.54 XAUUSD at 4868.350]
+ED	0	08:15:29.693	Core 1	2026.03.18 14:50:24   order performed sell 0.54 at 4868.350 [#175 sell 0.54 XAUUSD at 4868.080]
+JK	0	08:15:29.693	Core 1	2026.03.18 15:17:02   market buy 0.54 XAUUSD sl: 4874.460 tp: 4877.340 (4875.600 / 4875.900)
+ED	0	08:15:29.693	Core 1	2026.03.18 15:17:02   deal #176 buy 0.54 XAUUSD at 4875.900 done (based on order #176)
+MI	0	08:15:29.693	Core 1	2026.03.18 15:17:02   deal performed [#176 buy 0.54 XAUUSD at 4875.900]
+DL	0	08:15:29.693	Core 1	2026.03.18 15:17:02   order performed buy 0.54 at 4875.900 [#176 buy 0.54 XAUUSD at 4875.900]
+HO	0	08:15:29.693	Core 1	2026.03.18 15:17:02   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.460 tp: 4877.340 [done at 4875.900]
+EM	0	08:15:29.693	Core 1	2026.03.18 15:18:35   stop loss triggered #176 buy 0.54 XAUUSD 4875.900 sl: 4874.460 tp: 4877.340 [#177 sell 0.54 XAUUSD at 4874.460]
+FI	0	08:15:29.693	Core 1	2026.03.18 15:18:35   deal #177 sell 0.54 XAUUSD at 4873.900 done (based on order #177)
+GG	0	08:15:29.693	Core 1	2026.03.18 15:18:35   deal performed [#177 sell 0.54 XAUUSD at 4873.900]
+RM	0	08:15:29.693	Core 1	2026.03.18 15:18:35   order performed sell 0.54 at 4873.900 [#177 sell 0.54 XAUUSD at 4874.460]
+OL	0	08:15:29.693	Core 1	2026.03.18 15:26:12   market buy 0.54 XAUUSD sl: 4858.090 tp: 4860.970 (4859.290 / 4859.530)
+CM	0	08:15:29.693	Core 1	2026.03.18 15:26:12   deal #178 buy 0.54 XAUUSD at 4859.530 done (based on order #178)
+IP	0	08:15:29.693	Core 1	2026.03.18 15:26:12   deal performed [#178 buy 0.54 XAUUSD at 4859.530]
+OE	0	08:15:29.693	Core 1	2026.03.18 15:26:12   order performed buy 0.54 at 4859.530 [#178 buy 0.54 XAUUSD at 4859.530]
+PH	0	08:15:29.693	Core 1	2026.03.18 15:26:12   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4858.090 tp: 4860.970 [done at 4859.530]
+KE	0	08:15:29.693	Core 1	2026.03.18 15:26:14   take profit triggered #178 buy 0.54 XAUUSD 4859.530 sl: 4858.090 tp: 4860.970 [#179 sell 0.54 XAUUSD at 4860.970]
+PQ	0	08:15:29.693	Core 1	2026.03.18 15:26:14   deal #179 sell 0.54 XAUUSD at 4861.170 done (based on order #179)
+OH	0	08:15:29.693	Core 1	2026.03.18 15:26:14   deal performed [#179 sell 0.54 XAUUSD at 4861.170]
+IJ	0	08:15:29.693	Core 1	2026.03.18 15:26:14   order performed sell 0.54 at 4861.170 [#179 sell 0.54 XAUUSD at 4860.970]
+LE	0	08:15:29.693	Core 1	2026.03.18 15:28:26   market buy 0.54 XAUUSD sl: 4861.060 tp: 4863.940 (4862.270 / 4862.500)
+IF	0	08:15:29.693	Core 1	2026.03.18 15:28:26   deal #180 buy 0.54 XAUUSD at 4862.500 done (based on order #180)
+JO	0	08:15:29.693	Core 1	2026.03.18 15:28:26   deal performed [#180 buy 0.54 XAUUSD at 4862.500]
+QM	0	08:15:29.693	Core 1	2026.03.18 15:28:26   order performed buy 0.54 at 4862.500 [#180 buy 0.54 XAUUSD at 4862.500]
+IP	0	08:15:29.693	Core 1	2026.03.18 15:28:26   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4861.060 tp: 4863.940 [done at 4862.500]
+NM	0	08:15:29.693	Core 1	2026.03.18 15:28:39   take profit triggered #180 buy 0.54 XAUUSD 4862.500 sl: 4861.060 tp: 4863.940 [#181 sell 0.54 XAUUSD at 4863.940]
+PH	0	08:15:29.693	Core 1	2026.03.18 15:28:39   deal #181 sell 0.54 XAUUSD at 4863.980 done (based on order #181)
+FQ	0	08:15:29.693	Core 1	2026.03.18 15:28:39   deal performed [#181 sell 0.54 XAUUSD at 4863.980]
+DS	0	08:15:29.693	Core 1	2026.03.18 15:28:39   order performed sell 0.54 at 4863.980 [#181 sell 0.54 XAUUSD at 4863.940]
+IM	0	08:15:29.693	Core 1	2026.03.18 15:37:24   market buy 0.54 XAUUSD sl: 4856.350 tp: 4859.230 (4857.550 / 4857.790)
+NN	0	08:15:29.693	Core 1	2026.03.18 15:37:24   deal #182 buy 0.54 XAUUSD at 4857.790 done (based on order #182)
+KG	0	08:15:29.693	Core 1	2026.03.18 15:37:24   deal performed [#182 buy 0.54 XAUUSD at 4857.790]
+GJ	0	08:15:29.693	Core 1	2026.03.18 15:37:24   order performed buy 0.54 at 4857.790 [#182 buy 0.54 XAUUSD at 4857.790]
+EI	0	08:15:29.693	Core 1	2026.03.18 15:37:24   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4856.350 tp: 4859.230 [done at 4857.790]
+EJ	0	08:15:29.693	Core 1	2026.03.18 15:37:55   take profit triggered #182 buy 0.54 XAUUSD 4857.790 sl: 4856.350 tp: 4859.230 [#183 sell 0.54 XAUUSD at 4859.230]
+KG	0	08:15:29.693	Core 1	2026.03.18 15:37:55   deal #183 sell 0.54 XAUUSD at 4859.360 done (based on order #183)
+OJ	0	08:15:29.693	Core 1	2026.03.18 15:37:55   deal performed [#183 sell 0.54 XAUUSD at 4859.360]
+FK	0	08:15:29.693	Core 1	2026.03.18 15:37:55   order performed sell 0.54 at 4859.360 [#183 sell 0.54 XAUUSD at 4859.230]
+PF	0	08:15:29.693	Core 1	2026.03.18 15:48:28   market buy 0.54 XAUUSD sl: 4868.310 tp: 4871.190 (4869.490 / 4869.750)
+MG	0	08:15:29.693	Core 1	2026.03.18 15:48:28   deal #184 buy 0.54 XAUUSD at 4869.750 done (based on order #184)
+RN	0	08:15:29.693	Core 1	2026.03.18 15:48:28   deal performed [#184 buy 0.54 XAUUSD at 4869.750]
+MS	0	08:15:29.693	Core 1	2026.03.18 15:48:28   order performed buy 0.54 at 4869.750 [#184 buy 0.54 XAUUSD at 4869.750]
+DR	0	08:15:29.693	Core 1	2026.03.18 15:48:28   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4868.310 tp: 4871.190 [done at 4869.750]
+KR	0	08:15:29.693	Core 1	2026.03.18 15:48:46   stop loss triggered #184 buy 0.54 XAUUSD 4869.750 sl: 4868.310 tp: 4871.190 [#185 sell 0.54 XAUUSD at 4868.310]
+GN	0	08:15:29.693	Core 1	2026.03.18 15:48:46   deal #185 sell 0.54 XAUUSD at 4868.230 done (based on order #185)
+IS	0	08:15:29.693	Core 1	2026.03.18 15:48:46   deal performed [#185 sell 0.54 XAUUSD at 4868.230]
+KP	0	08:15:29.693	Core 1	2026.03.18 15:48:46   order performed sell 0.54 at 4868.230 [#185 sell 0.54 XAUUSD at 4868.310]
+FO	0	08:15:35.320	Core 1	2026.03.18 16:01:51   market buy 0.54 XAUUSD sl: 4867.730 tp: 4870.610 (4868.980 / 4869.170)
+QH	0	08:15:35.320	Core 1	2026.03.18 16:01:51   deal #186 buy 0.54 XAUUSD at 4869.170 done (based on order #186)
+LE	0	08:15:35.320	Core 1	2026.03.18 16:01:51   deal performed [#186 buy 0.54 XAUUSD at 4869.170]
+KH	0	08:15:35.320	Core 1	2026.03.18 16:01:51   order performed buy 0.54 at 4869.170 [#186 buy 0.54 XAUUSD at 4869.170]
+EK	0	08:15:35.320	Core 1	2026.03.18 16:01:51   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4867.730 tp: 4870.610 [done at 4869.170]
+GI	0	08:15:35.320	Core 1	2026.03.18 16:02:18   stop loss triggered #186 buy 0.54 XAUUSD 4869.170 sl: 4867.730 tp: 4870.610 [#187 sell 0.54 XAUUSD at 4867.730]
+OE	0	08:15:35.320	Core 1	2026.03.18 16:02:18   deal #187 sell 0.54 XAUUSD at 4867.660 done (based on order #187)
+OD	0	08:15:35.320	Core 1	2026.03.18 16:02:18   deal performed [#187 sell 0.54 XAUUSD at 4867.660]
+NI	0	08:15:35.320	Core 1	2026.03.18 16:02:18   order performed sell 0.54 at 4867.660 [#187 sell 0.54 XAUUSD at 4867.730]
+FP	0	08:15:35.320	Core 1	2026.03.18 16:18:55   market buy 0.54 XAUUSD sl: 4874.220 tp: 4877.100 (4875.490 / 4875.660)
+LQ	0	08:15:35.320	Core 1	2026.03.18 16:18:55   deal #188 buy 0.54 XAUUSD at 4875.660 done (based on order #188)
+CL	0	08:15:35.320	Core 1	2026.03.18 16:18:55   deal performed [#188 buy 0.54 XAUUSD at 4875.660]
+MQ	0	08:15:35.320	Core 1	2026.03.18 16:18:55   order performed buy 0.54 at 4875.660 [#188 buy 0.54 XAUUSD at 4875.660]
+ED	0	08:15:35.320	Core 1	2026.03.18 16:18:55   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.220 tp: 4877.100 [done at 4875.660]
+FQ	0	08:15:35.320	Core 1	2026.03.18 16:20:11   take profit triggered #188 buy 0.54 XAUUSD 4875.660 sl: 4874.220 tp: 4877.100 [#189 sell 0.54 XAUUSD at 4877.100]
+DL	0	08:15:35.320	Core 1	2026.03.18 16:20:11   deal #189 sell 0.54 XAUUSD at 4877.100 done (based on order #189)
+JL	0	08:15:35.320	Core 1	2026.03.18 16:20:11   deal performed [#189 sell 0.54 XAUUSD at 4877.100]
+OF	0	08:15:35.320	Core 1	2026.03.18 16:20:11   order performed sell 0.54 at 4877.100 [#189 sell 0.54 XAUUSD at 4877.100]
+QI	0	08:15:35.320	Core 1	2026.03.18 16:40:46   market buy 0.54 XAUUSD sl: 4871.810 tp: 4874.690 (4873.050 / 4873.250)
+NJ	0	08:15:35.320	Core 1	2026.03.18 16:40:46   deal #190 buy 0.54 XAUUSD at 4873.250 done (based on order #190)
+NK	0	08:15:35.320	Core 1	2026.03.18 16:40:46   deal performed [#190 buy 0.54 XAUUSD at 4873.250]
+KN	0	08:15:35.320	Core 1	2026.03.18 16:40:46   order performed buy 0.54 at 4873.250 [#190 buy 0.54 XAUUSD at 4873.250]
+LM	0	08:15:35.320	Core 1	2026.03.18 16:40:46   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4871.810 tp: 4874.690 [done at 4873.250]
+OO	0	08:15:35.320	Core 1	2026.03.18 16:40:50   stop loss triggered #190 buy 0.54 XAUUSD 4873.250 sl: 4871.810 tp: 4874.690 [#191 sell 0.54 XAUUSD at 4871.810]
+PK	0	08:15:35.320	Core 1	2026.03.18 16:40:50   deal #191 sell 0.54 XAUUSD at 4871.800 done (based on order #191)
+EE	0	08:15:35.320	Core 1	2026.03.18 16:40:50   deal performed [#191 sell 0.54 XAUUSD at 4871.800]
+JO	0	08:15:35.320	Core 1	2026.03.18 16:40:50   order performed sell 0.54 at 4871.800 [#191 sell 0.54 XAUUSD at 4871.810]
+NR	0	08:15:35.320	Core 1	2026.03.18 16:43:21   market buy 0.54 XAUUSD sl: 4866.940 tp: 4869.820 (4868.140 / 4868.380)
+RS	0	08:15:35.320	Core 1	2026.03.18 16:43:21   deal #192 buy 0.54 XAUUSD at 4868.380 done (based on order #192)
+PR	0	08:15:35.320	Core 1	2026.03.18 16:43:21   deal performed [#192 buy 0.54 XAUUSD at 4868.380]
+KG	0	08:15:35.320	Core 1	2026.03.18 16:43:21   order performed buy 0.54 at 4868.380 [#192 buy 0.54 XAUUSD at 4868.380]
+IF	0	08:15:35.320	Core 1	2026.03.18 16:43:21   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4866.940 tp: 4869.820 [done at 4868.380]
+HF	0	08:15:35.320	Core 1	2026.03.18 16:44:34   stop loss triggered #192 buy 0.54 XAUUSD 4868.380 sl: 4866.940 tp: 4869.820 [#193 sell 0.54 XAUUSD at 4866.940]
+PR	0	08:15:35.320	Core 1	2026.03.18 16:44:34   deal #193 sell 0.54 XAUUSD at 4866.910 done (based on order #193)
+CN	0	08:15:35.320	Core 1	2026.03.18 16:44:34   deal performed [#193 sell 0.54 XAUUSD at 4866.910]
+JD	0	08:15:35.320	Core 1	2026.03.18 16:44:34   order performed sell 0.54 at 4866.910 [#193 sell 0.54 XAUUSD at 4866.940]
+NK	0	08:15:35.320	Core 1	2026.03.18 17:00:33   market buy 0.54 XAUUSD sl: 4859.850 tp: 4862.730 (4861.090 / 4861.290)
+FD	0	08:15:35.320	Core 1	2026.03.18 17:00:33   deal #194 buy 0.54 XAUUSD at 4861.290 done (based on order #194)
+JI	0	08:15:35.320	Core 1	2026.03.18 17:00:33   deal performed [#194 buy 0.54 XAUUSD at 4861.290]
+NL	0	08:15:35.320	Core 1	2026.03.18 17:00:33   order performed buy 0.54 at 4861.290 [#194 buy 0.54 XAUUSD at 4861.290]
+FO	0	08:15:35.320	Core 1	2026.03.18 17:00:33   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4859.850 tp: 4862.730 [done at 4861.290]
+PL	0	08:15:35.320	Core 1	2026.03.18 17:02:16   take profit triggered #194 buy 0.54 XAUUSD 4861.290 sl: 4859.850 tp: 4862.730 [#195 sell 0.54 XAUUSD at 4862.730]
+MJ	0	08:15:35.320	Core 1	2026.03.18 17:02:16   deal #195 sell 0.54 XAUUSD at 4862.730 done (based on order #195)
+LG	0	08:15:35.320	Core 1	2026.03.18 17:02:16   deal performed [#195 sell 0.54 XAUUSD at 4862.730]
+NM	0	08:15:35.320	Core 1	2026.03.18 17:02:16   order performed sell 0.54 at 4862.730 [#195 sell 0.54 XAUUSD at 4862.730]
+KL	0	08:15:35.320	Core 1	2026.03.18 17:15:56   market buy 0.54 XAUUSD sl: 4874.710 tp: 4877.590 (4875.940 / 4876.150)
+LM	0	08:15:35.320	Core 1	2026.03.18 17:15:56   deal #196 buy 0.54 XAUUSD at 4876.150 done (based on order #196)
+RP	0	08:15:35.320	Core 1	2026.03.18 17:15:56   deal performed [#196 buy 0.54 XAUUSD at 4876.150]
+ED	0	08:15:35.320	Core 1	2026.03.18 17:15:56   order performed buy 0.54 at 4876.150 [#196 buy 0.54 XAUUSD at 4876.150]
+LG	0	08:15:35.320	Core 1	2026.03.18 17:15:56   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.710 tp: 4877.590 [done at 4876.150]
+LE	0	08:15:35.320	Core 1	2026.03.18 17:16:08   stop loss triggered #196 buy 0.54 XAUUSD 4876.150 sl: 4874.710 tp: 4877.590 [#197 sell 0.54 XAUUSD at 4874.710]
+FQ	0	08:15:35.320	Core 1	2026.03.18 17:16:08   deal #197 sell 0.54 XAUUSD at 4874.550 done (based on order #197)
+EH	0	08:15:35.320	Core 1	2026.03.18 17:16:08   deal performed [#197 sell 0.54 XAUUSD at 4874.550]
+HJ	0	08:15:35.320	Core 1	2026.03.18 17:16:08   order performed sell 0.54 at 4874.550 [#197 sell 0.54 XAUUSD at 4874.710]
+JE	0	08:15:35.320	Core 1	2026.03.18 17:32:44   market buy 0.54 XAUUSD sl: 4877.810 tp: 4880.690 (4879.120 / 4879.250)
+FF	0	08:15:35.320	Core 1	2026.03.18 17:32:44   deal #198 buy 0.54 XAUUSD at 4879.250 done (based on order #198)
+NO	0	08:15:35.320	Core 1	2026.03.18 17:32:44   deal performed [#198 buy 0.54 XAUUSD at 4879.250]
+MM	0	08:15:35.320	Core 1	2026.03.18 17:32:44   order performed buy 0.54 at 4879.250 [#198 buy 0.54 XAUUSD at 4879.250]
+GP	0	08:15:35.320	Core 1	2026.03.18 17:32:44   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4877.810 tp: 4880.690 [done at 4879.250]
+LL	0	08:15:35.320	Core 1	2026.03.18 17:33:08   stop loss triggered #198 buy 0.54 XAUUSD 4879.250 sl: 4877.810 tp: 4880.690 [#199 sell 0.54 XAUUSD at 4877.810]
+RH	0	08:15:35.320	Core 1	2026.03.18 17:33:08   deal #199 sell 0.54 XAUUSD at 4877.800 done (based on order #199)
+CQ	0	08:15:35.320	Core 1	2026.03.18 17:33:08   deal performed [#199 sell 0.54 XAUUSD at 4877.800]
+NS	0	08:15:35.320	Core 1	2026.03.18 17:33:08   order performed sell 0.54 at 4877.800 [#199 sell 0.54 XAUUSD at 4877.810]
+JN	0	08:15:35.320	Core 1	2026.03.18 17:33:08   market buy 0.54 XAUUSD sl: 4876.460 tp: 4879.340 (4877.770 / 4877.900)
+MO	0	08:15:35.320	Core 1	2026.03.18 17:33:08   deal #200 buy 0.54 XAUUSD at 4877.900 done (based on order #200)
+CF	0	08:15:35.320	Core 1	2026.03.18 17:33:08   deal performed [#200 buy 0.54 XAUUSD at 4877.900]
+DJ	0	08:15:35.320	Core 1	2026.03.18 17:33:08   order performed buy 0.54 at 4877.900 [#200 buy 0.54 XAUUSD at 4877.900]
+LI	0	08:15:35.320	Core 1	2026.03.18 17:33:08   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4876.460 tp: 4879.340 [done at 4877.900]
+NK	0	08:15:35.320	Core 1	2026.03.18 17:33:37   stop loss triggered #200 buy 0.54 XAUUSD 4877.900 sl: 4876.460 tp: 4879.340 [#201 sell 0.54 XAUUSD at 4876.460]
+LG	0	08:15:35.320	Core 1	2026.03.18 17:33:37   deal #201 sell 0.54 XAUUSD at 4876.210 done (based on order #201)
+GJ	0	08:15:35.320	Core 1	2026.03.18 17:33:37   deal performed [#201 sell 0.54 XAUUSD at 4876.210]
+HH	0	08:15:35.320	Core 1	2026.03.18 17:33:37   order performed sell 0.54 at 4876.210 [#201 sell 0.54 XAUUSD at 4876.460]
+LG	0	08:15:35.320	Core 1	2026.03.18 17:33:41   market buy 0.54 XAUUSD sl: 4874.670 tp: 4877.550 (4875.980 / 4876.110)
+RP	0	08:15:35.320	Core 1	2026.03.18 17:33:41   deal #202 buy 0.54 XAUUSD at 4876.110 done (based on order #202)
+JM	0	08:15:35.320	Core 1	2026.03.18 17:33:41   deal performed [#202 buy 0.54 XAUUSD at 4876.110]
+QS	0	08:15:35.320	Core 1	2026.03.18 17:33:41   order performed buy 0.54 at 4876.110 [#202 buy 0.54 XAUUSD at 4876.110]
+GR	0	08:15:35.320	Core 1	2026.03.18 17:33:41   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.670 tp: 4877.550 [done at 4876.110]
+JS	0	08:15:35.320	Core 1	2026.03.18 17:33:49   take profit triggered #202 buy 0.54 XAUUSD 4876.110 sl: 4874.670 tp: 4877.550 [#203 sell 0.54 XAUUSD at 4877.550]
+LN	0	08:15:35.320	Core 1	2026.03.18 17:33:49   deal #203 sell 0.54 XAUUSD at 4877.960 done (based on order #203)
+QS	0	08:15:35.320	Core 1	2026.03.18 17:33:49   deal performed [#203 sell 0.54 XAUUSD at 4877.960]
+GQ	0	08:15:35.320	Core 1	2026.03.18 17:33:49   order performed sell 0.54 at 4877.960 [#203 sell 0.54 XAUUSD at 4877.550]
+KO	0	08:15:35.320	Core 1	2026.03.18 17:34:16   market buy 0.54 XAUUSD sl: 4878.460 tp: 4881.340 (4879.750 / 4879.900)
+CH	0	08:15:35.320	Core 1	2026.03.18 17:34:16   deal #204 buy 0.54 XAUUSD at 4879.900 done (based on order #204)
+QE	0	08:15:35.320	Core 1	2026.03.18 17:34:16   deal performed [#204 buy 0.54 XAUUSD at 4879.900]
+LH	0	08:15:35.320	Core 1	2026.03.18 17:34:16   order performed buy 0.54 at 4879.900 [#204 buy 0.54 XAUUSD at 4879.900]
+EK	0	08:15:35.320	Core 1	2026.03.18 17:34:16   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4878.460 tp: 4881.340 [done at 4879.900]
+EI	0	08:15:35.320	Core 1	2026.03.18 17:34:25   stop loss triggered #204 buy 0.54 XAUUSD 4879.900 sl: 4878.460 tp: 4881.340 [#205 sell 0.54 XAUUSD at 4878.460]
+IE	0	08:15:35.320	Core 1	2026.03.18 17:34:25   deal #205 sell 0.54 XAUUSD at 4878.460 done (based on order #205)
+JD	0	08:15:35.320	Core 1	2026.03.18 17:34:25   deal performed [#205 sell 0.54 XAUUSD at 4878.460]
+CN	0	08:15:35.320	Core 1	2026.03.18 17:34:25   order performed sell 0.54 at 4878.460 [#205 sell 0.54 XAUUSD at 4878.460]
+MP	0	08:15:35.320	Core 1	2026.03.18 17:34:27   market buy 0.54 XAUUSD sl: 4876.840 tp: 4879.720 (4878.150 / 4878.280)
+CQ	0	08:15:35.320	Core 1	2026.03.18 17:34:27   deal #206 buy 0.54 XAUUSD at 4878.280 done (based on order #206)
+OL	0	08:15:35.320	Core 1	2026.03.18 17:34:27   deal performed [#206 buy 0.54 XAUUSD at 4878.280]
+LQ	0	08:15:35.320	Core 1	2026.03.18 17:34:27   order performed buy 0.54 at 4878.280 [#206 buy 0.54 XAUUSD at 4878.280]
+JD	0	08:15:35.320	Core 1	2026.03.18 17:34:27   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4876.840 tp: 4879.720 [done at 4878.280]
+NP	0	08:15:35.320	Core 1	2026.03.18 17:35:08   stop loss triggered #206 buy 0.54 XAUUSD 4878.280 sl: 4876.840 tp: 4879.720 [#207 sell 0.54 XAUUSD at 4876.840]
+GL	0	08:15:35.320	Core 1	2026.03.18 17:35:08   deal #207 sell 0.54 XAUUSD at 4876.550 done (based on order #207)
+JM	0	08:15:35.320	Core 1	2026.03.18 17:35:08   deal performed [#207 sell 0.54 XAUUSD at 4876.550]
+CG	0	08:15:35.320	Core 1	2026.03.18 17:35:08   order performed sell 0.54 at 4876.550 [#207 sell 0.54 XAUUSD at 4876.840]
+GI	0	08:15:35.320	Core 1	2026.03.18 17:35:14   market buy 0.54 XAUUSD sl: 4874.390 tp: 4877.270 (4875.660 / 4875.830)
+PJ	0	08:15:35.320	Core 1	2026.03.18 17:35:14   deal #208 buy 0.54 XAUUSD at 4875.830 done (based on order #208)
+RK	0	08:15:35.320	Core 1	2026.03.18 17:35:14   deal performed [#208 buy 0.54 XAUUSD at 4875.830]
+IN	0	08:15:35.320	Core 1	2026.03.18 17:35:14   order performed buy 0.54 at 4875.830 [#208 buy 0.54 XAUUSD at 4875.830]
+CM	0	08:15:35.320	Core 1	2026.03.18 17:35:14   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4874.390 tp: 4877.270 [done at 4875.830]
+JO	0	08:15:35.320	Core 1	2026.03.18 17:35:24   stop loss triggered #208 buy 0.54 XAUUSD 4875.830 sl: 4874.390 tp: 4877.270 [#209 sell 0.54 XAUUSD at 4874.390]
+LK	0	08:15:35.320	Core 1	2026.03.18 17:35:24   deal #209 sell 0.54 XAUUSD at 4874.320 done (based on order #209)
+GF	0	08:15:35.320	Core 1	2026.03.18 17:35:24   deal performed [#209 sell 0.54 XAUUSD at 4874.320]
+JL	0	08:15:35.320	Core 1	2026.03.18 17:35:24   order performed sell 0.54 at 4874.320 [#209 sell 0.54 XAUUSD at 4874.390]
+NR	0	08:15:35.320	Core 1	2026.03.18 17:43:49   market buy 0.54 XAUUSD sl: 4879.420 tp: 4882.300 (4880.680 / 4880.860)
+NS	0	08:15:35.320	Core 1	2026.03.18 17:43:49   deal #210 buy 0.54 XAUUSD at 4880.860 done (based on order #210)
+CR	0	08:15:35.320	Core 1	2026.03.18 17:43:49   deal performed [#210 buy 0.54 XAUUSD at 4880.860]
+IG	0	08:15:35.320	Core 1	2026.03.18 17:43:49   order performed buy 0.54 at 4880.860 [#210 buy 0.54 XAUUSD at 4880.860]
+NF	0	08:15:35.320	Core 1	2026.03.18 17:43:49   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4879.420 tp: 4882.300 [done at 4880.860]
+JG	0	08:15:35.320	Core 1	2026.03.18 17:44:51   take profit triggered #210 buy 0.54 XAUUSD 4880.860 sl: 4879.420 tp: 4882.300 [#211 sell 0.54 XAUUSD at 4882.300]
+NR	0	08:15:35.320	Core 1	2026.03.18 17:44:51   deal #211 sell 0.54 XAUUSD at 4882.310 done (based on order #211)
+JO	0	08:15:35.320	Core 1	2026.03.18 17:44:51   deal performed [#211 sell 0.54 XAUUSD at 4882.310]
+OD	0	08:15:35.320	Core 1	2026.03.18 17:44:51   order performed sell 0.54 at 4882.310 [#211 sell 0.54 XAUUSD at 4882.300]
+GK	0	08:15:35.320	Core 1	2026.03.18 17:55:07   market buy 0.54 XAUUSD sl: 4884.940 tp: 4887.820 (4886.190 / 4886.380)
+DD	0	08:15:35.320	Core 1	2026.03.18 17:55:07   deal #212 buy 0.54 XAUUSD at 4886.380 done (based on order #212)
+KI	0	08:15:35.320	Core 1	2026.03.18 17:55:07   deal performed [#212 buy 0.54 XAUUSD at 4886.380]
+HL	0	08:15:35.320	Core 1	2026.03.18 17:55:07   order performed buy 0.54 at 4886.380 [#212 buy 0.54 XAUUSD at 4886.380]
+OO	0	08:15:35.320	Core 1	2026.03.18 17:55:07   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4884.940 tp: 4887.820 [done at 4886.380]
+DL	0	08:15:35.320	Core 1	2026.03.18 17:55:37   take profit triggered #212 buy 0.54 XAUUSD 4886.380 sl: 4884.940 tp: 4887.820 [#213 sell 0.54 XAUUSD at 4887.820]
+FI	0	08:15:35.320	Core 1	2026.03.18 17:55:37   deal #213 sell 0.54 XAUUSD at 4887.920 done (based on order #213)
+HG	0	08:15:35.320	Core 1	2026.03.18 17:55:37   deal performed [#213 sell 0.54 XAUUSD at 4887.920]
+MM	0	08:15:35.320	Core 1	2026.03.18 17:55:37   order performed sell 0.54 at 4887.920 [#213 sell 0.54 XAUUSD at 4887.820]
+ML	0	08:15:35.320	Core 1	2026.03.18 18:04:15   market buy 0.54 XAUUSD sl: 4887.130 tp: 4890.010 (4888.390 / 4888.570)
+EM	0	08:15:35.320	Core 1	2026.03.18 18:04:15   deal #214 buy 0.54 XAUUSD at 4888.570 done (based on order #214)
+PP	0	08:15:35.320	Core 1	2026.03.18 18:04:15   deal performed [#214 buy 0.54 XAUUSD at 4888.570]
+RE	0	08:15:35.320	Core 1	2026.03.18 18:04:15   order performed buy 0.54 at 4888.570 [#214 buy 0.54 XAUUSD at 4888.570]
+IH	0	08:15:35.320	Core 1	2026.03.18 18:04:15   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4887.130 tp: 4890.010 [done at 4888.570]
+KE	0	08:15:35.320	Core 1	2026.03.18 18:05:19   take profit triggered #214 buy 0.54 XAUUSD 4888.570 sl: 4887.130 tp: 4890.010 [#215 sell 0.54 XAUUSD at 4890.010]
+FQ	0	08:15:35.320	Core 1	2026.03.18 18:05:19   deal #215 sell 0.54 XAUUSD at 4890.070 done (based on order #215)
+NH	0	08:15:35.320	Core 1	2026.03.18 18:05:19   deal performed [#215 sell 0.54 XAUUSD at 4890.070]
+DJ	0	08:15:35.320	Core 1	2026.03.18 18:05:19   order performed sell 0.54 at 4890.070 [#215 sell 0.54 XAUUSD at 4890.010]
+OE	0	08:15:35.320	Core 1	2026.03.18 18:09:06   market buy 0.54 XAUUSD sl: 4885.970 tp: 4888.850 (4887.290 / 4887.410)
+DF	0	08:15:35.320	Core 1	2026.03.18 18:09:06   deal #216 buy 0.54 XAUUSD at 4887.410 done (based on order #216)
+OO	0	08:15:35.320	Core 1	2026.03.18 18:09:06   deal performed [#216 buy 0.54 XAUUSD at 4887.410]
+QM	0	08:15:35.320	Core 1	2026.03.18 18:09:06   order performed buy 0.54 at 4887.410 [#216 buy 0.54 XAUUSD at 4887.410]
+IP	0	08:15:35.320	Core 1	2026.03.18 18:09:06   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4885.970 tp: 4888.850 [done at 4887.410]
+HL	0	08:15:35.320	Core 1	2026.03.18 18:10:56   stop loss triggered #216 buy 0.54 XAUUSD 4887.410 sl: 4885.970 tp: 4888.850 [#217 sell 0.54 XAUUSD at 4885.970]
+IH	0	08:15:35.320	Core 1	2026.03.18 18:10:56   deal #217 sell 0.54 XAUUSD at 4885.900 done (based on order #217)
+OQ	0	08:15:35.320	Core 1	2026.03.18 18:10:56   deal performed [#217 sell 0.54 XAUUSD at 4885.900]
+PS	0	08:15:35.320	Core 1	2026.03.18 18:10:56   order performed sell 0.54 at 4885.900 [#217 sell 0.54 XAUUSD at 4885.970]
+DN	0	08:15:35.320	Core 1	2026.03.18 18:10:57   market buy 0.54 XAUUSD sl: 4884.220 tp: 4887.100 (4885.470 / 4885.660)
+MO	0	08:15:35.320	Core 1	2026.03.18 18:10:57   deal #218 buy 0.54 XAUUSD at 4885.660 done (based on order #218)
+LF	0	08:15:35.320	Core 1	2026.03.18 18:10:57   deal performed [#218 buy 0.54 XAUUSD at 4885.660]
+OJ	0	08:15:35.320	Core 1	2026.03.18 18:10:57   order performed buy 0.54 at 4885.660 [#218 buy 0.54 XAUUSD at 4885.660]
+DI	0	08:15:35.320	Core 1	2026.03.18 18:10:57   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4884.220 tp: 4887.100 [done at 4885.660]
+HK	0	08:15:35.320	Core 1	2026.03.18 18:11:42   stop loss triggered #218 buy 0.54 XAUUSD 4885.660 sl: 4884.220 tp: 4887.100 [#219 sell 0.54 XAUUSD at 4884.220]
+FG	0	08:15:35.320	Core 1	2026.03.18 18:11:42   deal #219 sell 0.54 XAUUSD at 4884.180 done (based on order #219)
+JJ	0	08:15:35.320	Core 1	2026.03.18 18:11:42   deal performed [#219 sell 0.54 XAUUSD at 4884.180]
+LH	0	08:15:35.320	Core 1	2026.03.18 18:11:42   order performed sell 0.54 at 4884.180 [#219 sell 0.54 XAUUSD at 4884.220]
+OG	0	08:15:35.320	Core 1	2026.03.18 18:24:45   market buy 0.54 XAUUSD sl: 4894.250 tp: 4897.130 (4895.450 / 4895.690)
+CP	0	08:15:35.320	Core 1	2026.03.18 18:24:45   deal #220 buy 0.54 XAUUSD at 4895.690 done (based on order #220)
+KM	0	08:15:35.320	Core 1	2026.03.18 18:24:45   deal performed [#220 buy 0.54 XAUUSD at 4895.690]
+FS	0	08:15:35.320	Core 1	2026.03.18 18:24:45   order performed buy 0.54 at 4895.690 [#220 buy 0.54 XAUUSD at 4895.690]
+RR	0	08:15:35.320	Core 1	2026.03.18 18:24:45   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4894.250 tp: 4897.130 [done at 4895.690]
+DS	0	08:15:35.320	Core 1	2026.03.18 18:25:18   take profit triggered #220 buy 0.54 XAUUSD 4895.690 sl: 4894.250 tp: 4897.130 [#221 sell 0.54 XAUUSD at 4897.130]
+DN	0	08:15:35.320	Core 1	2026.03.18 18:25:18   deal #221 sell 0.54 XAUUSD at 4897.630 done (based on order #221)
+IS	0	08:15:35.320	Core 1	2026.03.18 18:25:18   deal performed [#221 sell 0.54 XAUUSD at 4897.630]
+CQ	0	08:15:35.320	Core 1	2026.03.18 18:25:18   order performed sell 0.54 at 4897.630 [#221 sell 0.54 XAUUSD at 4897.130]
+DO	0	08:15:35.320	Core 1	2026.03.18 18:26:05   market buy 0.54 XAUUSD sl: 4894.280 tp: 4897.160 (4895.510 / 4895.720)
+CH	0	08:15:35.320	Core 1	2026.03.18 18:26:05   deal #222 buy 0.54 XAUUSD at 4895.720 done (based on order #222)
+ME	0	08:15:35.320	Core 1	2026.03.18 18:26:05   deal performed [#222 buy 0.54 XAUUSD at 4895.720]
+FH	0	08:15:35.320	Core 1	2026.03.18 18:26:05   order performed buy 0.54 at 4895.720 [#222 buy 0.54 XAUUSD at 4895.720]
+RK	0	08:15:35.320	Core 1	2026.03.18 18:26:05   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4894.280 tp: 4897.160 [done at 4895.720]
+CI	0	08:15:35.320	Core 1	2026.03.18 18:26:11   stop loss triggered #222 buy 0.54 XAUUSD 4895.720 sl: 4894.280 tp: 4897.160 [#223 sell 0.54 XAUUSD at 4894.280]
+OE	0	08:15:35.320	Core 1	2026.03.18 18:26:11   deal #223 sell 0.54 XAUUSD at 4894.100 done (based on order #223)
+LD	0	08:15:35.320	Core 1	2026.03.18 18:26:11   deal performed [#223 sell 0.54 XAUUSD at 4894.100]
+GN	0	08:15:35.320	Core 1	2026.03.18 18:26:11   order performed sell 0.54 at 4894.100 [#223 sell 0.54 XAUUSD at 4894.280]
+JP	0	08:15:35.320	Core 1	2026.03.18 18:31:10   market buy 0.54 XAUUSD sl: 4887.650 tp: 4890.530 (4888.880 / 4889.090)
+FQ	0	08:15:35.320	Core 1	2026.03.18 18:31:10   deal #224 buy 0.54 XAUUSD at 4889.090 done (based on order #224)
+RL	0	08:15:35.320	Core 1	2026.03.18 18:31:10   deal performed [#224 buy 0.54 XAUUSD at 4889.090]
+JQ	0	08:15:35.320	Core 1	2026.03.18 18:31:10   order performed buy 0.54 at 4889.090 [#224 buy 0.54 XAUUSD at 4889.090]
+DD	0	08:15:35.320	Core 1	2026.03.18 18:31:10   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4887.650 tp: 4890.530 [done at 4889.090]
+OP	0	08:15:35.320	Core 1	2026.03.18 18:31:58   stop loss triggered #224 buy 0.54 XAUUSD 4889.090 sl: 4887.650 tp: 4890.530 [#225 sell 0.54 XAUUSD at 4887.650]
+PL	0	08:15:35.320	Core 1	2026.03.18 18:31:58   deal #225 sell 0.54 XAUUSD at 4887.485 done (based on order #225)
+QM	0	08:15:35.320	Core 1	2026.03.18 18:31:58   deal performed [#225 sell 0.54 XAUUSD at 4887.485]
+KG	0	08:15:35.320	Core 1	2026.03.18 18:31:58   order performed sell 0.54 at 4887.485 [#225 sell 0.54 XAUUSD at 4887.650]
+PI	0	08:15:35.320	Core 1	2026.03.18 18:42:11   market buy 0.54 XAUUSD sl: 4893.260 tp: 4896.140 (4894.520 / 4894.700)
+GJ	0	08:15:35.320	Core 1	2026.03.18 18:42:11   deal #226 buy 0.54 XAUUSD at 4894.700 done (based on order #226)
+MK	0	08:15:35.320	Core 1	2026.03.18 18:42:11   deal performed [#226 buy 0.54 XAUUSD at 4894.700]
+CN	0	08:15:35.320	Core 1	2026.03.18 18:42:11   order performed buy 0.54 at 4894.700 [#226 buy 0.54 XAUUSD at 4894.700]
+DM	0	08:15:35.320	Core 1	2026.03.18 18:42:11   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4893.260 tp: 4896.140 [done at 4894.700]
+DO	0	08:15:35.320	Core 1	2026.03.18 18:42:47   stop loss triggered #226 buy 0.54 XAUUSD 4894.700 sl: 4893.260 tp: 4896.140 [#227 sell 0.54 XAUUSD at 4893.260]
+OK	0	08:15:35.320	Core 1	2026.03.18 18:42:47   deal #227 sell 0.54 XAUUSD at 4893.250 done (based on order #227)
+PF	0	08:15:35.320	Core 1	2026.03.18 18:42:47   deal performed [#227 sell 0.54 XAUUSD at 4893.250]
+LL	0	08:15:35.320	Core 1	2026.03.18 18:42:47   order performed sell 0.54 at 4893.250 [#227 sell 0.54 XAUUSD at 4893.260]
+FR	0	08:15:35.320	Core 1	2026.03.18 18:43:13   market buy 0.54 XAUUSD sl: 4890.190 tp: 4893.070 (4891.440 / 4891.630)
+CS	0	08:15:35.320	Core 1	2026.03.18 18:43:13   deal #228 buy 0.54 XAUUSD at 4891.630 done (based on order #228)
+CR	0	08:15:35.320	Core 1	2026.03.18 18:43:13   deal performed [#228 buy 0.54 XAUUSD at 4891.630]
+PG	0	08:15:35.320	Core 1	2026.03.18 18:43:13   order performed buy 0.54 at 4891.630 [#228 buy 0.54 XAUUSD at 4891.630]
+PF	0	08:15:35.320	Core 1	2026.03.18 18:43:13   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4890.190 tp: 4893.070 [done at 4891.630]
+MF	0	08:15:35.320	Core 1	2026.03.18 18:43:18   stop loss triggered #228 buy 0.54 XAUUSD 4891.630 sl: 4890.190 tp: 4893.070 [#229 sell 0.54 XAUUSD at 4890.190]
+IR	0	08:15:35.320	Core 1	2026.03.18 18:43:18   deal #229 sell 0.54 XAUUSD at 4890.140 done (based on order #229)
+LO	0	08:15:35.320	Core 1	2026.03.18 18:43:18   deal performed [#229 sell 0.54 XAUUSD at 4890.140]
+EE	0	08:15:35.320	Core 1	2026.03.18 18:43:18   order performed sell 0.54 at 4890.140 [#229 sell 0.54 XAUUSD at 4890.190]
+HK	0	08:15:35.320	Core 1	2026.03.18 18:58:47   market buy 0.54 XAUUSD sl: 4890.050 tp: 4892.930 (4891.370 / 4891.490)
+FD	0	08:15:35.320	Core 1	2026.03.18 18:58:47   deal #230 buy 0.54 XAUUSD at 4891.490 done (based on order #230)
+MI	0	08:15:35.320	Core 1	2026.03.18 18:58:47   deal performed [#230 buy 0.54 XAUUSD at 4891.490]
+RL	0	08:15:35.320	Core 1	2026.03.18 18:58:47   order performed buy 0.54 at 4891.490 [#230 buy 0.54 XAUUSD at 4891.490]
+RO	0	08:15:35.320	Core 1	2026.03.18 18:58:47   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4890.050 tp: 4892.930 [done at 4891.490]
+RM	0	08:15:35.320	Core 1	2026.03.18 18:59:21   stop loss triggered #230 buy 0.54 XAUUSD 4891.490 sl: 4890.050 tp: 4892.930 [#231 sell 0.54 XAUUSD at 4890.050]
+JI	0	08:15:35.320	Core 1	2026.03.18 18:59:21   deal #231 sell 0.54 XAUUSD at 4889.940 done (based on order #231)
+DP	0	08:15:35.320	Core 1	2026.03.18 18:59:21   deal performed [#231 sell 0.54 XAUUSD at 4889.940]
+JR	0	08:15:35.320	Core 1	2026.03.18 18:59:21   order performed sell 0.54 at 4889.940 [#231 sell 0.54 XAUUSD at 4890.050]
+NL	0	08:15:35.320	Core 1	2026.03.18 19:00:07   market buy 0.54 XAUUSD sl: 4889.030 tp: 4891.910 (4890.300 / 4890.470)
+GM	0	08:15:35.320	Core 1	2026.03.18 19:00:07   deal #232 buy 0.54 XAUUSD at 4890.470 done (based on order #232)
+RP	0	08:15:35.320	Core 1	2026.03.18 19:00:07   deal performed [#232 buy 0.54 XAUUSD at 4890.470]
+HE	0	08:15:35.320	Core 1	2026.03.18 19:00:07   order performed buy 0.54 at 4890.470 [#232 buy 0.54 XAUUSD at 4890.470]
+JH	0	08:15:35.320	Core 1	2026.03.18 19:00:07   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4889.030 tp: 4891.910 [done at 4890.470]
+QD	0	08:15:35.320	Core 1	2026.03.18 19:00:10   stop loss triggered #232 buy 0.54 XAUUSD 4890.470 sl: 4889.030 tp: 4891.910 [#233 sell 0.54 XAUUSD at 4889.030]
+KP	0	08:15:35.320	Core 1	2026.03.18 19:00:10   deal #233 sell 0.54 XAUUSD at 4888.840 done (based on order #233)
+OI	0	08:15:35.320	Core 1	2026.03.18 19:00:10   deal performed [#233 sell 0.54 XAUUSD at 4888.840]
+GK	0	08:15:35.320	Core 1	2026.03.18 19:00:10   order performed sell 0.54 at 4888.840 [#233 sell 0.54 XAUUSD at 4889.030]
+KE	0	08:15:35.320	Core 1	2026.03.18 19:01:21   market buy 0.54 XAUUSD sl: 4892.530 tp: 4895.410 (4893.860 / 4893.970)
+RF	0	08:15:35.320	Core 1	2026.03.18 19:01:21   deal #234 buy 0.54 XAUUSD at 4893.970 done (based on order #234)
+EO	0	08:15:35.320	Core 1	2026.03.18 19:01:21   deal performed [#234 buy 0.54 XAUUSD at 4893.970]
+IR	0	08:15:35.320	Core 1	2026.03.18 19:01:21   order performed buy 0.54 at 4893.970 [#234 buy 0.54 XAUUSD at 4893.970]
+MQ	0	08:15:35.320	Core 1	2026.03.18 19:01:21   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4892.530 tp: 4895.410 [done at 4893.970]
+LS	0	08:15:35.320	Core 1	2026.03.18 19:01:22   stop loss triggered #234 buy 0.54 XAUUSD 4893.970 sl: 4892.530 tp: 4895.410 [#235 sell 0.54 XAUUSD at 4892.530]
+LO	0	08:15:35.320	Core 1	2026.03.18 19:01:22   deal #235 sell 0.54 XAUUSD at 4892.240 done (based on order #235)
+NR	0	08:15:35.320	Core 1	2026.03.18 19:01:22   deal performed [#235 sell 0.54 XAUUSD at 4892.240]
+OP	0	08:15:35.320	Core 1	2026.03.18 19:01:22   order performed sell 0.54 at 4892.240 [#235 sell 0.54 XAUUSD at 4892.530]
+PN	0	08:15:35.320	Core 1	2026.03.18 19:03:25   market buy 0.54 XAUUSD sl: 4889.280 tp: 4892.160 (4890.500 / 4890.720)
+DO	0	08:15:35.320	Core 1	2026.03.18 19:03:25   deal #236 buy 0.54 XAUUSD at 4890.720 done (based on order #236)
+QF	0	08:15:35.320	Core 1	2026.03.18 19:03:25   deal performed [#236 buy 0.54 XAUUSD at 4890.720]
+EK	0	08:15:35.320	Core 1	2026.03.18 19:03:25   order performed buy 0.54 at 4890.720 [#236 buy 0.54 XAUUSD at 4890.720]
+JJ	0	08:15:35.320	Core 1	2026.03.18 19:03:25   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4889.280 tp: 4892.160 [done at 4890.720]
+PJ	0	08:15:35.320	Core 1	2026.03.18 19:03:29   stop loss triggered #236 buy 0.54 XAUUSD 4890.720 sl: 4889.280 tp: 4892.160 [#237 sell 0.54 XAUUSD at 4889.280]
+LF	0	08:15:35.320	Core 1	2026.03.18 19:03:29   deal #237 sell 0.54 XAUUSD at 4889.270 done (based on order #237)
+LK	0	08:15:35.320	Core 1	2026.03.18 19:03:29   deal performed [#237 sell 0.54 XAUUSD at 4889.270]
+KI	0	08:15:35.320	Core 1	2026.03.18 19:03:29   order performed sell 0.54 at 4889.270 [#237 sell 0.54 XAUUSD at 4889.280]
+IG	0	08:15:35.320	Core 1	2026.03.18 19:31:05   market buy 0.54 XAUUSD sl: 4884.720 tp: 4887.600 (4885.920 / 4886.160)
+JP	0	08:15:35.320	Core 1	2026.03.18 19:31:05   deal #238 buy 0.54 XAUUSD at 4886.160 done (based on order #238)
+IM	0	08:15:35.320	Core 1	2026.03.18 19:31:05   deal performed [#238 buy 0.54 XAUUSD at 4886.160]
+RP	0	08:15:35.320	Core 1	2026.03.18 19:31:05   order performed buy 0.54 at 4886.160 [#238 buy 0.54 XAUUSD at 4886.160]
+IS	0	08:15:35.320	Core 1	2026.03.18 19:31:05   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4884.720 tp: 4887.600 [done at 4886.160]
+HQ	0	08:15:35.320	Core 1	2026.03.18 19:31:31   stop loss triggered #238 buy 0.54 XAUUSD 4886.160 sl: 4884.720 tp: 4887.600 [#239 sell 0.54 XAUUSD at 4884.720]
+NM	0	08:15:35.320	Core 1	2026.03.18 19:31:31   deal #239 sell 0.54 XAUUSD at 4884.570 done (based on order #239)
+HL	0	08:15:35.320	Core 1	2026.03.18 19:31:31   deal performed [#239 sell 0.54 XAUUSD at 4884.570]
+IF	0	08:15:35.320	Core 1	2026.03.18 19:31:31   order performed sell 0.54 at 4884.570 [#239 sell 0.54 XAUUSD at 4884.720]
+KH	0	08:15:35.320	Core 1	2026.03.18 19:33:01   market buy 0.54 XAUUSD sl: 4877.350 tp: 4880.230 (4878.600 / 4878.790)
+LI	0	08:15:35.320	Core 1	2026.03.18 19:33:01   deal #240 buy 0.54 XAUUSD at 4878.790 done (based on order #240)
+JD	0	08:15:35.320	Core 1	2026.03.18 19:33:01   deal performed [#240 buy 0.54 XAUUSD at 4878.790]
+II	0	08:15:35.320	Core 1	2026.03.18 19:33:01   order performed buy 0.54 at 4878.790 [#240 buy 0.54 XAUUSD at 4878.790]
+JL	0	08:15:35.320	Core 1	2026.03.18 19:33:01   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4877.350 tp: 4880.230 [done at 4878.790]
+GH	0	08:15:35.320	Core 1	2026.03.18 19:33:18   stop loss triggered #240 buy 0.54 XAUUSD 4878.790 sl: 4877.350 tp: 4880.230 [#241 sell 0.54 XAUUSD at 4877.350]
+ND	0	08:15:35.320	Core 1	2026.03.18 19:33:18   deal #241 sell 0.54 XAUUSD at 4877.340 done (based on order #241)
+ME	0	08:15:35.320	Core 1	2026.03.18 19:33:18   deal performed [#241 sell 0.54 XAUUSD at 4877.340]
+IO	0	08:15:35.320	Core 1	2026.03.18 19:33:18   order performed sell 0.54 at 4877.340 [#241 sell 0.54 XAUUSD at 4877.350]
+OQ	0	08:15:35.320	Core 1	2026.03.18 19:35:07   market buy 0.54 XAUUSD sl: 4876.350 tp: 4879.230 (4877.630 / 4877.790)
+IR	0	08:15:35.320	Core 1	2026.03.18 19:35:07   deal #242 buy 0.54 XAUUSD at 4877.790 done (based on order #242)
+MS	0	08:15:35.320	Core 1	2026.03.18 19:35:07   deal performed [#242 buy 0.54 XAUUSD at 4877.790]
+GF	0	08:15:35.320	Core 1	2026.03.18 19:35:07   order performed buy 0.54 at 4877.790 [#242 buy 0.54 XAUUSD at 4877.790]
+RE	0	08:15:35.320	Core 1	2026.03.18 19:35:07   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4876.350 tp: 4879.230 [done at 4877.790]
+HF	0	08:15:35.320	Core 1	2026.03.18 19:35:18   take profit triggered #242 buy 0.54 XAUUSD 4877.790 sl: 4876.350 tp: 4879.230 [#243 sell 0.54 XAUUSD at 4879.230]
+RS	0	08:15:35.320	Core 1	2026.03.18 19:35:18   deal #243 sell 0.54 XAUUSD at 4879.250 done (based on order #243)
+GN	0	08:15:35.320	Core 1	2026.03.18 19:35:18   deal performed [#243 sell 0.54 XAUUSD at 4879.250]
+LG	0	08:15:35.320	Core 1	2026.03.18 19:35:18   order performed sell 0.54 at 4879.250 [#243 sell 0.54 XAUUSD at 4879.230]
+OJ	0	08:15:35.320	Core 1	2026.03.18 19:49:13   market buy 0.54 XAUUSD sl: 4866.670 tp: 4869.550 (4867.910 / 4868.110)
+OK	0	08:15:35.320	Core 1	2026.03.18 19:49:13   deal #244 buy 0.54 XAUUSD at 4868.110 done (based on order #244)
+IJ	0	08:15:35.320	Core 1	2026.03.18 19:49:13   deal performed [#244 buy 0.54 XAUUSD at 4868.110]
+CO	0	08:15:35.320	Core 1	2026.03.18 19:49:13   order performed buy 0.54 at 4868.110 [#244 buy 0.54 XAUUSD at 4868.110]
+NN	0	08:15:35.320	Core 1	2026.03.18 19:49:13   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4866.670 tp: 4869.550 [done at 4868.110]
+KO	0	08:15:35.320	Core 1	2026.03.18 19:49:27   take profit triggered #244 buy 0.54 XAUUSD 4868.110 sl: 4866.670 tp: 4869.550 [#245 sell 0.54 XAUUSD at 4869.550]
+OJ	0	08:15:35.320	Core 1	2026.03.18 19:49:27   deal #245 sell 0.54 XAUUSD at 4869.710 done (based on order #245)
+LF	0	08:15:35.320	Core 1	2026.03.18 19:49:27   deal performed [#245 sell 0.54 XAUUSD at 4869.710]
+OL	0	08:15:35.320	Core 1	2026.03.18 19:49:27   order performed sell 0.54 at 4869.710 [#245 sell 0.54 XAUUSD at 4869.550]
+PS	0	08:15:35.320	Core 1	2026.03.18 19:58:19   market buy 0.54 XAUUSD sl: 4856.220 tp: 4859.100 (4857.440 / 4857.660)
+IL	0	08:15:35.320	Core 1	2026.03.18 19:58:19   deal #246 buy 0.54 XAUUSD at 4857.660 done (based on order #246)
+QQ	0	08:15:35.320	Core 1	2026.03.18 19:58:19   deal performed [#246 buy 0.54 XAUUSD at 4857.660]
+OD	0	08:15:35.320	Core 1	2026.03.18 19:58:19   order performed buy 0.54 at 4857.660 [#246 buy 0.54 XAUUSD at 4857.660]
+LG	0	08:15:35.320	Core 1	2026.03.18 19:58:19   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4856.220 tp: 4859.100 [done at 4857.660]
+NE	0	08:15:35.320	Core 1	2026.03.18 19:59:27   stop loss triggered #246 buy 0.54 XAUUSD 4857.660 sl: 4856.220 tp: 4859.100 [#247 sell 0.54 XAUUSD at 4856.220]
+FQ	0	08:15:35.320	Core 1	2026.03.18 19:59:27   deal #247 sell 0.54 XAUUSD at 4855.700 done (based on order #247)
+GO	0	08:15:35.320	Core 1	2026.03.18 19:59:27   deal performed [#247 sell 0.54 XAUUSD at 4855.700]
+PE	0	08:15:35.320	Core 1	2026.03.18 19:59:27   order performed sell 0.54 at 4855.700 [#247 sell 0.54 XAUUSD at 4856.220]
+OD	0	08:15:35.320	Core 1	2026.03.18 20:10:20   market buy 0.54 XAUUSD sl: 4852.660 tp: 4855.540 (4853.740 / 4854.100)
+KE	0	08:15:35.320	Core 1	2026.03.18 20:10:20   deal #248 buy 0.54 XAUUSD at 4854.100 done (based on order #248)
+QH	0	08:15:35.320	Core 1	2026.03.18 20:10:20   deal performed [#248 buy 0.54 XAUUSD at 4854.100]
+QM	0	08:15:35.320	Core 1	2026.03.18 20:10:20   order performed buy 0.54 at 4854.100 [#248 buy 0.54 XAUUSD at 4854.100]
+RP	0	08:15:35.320	Core 1	2026.03.18 20:10:20   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4852.660 tp: 4855.540 [done at 4854.100]
+FL	0	08:15:35.320	Core 1	2026.03.18 20:10:26   stop loss triggered #248 buy 0.54 XAUUSD 4854.100 sl: 4852.660 tp: 4855.540 [#249 sell 0.54 XAUUSD at 4852.660]
+HH	0	08:15:35.320	Core 1	2026.03.18 20:10:26   deal #249 sell 0.54 XAUUSD at 4852.660 done (based on order #249)
+OP	0	08:15:35.320	Core 1	2026.03.18 20:10:26   deal performed [#249 sell 0.54 XAUUSD at 4852.660]
+DR	0	08:15:35.320	Core 1	2026.03.18 20:10:26   order performed sell 0.54 at 4852.660 [#249 sell 0.54 XAUUSD at 4852.660]
+LM	0	08:15:35.320	Core 1	2026.03.18 20:20:02   market buy 0.54 XAUUSD sl: 4860.500 tp: 4863.380 (4861.630 / 4861.940)
+DN	0	08:15:35.320	Core 1	2026.03.18 20:20:02   deal #250 buy 0.54 XAUUSD at 4861.940 done (based on order #250)
+QG	0	08:15:35.320	Core 1	2026.03.18 20:20:02   deal performed [#250 buy 0.54 XAUUSD at 4861.940]
+GJ	0	08:15:35.320	Core 1	2026.03.18 20:20:02   order performed buy 0.54 at 4861.940 [#250 buy 0.54 XAUUSD at 4861.940]
+PI	0	08:15:35.320	Core 1	2026.03.18 20:20:02   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4860.500 tp: 4863.380 [done at 4861.940]
+HK	0	08:15:35.320	Core 1	2026.03.18 20:23:34   stop loss triggered #250 buy 0.54 XAUUSD 4861.940 sl: 4860.500 tp: 4863.380 [#251 sell 0.54 XAUUSD at 4860.500]
+DG	0	08:15:35.320	Core 1	2026.03.18 20:23:34   deal #251 sell 0.54 XAUUSD at 4847.560 done (based on order #251)
+DI	0	08:15:35.320	Core 1	2026.03.18 20:23:34   deal performed [#251 sell 0.54 XAUUSD at 4847.560]
+KK	0	08:15:35.320	Core 1	2026.03.18 20:23:34   order performed sell 0.54 at 4847.560 [#251 sell 0.54 XAUUSD at 4860.500]
+CF	0	08:15:35.320	Core 1	2026.03.18 20:27:47   market buy 0.54 XAUUSD sl: 4842.670 tp: 4845.550 (4843.830 / 4844.110)
+PG	0	08:15:35.320	Core 1	2026.03.18 20:27:47   deal #252 buy 0.54 XAUUSD at 4844.110 done (based on order #252)
+CN	0	08:15:35.320	Core 1	2026.03.18 20:27:47   deal performed [#252 buy 0.54 XAUUSD at 4844.110]
+CS	0	08:15:35.320	Core 1	2026.03.18 20:27:47   order performed buy 0.54 at 4844.110 [#252 buy 0.54 XAUUSD at 4844.110]
+MR	0	08:15:35.320	Core 1	2026.03.18 20:27:47   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4842.670 tp: 4845.550 [done at 4844.110]
+IS	0	08:15:35.320	Core 1	2026.03.18 20:27:50   take profit triggered #252 buy 0.54 XAUUSD 4844.110 sl: 4842.670 tp: 4845.550 [#253 sell 0.54 XAUUSD at 4845.550]
+HO	0	08:15:35.320	Core 1	2026.03.18 20:27:50   deal #253 sell 0.54 XAUUSD at 4845.780 done (based on order #253)
+RR	0	08:15:35.320	Core 1	2026.03.18 20:27:50   deal performed [#253 sell 0.54 XAUUSD at 4845.780]
+OP	0	08:15:35.320	Core 1	2026.03.18 20:27:50   order performed sell 0.54 at 4845.780 [#253 sell 0.54 XAUUSD at 4845.550]
+GO	0	08:15:35.320	Core 1	2026.03.18 20:41:26   market buy 0.54 XAUUSD sl: 4846.920 tp: 4849.800 (4848.150 / 4848.360)
+JH	0	08:15:35.320	Core 1	2026.03.18 20:41:26   deal #254 buy 0.54 XAUUSD at 4848.360 done (based on order #254)
+OE	0	08:15:35.320	Core 1	2026.03.18 20:41:26   deal performed [#254 buy 0.54 XAUUSD at 4848.360]
+PK	0	08:15:35.320	Core 1	2026.03.18 20:41:26   order performed buy 0.54 at 4848.360 [#254 buy 0.54 XAUUSD at 4848.360]
+EJ	0	08:15:35.320	Core 1	2026.03.18 20:41:26   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4846.920 tp: 4849.800 [done at 4848.360]
+LJ	0	08:15:35.320	Core 1	2026.03.18 20:41:29   stop loss triggered #254 buy 0.54 XAUUSD 4848.360 sl: 4846.920 tp: 4849.800 [#255 sell 0.54 XAUUSD at 4846.920]
+FF	0	08:15:35.320	Core 1	2026.03.18 20:41:29   deal #255 sell 0.54 XAUUSD at 4846.765 done (based on order #255)
+RK	0	08:15:35.320	Core 1	2026.03.18 20:41:29   deal performed [#255 sell 0.54 XAUUSD at 4846.765]
+GI	0	08:15:35.320	Core 1	2026.03.18 20:41:29   order performed sell 0.54 at 4846.765 [#255 sell 0.54 XAUUSD at 4846.920]
+DP	0	08:15:35.320	Core 1	2026.03.18 20:44:08   market buy 0.54 XAUUSD sl: 4848.140 tp: 4851.020 (4849.120 / 4849.580)
+JQ	0	08:15:35.320	Core 1	2026.03.18 20:44:08   deal #256 buy 0.54 XAUUSD at 4849.580 done (based on order #256)
+QL	0	08:15:35.320	Core 1	2026.03.18 20:44:08   deal performed [#256 buy 0.54 XAUUSD at 4849.580]
+IP	0	08:15:35.320	Core 1	2026.03.18 20:44:08   order performed buy 0.54 at 4849.580 [#256 buy 0.54 XAUUSD at 4849.580]
+DS	0	08:15:35.320	Core 1	2026.03.18 20:44:08   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4848.140 tp: 4851.020 [done at 4849.580]
+EP	0	08:15:35.320	Core 1	2026.03.18 20:44:24   take profit triggered #256 buy 0.54 XAUUSD 4849.580 sl: 4848.140 tp: 4851.020 [#257 sell 0.54 XAUUSD at 4851.020]
+QM	0	08:15:35.320	Core 1	2026.03.18 20:44:24   deal #257 sell 0.54 XAUUSD at 4851.030 done (based on order #257)
+KL	0	08:15:35.320	Core 1	2026.03.18 20:44:24   deal performed [#257 sell 0.54 XAUUSD at 4851.030]
+GF	0	08:15:35.320	Core 1	2026.03.18 20:44:24   order performed sell 0.54 at 4851.030 [#257 sell 0.54 XAUUSD at 4851.020]
+QH	0	08:15:35.320	Core 1	2026.03.18 20:46:53   market buy 0.54 XAUUSD sl: 4844.360 tp: 4847.240 (4845.600 / 4845.800)
+QI	0	08:15:35.320	Core 1	2026.03.18 20:46:53   deal #258 buy 0.54 XAUUSD at 4845.800 done (based on order #258)
+LD	0	08:15:35.320	Core 1	2026.03.18 20:46:53   deal performed [#258 buy 0.54 XAUUSD at 4845.800]
+CI	0	08:15:35.320	Core 1	2026.03.18 20:46:53   order performed buy 0.54 at 4845.800 [#258 buy 0.54 XAUUSD at 4845.800]
+RL	0	08:15:35.320	Core 1	2026.03.18 20:46:53   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4844.360 tp: 4847.240 [done at 4845.800]
+DH	0	08:15:35.320	Core 1	2026.03.18 20:47:01   stop loss triggered #258 buy 0.54 XAUUSD 4845.800 sl: 4844.360 tp: 4847.240 [#259 sell 0.54 XAUUSD at 4844.360]
+QD	0	08:15:35.320	Core 1	2026.03.18 20:47:01   deal #259 sell 0.54 XAUUSD at 4844.300 done (based on order #259)
+IE	0	08:15:35.320	Core 1	2026.03.18 20:47:01   deal performed [#259 sell 0.54 XAUUSD at 4844.300]
+LO	0	08:15:35.320	Core 1	2026.03.18 20:47:01   order performed sell 0.54 at 4844.300 [#259 sell 0.54 XAUUSD at 4844.360]
+FQ	0	08:15:35.320	Core 1	2026.03.18 21:01:31   market buy 0.54 XAUUSD sl: 4843.530 tp: 4846.410 (4844.850 / 4844.970)
+RR	0	08:15:35.320	Core 1	2026.03.18 21:01:31   deal #260 buy 0.54 XAUUSD at 4844.970 done (based on order #260)
+FS	0	08:15:35.320	Core 1	2026.03.18 21:01:31   deal performed [#260 buy 0.54 XAUUSD at 4844.970]
+PF	0	08:15:35.320	Core 1	2026.03.18 21:01:31   order performed buy 0.54 at 4844.970 [#260 buy 0.54 XAUUSD at 4844.970]
+KE	0	08:15:35.320	Core 1	2026.03.18 21:01:31   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4843.530 tp: 4846.410 [done at 4844.970]
+JF	0	08:15:35.320	Core 1	2026.03.18 21:02:20   take profit triggered #260 buy 0.54 XAUUSD 4844.970 sl: 4843.530 tp: 4846.410 [#261 sell 0.54 XAUUSD at 4846.410]
+HS	0	08:15:35.320	Core 1	2026.03.18 21:02:20   deal #261 sell 0.54 XAUUSD at 4846.410 done (based on order #261)
+QN	0	08:15:35.320	Core 1	2026.03.18 21:02:20   deal performed [#261 sell 0.54 XAUUSD at 4846.410]
+NG	0	08:15:35.320	Core 1	2026.03.18 21:02:20   order performed sell 0.54 at 4846.410 [#261 sell 0.54 XAUUSD at 4846.410]
+KJ	0	08:15:35.320	Core 1	2026.03.18 21:14:08   market buy 0.54 XAUUSD sl: 4831.100 tp: 4833.980 (4832.340 / 4832.540)
+NK	0	08:15:35.320	Core 1	2026.03.18 21:14:08   deal #262 buy 0.54 XAUUSD at 4832.540 done (based on order #262)
+HJ	0	08:15:35.320	Core 1	2026.03.18 21:14:08   deal performed [#262 buy 0.54 XAUUSD at 4832.540]
+PO	0	08:15:35.320	Core 1	2026.03.18 21:14:08   order performed buy 0.54 at 4832.540 [#262 buy 0.54 XAUUSD at 4832.540]
+CN	0	08:15:35.320	Core 1	2026.03.18 21:14:08   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4831.100 tp: 4833.980 [done at 4832.540]
+IN	0	08:15:35.320	Core 1	2026.03.18 21:14:11   stop loss triggered #262 buy 0.54 XAUUSD 4832.540 sl: 4831.100 tp: 4833.980 [#263 sell 0.54 XAUUSD at 4831.100]
+JJ	0	08:15:35.320	Core 1	2026.03.18 21:14:11   deal #263 sell 0.54 XAUUSD at 4831.020 done (based on order #263)
+QG	0	08:15:35.320	Core 1	2026.03.18 21:14:11   deal performed [#263 sell 0.54 XAUUSD at 4831.020]
+RL	0	08:15:35.320	Core 1	2026.03.18 21:14:11   order performed sell 0.54 at 4831.020 [#263 sell 0.54 XAUUSD at 4831.100]
+MS	0	08:15:35.320	Core 1	2026.03.18 21:14:13   market buy 0.54 XAUUSD sl: 4829.100 tp: 4831.980 (4830.260 / 4830.540)
+FL	0	08:15:35.320	Core 1	2026.03.18 21:14:13   deal #264 buy 0.54 XAUUSD at 4830.540 done (based on order #264)
+NQ	0	08:15:35.320	Core 1	2026.03.18 21:14:13   deal performed [#264 buy 0.54 XAUUSD at 4830.540]
+DD	0	08:15:35.320	Core 1	2026.03.18 21:14:13   order performed buy 0.54 at 4830.540 [#264 buy 0.54 XAUUSD at 4830.540]
+FG	0	08:15:35.320	Core 1	2026.03.18 21:14:13   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4829.100 tp: 4831.980 [done at 4830.540]
+GE	0	08:15:35.320	Core 1	2026.03.18 21:14:13   stop loss triggered #264 buy 0.54 XAUUSD 4830.540 sl: 4829.100 tp: 4831.980 [#265 sell 0.54 XAUUSD at 4829.100]
+LQ	0	08:15:35.320	Core 1	2026.03.18 21:14:13   deal #265 sell 0.54 XAUUSD at 4828.600 done (based on order #265)
+IH	0	08:15:35.320	Core 1	2026.03.18 21:14:13   deal performed [#265 sell 0.54 XAUUSD at 4828.600]
+QE	0	08:15:35.320	Core 1	2026.03.18 21:14:13   order performed sell 0.54 at 4828.600 [#265 sell 0.54 XAUUSD at 4829.100]
+CD	0	08:15:35.320	Core 1	2026.03.18 21:18:15   market buy 0.54 XAUUSD sl: 4819.040 tp: 4821.920 (4820.260 / 4820.480)
+HE	0	08:15:35.320	Core 1	2026.03.18 21:18:15   deal #266 buy 0.54 XAUUSD at 4820.480 done (based on order #266)
+RH	0	08:15:35.320	Core 1	2026.03.18 21:18:15   deal performed [#266 buy 0.54 XAUUSD at 4820.480]
+LM	0	08:15:35.320	Core 1	2026.03.18 21:18:15   order performed buy 0.54 at 4820.480 [#266 buy 0.54 XAUUSD at 4820.480]
+KP	0	08:15:35.320	Core 1	2026.03.18 21:18:15   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4819.040 tp: 4821.920 [done at 4820.480]
+RM	0	08:15:35.320	Core 1	2026.03.18 21:18:22   take profit triggered #266 buy 0.54 XAUUSD 4820.480 sl: 4819.040 tp: 4821.920 [#267 sell 0.54 XAUUSD at 4821.920]
+PH	0	08:15:35.320	Core 1	2026.03.18 21:18:22   deal #267 sell 0.54 XAUUSD at 4822.200 done (based on order #267)
+KP	0	08:15:35.320	Core 1	2026.03.18 21:18:22   deal performed [#267 sell 0.54 XAUUSD at 4822.200]
+MR	0	08:15:35.320	Core 1	2026.03.18 21:18:22   order performed sell 0.54 at 4822.200 [#267 sell 0.54 XAUUSD at 4821.920]
+OM	0	08:15:35.320	Core 1	2026.03.18 21:20:01   market buy 0.54 XAUUSD sl: 4819.630 tp: 4822.510 (4820.850 / 4821.070)
+PN	0	08:15:35.320	Core 1	2026.03.18 21:20:01   deal #268 buy 0.54 XAUUSD at 4821.070 done (based on order #268)
+LG	0	08:15:35.320	Core 1	2026.03.18 21:20:01   deal performed [#268 buy 0.54 XAUUSD at 4821.070]
+PJ	0	08:15:35.320	Core 1	2026.03.18 21:20:01   order performed buy 0.54 at 4821.070 [#268 buy 0.54 XAUUSD at 4821.070]
+HI	0	08:15:35.320	Core 1	2026.03.18 21:20:01   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4819.630 tp: 4822.510 [done at 4821.070]
+QJ	0	08:15:35.320	Core 1	2026.03.18 21:20:41   take profit triggered #268 buy 0.54 XAUUSD 4821.070 sl: 4819.630 tp: 4822.510 [#269 sell 0.54 XAUUSD at 4822.510]
+MP	0	08:15:35.320	Core 1	2026.03.18 21:20:41   deal #269 sell 0.54 XAUUSD at 4822.610 done (based on order #269)
+LI	0	08:15:35.320	Core 1	2026.03.18 21:20:41   deal performed [#269 sell 0.54 XAUUSD at 4822.610]
+RK	0	08:15:35.320	Core 1	2026.03.18 21:20:41   order performed sell 0.54 at 4822.610 [#269 sell 0.54 XAUUSD at 4822.510]
+IF	0	08:15:35.320	Core 1	2026.03.18 21:28:43   market buy 0.54 XAUUSD sl: 4810.510 tp: 4813.390 (4811.740 / 4811.950)
+RG	0	08:15:35.320	Core 1	2026.03.18 21:28:43   deal #270 buy 0.54 XAUUSD at 4811.950 done (based on order #270)
+EN	0	08:15:35.320	Core 1	2026.03.18 21:28:43   deal performed [#270 buy 0.54 XAUUSD at 4811.950]
+IR	0	08:15:35.320	Core 1	2026.03.18 21:28:43   order performed buy 0.54 at 4811.950 [#270 buy 0.54 XAUUSD at 4811.950]
+NQ	0	08:15:35.320	Core 1	2026.03.18 21:28:43   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4810.510 tp: 4813.390 [done at 4811.950]
+CS	0	08:15:35.320	Core 1	2026.03.18 21:29:36   stop loss triggered #270 buy 0.54 XAUUSD 4811.950 sl: 4810.510 tp: 4813.390 [#271 sell 0.54 XAUUSD at 4810.510]
+FO	0	08:15:35.320	Core 1	2026.03.18 21:29:36   deal #271 sell 0.54 XAUUSD at 4810.420 done (based on order #271)
+LR	0	08:15:35.320	Core 1	2026.03.18 21:29:36   deal performed [#271 sell 0.54 XAUUSD at 4810.420]
+QP	0	08:15:35.320	Core 1	2026.03.18 21:29:36   order performed sell 0.54 at 4810.420 [#271 sell 0.54 XAUUSD at 4810.510]
+IO	0	08:15:35.320	Core 1	2026.03.18 21:31:36   market buy 0.54 XAUUSD sl: 4805.810 tp: 4808.690 (4807.040 / 4807.250)
+LH	0	08:15:35.320	Core 1	2026.03.18 21:31:36   deal #272 buy 0.54 XAUUSD at 4807.250 done (based on order #272)
+IE	0	08:15:35.320	Core 1	2026.03.18 21:31:36   deal performed [#272 buy 0.54 XAUUSD at 4807.250]
+QK	0	08:15:35.320	Core 1	2026.03.18 21:31:36   order performed buy 0.54 at 4807.250 [#272 buy 0.54 XAUUSD at 4807.250]
+NJ	0	08:15:35.320	Core 1	2026.03.18 21:31:36   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4805.810 tp: 4808.690 [done at 4807.250]
+FK	0	08:15:35.320	Core 1	2026.03.18 21:31:54   take profit triggered #272 buy 0.54 XAUUSD 4807.250 sl: 4805.810 tp: 4808.690 [#273 sell 0.54 XAUUSD at 4808.690]
+GF	0	08:15:35.320	Core 1	2026.03.18 21:31:54   deal #273 sell 0.54 XAUUSD at 4808.890 done (based on order #273)
+GK	0	08:15:35.320	Core 1	2026.03.18 21:31:54   deal performed [#273 sell 0.54 XAUUSD at 4808.890]
+LI	0	08:15:35.320	Core 1	2026.03.18 21:31:54   order performed sell 0.54 at 4808.890 [#273 sell 0.54 XAUUSD at 4808.690]
+QG	0	08:15:35.320	Core 1	2026.03.18 21:32:14   market buy 0.54 XAUUSD sl: 4808.090 tp: 4810.970 (4809.340 / 4809.530)
+LP	0	08:15:35.320	Core 1	2026.03.18 21:32:14   deal #274 buy 0.54 XAUUSD at 4809.530 done (based on order #274)
+CM	0	08:15:35.320	Core 1	2026.03.18 21:32:14   deal performed [#274 buy 0.54 XAUUSD at 4809.530]
+RP	0	08:15:35.320	Core 1	2026.03.18 21:32:14   order performed buy 0.54 at 4809.530 [#274 buy 0.54 XAUUSD at 4809.530]
+IS	0	08:15:35.320	Core 1	2026.03.18 21:32:14   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4808.090 tp: 4810.970 [done at 4809.530]
+IP	0	08:15:35.320	Core 1	2026.03.18 21:32:23   take profit triggered #274 buy 0.54 XAUUSD 4809.530 sl: 4808.090 tp: 4810.970 [#275 sell 0.54 XAUUSD at 4810.970]
+DM	0	08:15:35.320	Core 1	2026.03.18 21:32:23   deal #275 sell 0.54 XAUUSD at 4811.560 done (based on order #275)
+RL	0	08:15:35.320	Core 1	2026.03.18 21:32:23   deal performed [#275 sell 0.54 XAUUSD at 4811.560]
+EQ	0	08:15:35.320	Core 1	2026.03.18 21:32:23   order performed sell 0.54 at 4811.560 [#275 sell 0.54 XAUUSD at 4810.970]
+PI	2	08:15:35.320	Core 1	2026.03.18 23:00:16   failed market buy 0.54 XAUUSD sl: 4822.230 tp: 4825.110 [Market closed]
+DF	0	08:15:35.320	Core 1	2026.03.18 23:00:16   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4822.230 tp: 4825.110 [market closed]
+CH	2	08:15:35.320	Core 1	2026.03.18 23:00:51   failed market buy 0.54 XAUUSD sl: 4825.870 tp: 4828.750 [Market closed]
+OE	0	08:15:35.320	Core 1	2026.03.18 23:00:51   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4825.870 tp: 4828.750 [market closed]
+FH	2	08:15:35.320	Core 1	2026.03.18 23:02:00   failed market buy 0.54 XAUUSD sl: 4830.400 tp: 4833.280 [Market closed]
+RE	0	08:15:35.320	Core 1	2026.03.18 23:02:00   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4830.400 tp: 4833.280 [market closed]
+OK	2	08:15:35.320	Core 1	2026.03.18 23:02:08   failed market buy 0.54 XAUUSD sl: 4830.100 tp: 4832.980 [Market closed]
+CD	0	08:15:35.320	Core 1	2026.03.18 23:02:08   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4830.100 tp: 4832.980 [market closed]
+CK	2	08:15:35.320	Core 1	2026.03.18 23:05:41   failed market buy 0.54 XAUUSD sl: 4825.260 tp: 4828.140 [Market closed]
+OD	0	08:15:35.320	Core 1	2026.03.18 23:05:41   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4825.260 tp: 4828.140 [market closed]
+MJ	2	08:15:35.320	Core 1	2026.03.18 23:21:49   failed market buy 0.54 XAUUSD sl: 4804.530 tp: 4807.410 [Market closed]
+IK	0	08:15:35.320	Core 1	2026.03.18 23:21:49   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4804.530 tp: 4807.410 [market closed]
+IJ	2	08:15:35.320	Core 1	2026.03.18 23:26:36   failed market buy 0.54 XAUUSD sl: 4819.010 tp: 4821.890 [Market closed]
+MK	0	08:15:35.320	Core 1	2026.03.18 23:26:36   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4819.010 tp: 4821.890 [market closed]
+JE	2	08:15:35.320	Core 1	2026.03.18 23:49:00   failed market buy 0.54 XAUUSD sl: 4835.370 tp: 4838.250 [Market closed]
+NJ	0	08:15:35.320	Core 1	2026.03.18 23:49:00   CTrade::OrderSend: market buy 0.54 XAUUSD sl: 4835.370 tp: 4838.250 [market closed]
+OD	0	08:15:35.320	Core 1	final balance 7133.95 USD
+KM	0	08:15:35.320	Core 1	2026.03.18 23:59:58   [SUMMARY] risk_mode=FIXED fixed_move=1.44 predictions=12612 hold_skips=6177 confidence_skips=6132 position_skips=158 stops_too_close=0 open_failures=8 trades_opened=137 trades_closed=137 wins=58 losses=79 realized_pnl=-2348.19 balance=7133.95
+RS	0	08:15:35.320	Core 1	XAUUSD,M1: 288592 ticks, 1370 bars generated. Environment synchronized in 0:00:00.023. Test passed in 0:00:36.166 (including ticks preprocessing 0:00:00.094).
+GG	0	08:15:35.320	Core 1	XAUUSD,M1: total time from login to stop testing 0:00:36.189 (including 0:00:00.023 for history data synchronization)
+LG	0	08:15:35.320	Core 1	170 Mb memory used including 24 Mb of history data, 64 Mb of tick data
+OK	0	08:15:35.320	Core 1	log file "C:\Users\edhog\AppData\Roaming\MetaQuotes\Tester\D0E8209F77C8CF37AD8BF550E51FF075\Agent-127.0.0.1-3000\logs\20260402.log" written
+QR	0	08:15:35.453	Tester	automatical testing finished
+HN	0	08:15:35.455	Core 1	connection closed

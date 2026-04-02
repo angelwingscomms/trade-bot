@@ -1,0 +1,56 @@
+GE	0	10:42:37.235	Tester	Local network farm switched off
+ON	0	10:42:37.235	Tester	Cloud servers switched off
+KD	0	10:42:42.746	Tester	"nn\gold\live.ex5" X64
+DK	0	10:42:42.956	Tester	XAUUSD: history data begins from 2004.06.11 00:00
+CH	0	10:42:42.961	Tester	XAUUSD: preliminary downloading of history ticks started, it may take quite a long time
+IQ	0	10:42:42.962	Tester	XAUUSD: preliminary downloading of history ticks completed
+QM	0	10:42:42.962	Tester	XAUUSD: ticks data begins from 2026.02.02 00:00
+NG	0	10:42:42.975	Core 1	agent process started on 127.0.0.1:3000
+CQ	0	10:42:42.975	Core 1	connecting to 127.0.0.1:3000
+RE	0	10:42:44.598	Core 1	connected
+EG	0	10:42:44.613	Core 1	authorized (agent build 5699)
+PL	0	10:42:44.630	Tester	XAUUSD,M1 (EGlobalTrade-Demo): testing of Experts\nn\gold\live.ex5 from 2026.03.07 00:00 to 2026.03.08 00:00
+OL	0	10:42:44.671	Core 1	common synchronization completed
+IH	0	10:42:44.721	Core 1	XAUUSD: ticks synchronized already [43 bytes]
+DP	0	10:42:46.769	Core 1	MetaTester 5 started on 127.0.0.1:3000
+HJ	0	10:42:46.769	Core 1	cloud network mode is off
+IL	0	10:42:46.769	Core 1	initialization finished
+RI	0	10:42:46.769	Core 1	login (build 5699)
+QR	0	10:42:46.769	Core 1	12968 bytes of account info loaded
+MG	0	10:42:46.769	Core 1	1478 bytes of tester parameters loaded
+LP	0	10:42:46.769	Core 1	3780 bytes of input parameters loaded
+HE	0	10:42:46.769	Core 1	2293 bytes of symbols list loaded (360 symbols)
+DP	0	10:42:46.769	Core 1	expert file added: Experts\nn\gold\live.ex5. 111908 bytes loaded
+QG	0	10:42:46.769	Core 1	1538 Mb available, 19 blocks set for ticks generating
+HQ	0	10:42:46.769	Core 1	initial deposit 10000.00 USD, leverage 1:2000
+PO	0	10:42:46.769	Core 1	successfully initialized
+CR	0	10:42:46.769	Core 1	113 Kb of total initialization data received
+MJ	0	10:42:46.769	Core 1	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+CI	0	10:42:46.769	Core 1	XAUUSD: symbol to be synchronized
+LJ	0	10:42:46.769	Core 1	XAUUSD: symbol synchronized, 3720 bytes of symbol info received
+IG	0	10:42:46.769	Core 1	XAUUSD: load 27 bytes of history data to synchronize in 0:00:00.007
+MP	0	10:42:46.769	Core 1	XAUUSD: history synchronized from 2004.06.11 to 2026.03.31
+FL	0	10:42:46.769	Core 1	XAUUSD: ticks synchronization started
+MK	0	10:42:46.769	Core 1	XAUUSD: load 34 bytes of tick data to synchronize in 0:00:00.000
+NN	0	10:42:46.769	Core 1	XAUUSD: history ticks synchronized from 2026.02.02 to 2026.03.30
+ND	0	10:42:46.769	Core 1	XAUUSD,M1: history cache allocated for 417894 bars and contains 416820 bars from 2025.01.02 00:00 to 2026.03.06 22:56
+IS	0	10:42:46.769	Core 1	XAUUSD,M1: history begins from 2025.01.02 00:00
+FD	0	10:42:46.769	Core 1	XAUUSD,M1 (EGlobalTrade-Demo): generating based on real ticks
+IP	0	10:42:46.769	Core 1	XAUUSD,M1: testing of Experts\nn\gold\live.ex5 from 2026.03.07 00:00 to 2026.03.08 00:00 started with inputs:
+CM	0	10:42:46.769	Core 1	  R=false
+CK	0	10:42:46.769	Core 1	  FIXED_MOVE=1.44
+NL	0	10:42:46.769	Core 1	  SL_MULTIPLIER=0.54
+ES	0	10:42:46.769	Core 1	  TP_MULTIPLIER=0.54
+DE	0	10:42:46.769	Core 1	  LOT_SIZE=0.54
+ES	0	10:42:46.769	Core 1	  MAGIC_NUMBER=777777
+KK	0	10:42:46.769	Core 1	  DEBUG_LOG=false
+DJ	0	10:42:46.769	Core 1	api version 1.24.2 initialized
+OQ	0	10:42:46.769	Core 1	2026.03.07 00:00:00   ONNX: CPU selected
+HI	0	10:42:46.769	Core 1	final balance 10000.00 USD
+CL	0	10:42:46.769	Core 1	2026.03.07 00:00:00   [SUMMARY] risk_mode=ATR fixed_move=1.44 predictions=0 hold_skips=0 confidence_skips=0 position_skips=0 stops_too_close=0 open_failures=0 trades_opened=0 trades_closed=0 wins=0 losses=0 realized_pnl=0.00 balance=10000.00
+DM	0	10:42:46.769	Core 1	XAUUSD,M1: 0 ticks, 0 bars generated. Environment synchronized in 0:00:00.071. Test passed in 0:00:02.076.
+KO	0	10:42:46.769	Core 1	XAUUSD,M1: total time from login to stop testing 0:00:02.147 (including 0:00:00.071 for history data synchronization)
+EL	0	10:42:46.769	Core 1	122 Mb memory used including 24 Mb of history data, 0 Mb of tick data
+OS	0	10:42:46.769	Core 1	log file "C:\Users\edhog\AppData\Roaming\MetaQuotes\Tester\D0E8209F77C8CF37AD8BF550E51FF075\Agent-127.0.0.1-3000\logs\20260402.log" written
+GJ	0	10:42:46.786	Tester	automatical testing finished
+OF	0	10:42:46.796	Core 1	connection closed

@@ -1,0 +1,48 @@
+CS	0	11:45:24.191	Startup	MetaTester 5 build 5699, 23 Mar 2026
+CS	0	11:45:24.191	Startup	Windows 11 build 26200, 8 x Intel Core i7-8565U  @ 1.80GHz, AVX2, 2 / 7 Gb memory, 33 / 237 Gb disk, UAC, GMT+1
+CS	0	11:45:24.193	Server	MetaTester 5 started on 127.0.0.1:3000
+CS	0	11:45:24.193	Startup	cloud network mode is off
+CS	0	11:45:24.193	Startup	initialization finished
+CS	0	11:45:24.267	127.0.0.1	login (build 5699)
+CS	0	11:45:24.279	Network	12968 bytes of account info loaded
+CS	0	11:45:24.279	Network	1478 bytes of tester parameters loaded
+CS	0	11:45:24.279	Network	3780 bytes of input parameters loaded
+CS	0	11:45:24.281	Network	2293 bytes of symbols list loaded (360 symbols)
+CS	0	11:45:24.282	Tester	expert file added: Experts\nn\gold\live.ex5. 111908 bytes loaded
+CS	0	11:45:24.285	Tester	2394 Mb available, 29 blocks set for ticks generating
+CS	0	11:45:24.285	Tester	initial deposit 10000.00 USD, leverage 1:2000
+CS	0	11:45:24.285	Tester	successfully initialized
+CS	0	11:45:24.285	Network	113 Kb of total initialization data received
+CS	0	11:45:24.285	Tester	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+CS	0	11:45:24.294	Symbols	XAUUSD: symbol to be synchronized
+CS	0	11:45:24.295	Symbols	XAUUSD: symbol synchronized, 3720 bytes of symbol info received
+CS	0	11:45:24.325	History	XAUUSD: load 27 bytes of history data to synchronize in 0:00:00.002
+CS	0	11:45:24.325	History	XAUUSD: history synchronized from 2004.06.11 to 2026.04.01
+CS	0	11:45:24.325	Ticks	XAUUSD: ticks synchronization started
+CS	0	11:45:25.331	Ticks	XAUUSD: load 34 bytes of tick data to synchronize in 0:00:01.000
+CS	0	11:45:25.331	Ticks	XAUUSD: history ticks synchronized from 2026.02.02 to 2026.03.31
+CS	0	11:45:25.479	History	XAUUSD,M1: history cache allocated for 417894 bars and contains 416820 bars from 2025.01.02 00:00 to 2026.03.06 22:56
+CS	0	11:45:25.479	History	XAUUSD,M1: history begins from 2025.01.02 00:00
+CS	0	11:45:25.579	Tester	XAUUSD,M1 (EGlobalTrade-Demo): generating based on real ticks
+CS	0	11:45:25.579	Tester	XAUUSD,M1: testing of Experts\nn\gold\live.ex5 from 2026.03.07 00:00 to 2026.03.08 00:00 started with inputs:
+CS	0	11:45:25.579	Tester	  R=false
+CS	0	11:45:25.579	Tester	  FIXED_MOVE=1.44
+CS	0	11:45:25.579	Tester	  SL_MULTIPLIER=0.54
+CS	0	11:45:25.579	Tester	  TP_MULTIPLIER=0.54
+CS	0	11:45:25.579	Tester	  LOT_SIZE=0.54
+CS	0	11:45:25.579	Tester	  MAGIC_NUMBER=777777
+CS	0	11:45:25.579	Tester	  DEBUG_LOG=false
+CS	0	11:45:25.673	ONNX	api version 1.24.2 initialized
+CS	0	11:45:26.047	live (XAUUSD,M1)	2026.03.07 00:00:00   ONNX: CPU selected
+CS	0	11:45:26.152	Tester	final balance 10000.00 USD
+CS	0	11:45:26.152	live (XAUUSD,M1)	2026.03.07 00:00:00   [SUMMARY] risk_mode=ATR fixed_move=1.44 predictions=0 hold_skips=0 confidence_skips=0 position_skips=0 stops_too_close=0 open_failures=0 trades_opened=0 trades_closed=0 wins=0 losses=0 realized_pnl=0.00 balance=10000.00
+CS	0	11:45:26.176	Tester	XAUUSD,M1: 0 ticks, 0 bars generated. Environment synchronized in 0:00:01.026. Test passed in 0:00:00.882.
+CS	0	11:45:26.176	Tester	XAUUSD,M1: total time from login to stop testing 0:00:01.908 (including 0:00:01.026 for history data synchronization)
+CS	0	11:45:26.176	Tester	122 Mb memory used including 24 Mb of history data, 0 Mb of tick data
+CS	0	11:45:26.176	Tester	log file "C:\Users\edhog\AppData\Roaming\MetaQuotes\Tester\D0E8209F77C8CF37AD8BF550E51FF075\Agent-127.0.0.1-3000\logs\20260402.log" written
+CS	0	11:45:26.176	Tester	test Experts\nn\gold\live.ex5 on XAUUSD,M1 thread finished
+CS	0	11:45:26.189	127.0.0.1	tester forced to close
+CS	0	11:45:26.191	127.0.0.1	prepare for shutdown
+CS	0	11:45:26.191	127.0.0.1	stop immediately
+CS	0	11:45:26.191	127.0.0.1	shutdown finished
+CS	0	11:45:26.408	Server	MetaTester 5 stopped

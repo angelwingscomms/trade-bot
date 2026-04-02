@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import logging
 import re
+import shutil
+import subprocess
 import time
 from pathlib import Path
 
@@ -25,6 +27,8 @@ EPS = 1e-10
 DEFAULT_DATA_FILE = "gold_market_ticks.csv"
 DEFAULT_OUTPUT_FILE = "gold_mamba.onnx"
 SHARED_CONFIG_PATH = Path(__file__).resolve().with_name("gold_shared_config.mqh")
+DEFAULT_METAEDITOR_PATH = Path(r"C:\Program Files\MetaTrader 5\metaeditor64.exe")
+LIVE_MQ5_PATH = Path(__file__).resolve().with_name("live.mq5")
 DEFINE_PATTERN = re.compile(r"^\s*#define\s+([A-Z0-9_]+)\s+(.+?)\s*$")
 FEATURE_MACRO_TO_NAME = {
     "FEATURE_IDX_RET1": "ret1",
@@ -81,6 +85,7 @@ RETURN_PERIOD = int(SHARED["RETURN_PERIOD"])
 WARMUP_BARS = int(SHARED["WARMUP_BARS"])
 IMBALANCE_MIN_TICKS = int(SHARED["IMBALANCE_MIN_TICKS"])
 IMBALANCE_EMA_SPAN = int(SHARED["IMBALANCE_EMA_SPAN"])
+DEFAULT_FIXED_MOVE = float(SHARED["DEFAULT_FIXED_MOVE"])
 LABEL_SL_MULTIPLIER = float(SHARED["LABEL_SL_MULTIPLIER"])
 LABEL_TP_MULTIPLIER = float(SHARED["LABEL_TP_MULTIPLIER"])
 EXECUTION_SL_MULTIPLIER = float(SHARED["DEFAULT_SL_MULTIPLIER"])
@@ -125,6 +130,23 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--patience", type=int, default=DEFAULT_PATIENCE, help="Early stopping patience.")
     parser.add_argument("--device", type=str, default="", help="Optional torch device override.")
+    parser.add_argument(
+        "-r",
+        "--use-fixed-risk",
+        action="store_true",
+        help="Use fixed label stops/targets. Without this flag, training labels use ATR-based barriers.",
+    )
+    parser.add_argument(
+        "--metaeditor-path",
+        type=str,
+        default=str(DEFAULT_METAEDITOR_PATH),
+        help="Path to MetaEditor used to compile gold/live.mq5 after training.",
+    )
+    parser.add_argument(
+        "--skip-live-compile",
+        action="store_true",
+        help="Skip automatic live.mq5 compile after exporting ONNX and config.",
+    )
     return parser.parse_args()
 
 
@@ -133,6 +155,71 @@ def resolve_local_path(path_str: str) -> Path:
     if path.is_absolute():
         return path
     return Path(__file__).resolve().parent / path
+
+
+def read_text_best_effort(path: Path) -> str:
+    raw = path.read_bytes()
+    for encoding in ("utf-16", "utf-8", "cp1252"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="ignore")
+
+
+def resolve_metaeditor_path(path_str: str) -> Path:
+    candidate = Path(path_str)
+    if candidate.exists():
+        return candidate
+
+    which_path = shutil.which(path_str)
+    if which_path:
+        return Path(which_path)
+
+    raise FileNotFoundError(
+        f"MetaEditor executable not found at '{path_str}'. Pass --metaeditor-path with the correct location."
+    )
+
+
+def compile_live_expert(metaeditor_path: Path) -> Path:
+    compile_log_path = LIVE_MQ5_PATH.with_name("live.compile.log")
+    command = [
+        str(metaeditor_path),
+        f"/compile:{LIVE_MQ5_PATH}",
+        f"/log:{compile_log_path}",
+    ]
+    completed = subprocess.run(command, capture_output=True, text=True, check=False)
+    log_text = read_text_best_effort(compile_log_path) if compile_log_path.exists() else ""
+    if not log_text and completed.stdout:
+        log_text = completed.stdout
+
+    result_match = re.search(r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?", log_text)
+    if result_match:
+        errors = int(result_match.group(1))
+        warnings = int(result_match.group(2))
+        if errors > 0:
+            raise RuntimeError(
+                f"live.mq5 compile failed with {errors} errors and {warnings} warnings. "
+                f"Check log at {compile_log_path}."
+            )
+        log.info(
+            "Compiled live EA successfully with %d warnings. MetaEditor exit code was %d. Log: %s",
+            warnings,
+            completed.returncode,
+            compile_log_path,
+        )
+        return compile_log_path
+
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"MetaEditor returned exit code {completed.returncode} while compiling {LIVE_MQ5_PATH}.\n"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+        )
+    if not result_match:
+        raise RuntimeError(
+            f"Could not confirm live.mq5 compile status. Check log at {compile_log_path}."
+        )
+    raise RuntimeError(f"Unexpected compile state for {LIVE_MQ5_PATH}. Check log at {compile_log_path}.")
 
 
 def compute_tick_signs(prices: np.ndarray) -> np.ndarray:
@@ -255,29 +342,36 @@ def compute_features(df: pd.DataFrame) -> np.ndarray:
     return feat.loc[:, FEATURE_COLUMNS].to_numpy(dtype=np.float32, copy=False)
 
 
-def get_triple_barrier_labels(df_gold: pd.DataFrame) -> np.ndarray:
+def get_triple_barrier_labels(df_gold: pd.DataFrame, use_atr_risk: bool) -> np.ndarray:
     close = df_gold["close"].to_numpy(dtype=np.float64, copy=False)
     high = df_gold["high"].to_numpy(dtype=np.float64, copy=False)
     low = df_gold["low"].to_numpy(dtype=np.float64, copy=False)
     spread = df_gold["spread"].to_numpy(dtype=np.float64, copy=False)
     ask_high = df_gold["ask_high"].to_numpy(dtype=np.float64, copy=False)
     ask_low = df_gold["ask_low"].to_numpy(dtype=np.float64, copy=False)
-    atr_target = wilder_atr(
-        df_gold["high"], df_gold["low"], df_gold["close"], period=TARGET_ATR_PERIOD
-    ).to_numpy(dtype=np.float64, copy=False)
+    atr_target = None
+    if use_atr_risk:
+        atr_target = wilder_atr(
+            df_gold["high"], df_gold["low"], df_gold["close"], period=TARGET_ATR_PERIOD
+        ).to_numpy(dtype=np.float64, copy=False)
 
     labels = np.zeros(len(df_gold), dtype=np.int64)
     for i in range(len(df_gold) - TARGET_HORIZON):
-        vol = atr_target[i]
-        if not np.isfinite(vol) or vol <= 0.0:
-            continue
-
         long_entry = close[i] + spread[i]
         short_entry = close[i]
-        long_tp = long_entry + LABEL_TP_MULTIPLIER * vol
-        long_sl = long_entry - LABEL_SL_MULTIPLIER * vol
-        short_tp = short_entry - LABEL_TP_MULTIPLIER * vol
-        short_sl = short_entry + LABEL_SL_MULTIPLIER * vol
+        if use_atr_risk:
+            vol = atr_target[i]
+            if not np.isfinite(vol) or vol <= 0.0:
+                continue
+            long_tp = long_entry + LABEL_TP_MULTIPLIER * vol
+            long_sl = long_entry - LABEL_SL_MULTIPLIER * vol
+            short_tp = short_entry - LABEL_TP_MULTIPLIER * vol
+            short_sl = short_entry + LABEL_SL_MULTIPLIER * vol
+        else:
+            long_tp = long_entry + DEFAULT_FIXED_MOVE
+            long_sl = long_entry - DEFAULT_FIXED_MOVE
+            short_tp = short_entry - DEFAULT_FIXED_MOVE
+            short_sl = short_entry + DEFAULT_FIXED_MOVE
 
         long_result = 0
         short_result = 0
@@ -379,11 +473,17 @@ def evaluate_model(model: nn.Module, loader: DataLoader, device: torch.device) -
     model.eval()
     logits_list: list[np.ndarray] = []
     labels_list: list[np.ndarray] = []
+    log.info("evaluate_model: starting - %d batches", len(loader))
     with torch.no_grad():
-        for xb, yb in loader:
+        for batch_idx, (xb, yb) in enumerate(loader):
+            if batch_idx % 100 == 0:
+                log.info("evaluate_model: batch %d/%d", batch_idx, len(loader))
             logits_list.append(model(xb.to(device)).cpu().numpy())
             labels_list.append(yb.numpy())
-    return np.concatenate(logits_list, axis=0), np.concatenate(labels_list, axis=0)
+    log.info("evaluate_model: done - concatenating %d arrays", len(logits_list))
+    result = np.concatenate(logits_list, axis=0), np.concatenate(labels_list, axis=0)
+    log.info("evaluate_model: result shapes - logits=%s, labels=%s", result[0].shape, result[1].shape)
+    return result
 
 
 def softmax(logits: np.ndarray) -> np.ndarray:
@@ -501,6 +601,7 @@ def write_diagnostics(
     primary_confidence: float,
     available_window_counts: dict[str, int],
     used_window_counts: dict[str, int],
+    use_atr_risk: bool,
 ) -> None:
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
 
@@ -541,6 +642,8 @@ def write_diagnostics(
         f"- rv_period: {RV_PERIOD}",
         f"- return_period: {RETURN_PERIOD}",
         f"- warmup_bars: {WARMUP_BARS}",
+        f"- label_risk_mode: {'ATR' if use_atr_risk else 'FIXED'}",
+        f"- fixed_move: {DEFAULT_FIXED_MOVE:.2f}",
         f"- label_sl_multiplier: {LABEL_SL_MULTIPLIER:.2f}",
         f"- label_tp_multiplier: {LABEL_TP_MULTIPLIER:.2f}",
         f"- execution_sl_multiplier: {EXECUTION_SL_MULTIPLIER:.2f}",
@@ -591,7 +694,8 @@ def write_diagnostics(
         "",
         "## Note",
         "- Imbalance bars are variable by design. Lowering imbalance_min_ticks makes them smaller on average, but it does not force a fixed tick count per bar.",
-        "- Labels now use the stricter label_sl_multiplier and label_tp_multiplier values, so a BUY/SELL label means price reached the target before making more than a tiny adverse move.",
+        "- In ATR mode, labels use the stricter label_sl_multiplier and label_tp_multiplier values, so a BUY/SELL label means price reached the target before making more than a tiny adverse move.",
+        "- In fixed mode, labels use the same DEFAULT_FIXED_MOVE distance for both stop loss and take profit.",
         "- When use_all_windows is 0, the trainer evenly subsamples window endpoints down to the max_train_windows and max_eval_windows caps to keep runs fast.",
     ]
     (diagnostics_dir / "report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
@@ -601,11 +705,17 @@ def format_float_array(values: np.ndarray) -> str:
     return ", ".join(f"{float(v):.8f}f" for v in values)
 
 
-def build_mql_config(median: np.ndarray, iqr: np.ndarray, primary_confidence: float) -> str:
+def build_mql_config(
+    median: np.ndarray,
+    iqr: np.ndarray,
+    primary_confidence: float,
+    use_atr_risk: bool,
+) -> str:
     return "\n".join(
         [
             "// Auto-generated by gold/nn.py. Re-run training to refresh these values.",
             "// Shared static values live in gold_shared_config.mqh.",
+            f"#define MODEL_USE_ATR_RISK {1 if use_atr_risk else 0}",
             f"#define PRIMARY_CONFIDENCE {primary_confidence:.8f}",
             f"float medians[MODEL_FEATURE_COUNT] = {{{format_float_array(median)}}};",
             f"float iqrs[MODEL_FEATURE_COUNT] = {{{format_float_array(iqr)}}};",
@@ -618,6 +728,9 @@ def main() -> None:
     args = parse_args()
     torch.manual_seed(42)
     np.random.seed(42)
+    use_atr_risk = not bool(args.use_fixed_risk)
+    if DEFAULT_FIXED_MOVE <= 0.0:
+        raise ValueError("DEFAULT_FIXED_MOVE must be positive.")
 
     data_path = resolve_local_path(args.data_file)
     output_path = resolve_local_path(args.output_file)
@@ -628,7 +741,8 @@ def main() -> None:
     log.info("Using device: %s", device)
     log.info(
         "Shared config | seq_len=%d horizon=%d atr_feature=%d atr_target=%d rv=%d ret=%d "
-        "imbalance_min_ticks=%d imbalance_ema_span=%d label_sl=%.2f label_tp=%.2f exec_sl=%.2f exec_tp=%.2f use_all_windows=%d",
+        "imbalance_min_ticks=%d imbalance_ema_span=%d risk_mode=%s fixed_move=%.2f "
+        "label_sl=%.2f label_tp=%.2f exec_sl=%.2f exec_tp=%.2f use_all_windows=%d",
         SEQ_LEN,
         TARGET_HORIZON,
         FEATURE_ATR_PERIOD,
@@ -637,6 +751,8 @@ def main() -> None:
         RETURN_PERIOD,
         IMBALANCE_MIN_TICKS,
         IMBALANCE_EMA_SPAN,
+        "ATR" if use_atr_risk else "FIXED",
+        DEFAULT_FIXED_MOVE,
         LABEL_SL_MULTIPLIER,
         LABEL_TP_MULTIPLIER,
         EXECUTION_SL_MULTIPLIER,
@@ -646,7 +762,7 @@ def main() -> None:
 
     df_gold = build_gold_bars(data_path)
     x_all = compute_features(df_gold)
-    y_all = get_triple_barrier_labels(df_gold)
+    y_all = get_triple_barrier_labels(df_gold, use_atr_risk=use_atr_risk)
 
     x = x_all[WARMUP_BARS:]
     y = y_all[WARMUP_BARS:]
@@ -770,7 +886,13 @@ def main() -> None:
     )
 
     config_path.write_text(
-        build_mql_config(median=median, iqr=iqr, primary_confidence=primary_confidence) + "\n",
+        build_mql_config(
+            median=median,
+            iqr=iqr,
+            primary_confidence=primary_confidence,
+            use_atr_risk=use_atr_risk,
+        )
+        + "\n",
         encoding="utf-8",
     )
     write_diagnostics(
@@ -793,7 +915,12 @@ def main() -> None:
             "validation": len(val_end_idx),
             "holdout": len(test_end_idx),
         },
+        use_atr_risk=use_atr_risk,
     )
+    if not args.skip_live_compile:
+        metaeditor_path = resolve_metaeditor_path(args.metaeditor_path)
+        compile_log_path = compile_live_expert(metaeditor_path)
+        log.info("Saved live compile log to %s", compile_log_path)
     log.info("Saved ONNX to %s", output_path)
     log.info("Saved config to %s", config_path)
     log.info("Saved diagnostics to %s", DIAGNOSTICS_DIR)

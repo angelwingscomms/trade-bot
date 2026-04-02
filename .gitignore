@@ -1,2 +1,8 @@
 *.ex5
 *.csv
+__pycache__/
+*.pyc
+*.onnx
+*_export_values.txt
+*_model_config.mqh
+*compile.log

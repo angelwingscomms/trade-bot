@@ -20,20 +20,24 @@
 #define WARMUP_BARS 9
 #define REQUIRED_HISTORY_INDEX (SEQ_LEN + RETURN_PERIOD - 1)
 
-#define IMBALANCE_MIN_TICKS 18
-#define IMBALANCE_EMA_SPAN 18
+#define IMBALANCE_MIN_TICKS 9
+#define IMBALANCE_EMA_SPAN 9
 
-// Training labels: how little adverse movement is allowed before a move stops counting as "clean".
+// Fixed stop/target distance in absolute price units, used when the trainer runs with -r
+// and when live.mq5 input R is true.
+#define DEFAULT_FIXED_MOVE 1.44
+
+// Training labels: ATR multipliers used in the default ATR-risk mode.
 #define LABEL_SL_MULTIPLIER 0.01
-#define LABEL_TP_MULTIPLIER 0.54
+#define LABEL_TP_MULTIPLIER 5.4
 
-// Live execution defaults: where actual broker orders place stop loss / take profit.
-#define DEFAULT_SL_MULTIPLIER 0.54
-#define DEFAULT_TP_MULTIPLIER 0.54
+// Live execution defaults used when live.mq5 input R is false / ATR-risk mode is enabled.
+#define DEFAULT_SL_MULTIPLIER 2.7
+#define DEFAULT_TP_MULTIPLIER 5.4
 #define DEFAULT_LOT_SIZE 0.54
 
 // Trainer window usage: 1 = use every eligible window in each split, 0 = obey the max_* caps below.
-#define USE_ALL_WINDOWS 1
+#define USE_ALL_WINDOWS 0
 #define DEFAULT_EPOCHS 18
 #define DEFAULT_BATCH_SIZE 54
 #define DEFAULT_MAX_TRAIN_WINDOWS 5400

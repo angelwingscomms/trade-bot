@@ -4,9 +4,15 @@
 
 #resource "\\Experts\\nn\\gold\\gold_mamba.onnx" as uchar model_buffer[]
 
+#ifndef MODEL_USE_ATR_RISK
+#define MODEL_USE_ATR_RISK 1
+#endif
+
 #define INPUT_BUFFER_SIZE (SEQ_LEN * MODEL_FEATURE_COUNT)
 #define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 
+input bool R = (MODEL_USE_ATR_RISK == 0);
+input double FIXED_MOVE = DEFAULT_FIXED_MOVE;
 input double SL_MULTIPLIER = DEFAULT_SL_MULTIPLIER;
 input double TP_MULTIPLIER = DEFAULT_TP_MULTIPLIER;
 input double LOT_SIZE = DEFAULT_LOT_SIZE;
@@ -43,6 +49,17 @@ double warmup_sum_feature = 0.0;
 double warmup_sum_trade = 0.0;
 float input_data[INPUT_BUFFER_SIZE];
 float output_data[3];
+int prediction_count = 0;
+int hold_skip_count = 0;
+int confidence_skip_count = 0;
+int position_skip_count = 0;
+int stops_too_close_skip_count = 0;
+int trade_open_failed_count = 0;
+int trades_opened_count = 0;
+int closed_trade_count = 0;
+int closed_win_count = 0;
+int closed_loss_count = 0;
+double realized_pnl = 0.0;
 
 int UpdateTickSign(double bid);
 void ProcessTick(MqlTick &tick);
@@ -62,6 +79,9 @@ void Predict();
 void Execute(int signal);
 void DebugPrint(string message);
 string SignalName(int signal);
+double StopDistance();
+double TargetDistance();
+void PrintRunSummary();
 
 int OnInit() {
    onnx_handle = OnnxCreateFromBuffer(model_buffer, ONNX_DEFAULT);
@@ -93,12 +113,14 @@ int OnInit() {
    primary_expected_abs_theta = MathMax(2.0, (double)MathMax(2, IMBALANCE_MIN_TICKS / 3));
    DebugPrint(
       StringFormat(
-         "init seq=%d horizon=%d history=%d imbalance_min_ticks=%d imbalance_span=%d sl=%.2f tp=%.2f lot=%.2f primary_conf=%.2f",
+         "init seq=%d horizon=%d history=%d imbalance_min_ticks=%d imbalance_span=%d risk_mode=%s fixed_move=%.2f sl=%.2f tp=%.2f lot=%.2f primary_conf=%.2f",
          SEQ_LEN,
          TARGET_HORIZON,
          REQUIRED_HISTORY_INDEX,
          IMBALANCE_MIN_TICKS,
          IMBALANCE_EMA_SPAN,
+         (R ? "FIXED" : "ATR"),
+         FIXED_MOVE,
          SL_MULTIPLIER,
          TP_MULTIPLIER,
          LOT_SIZE,
@@ -118,8 +140,41 @@ int OnInit() {
 }
 
 void OnDeinit(const int reason) {
+   PrintRunSummary();
    if(onnx_handle != INVALID_HANDLE) {
       OnnxRelease(onnx_handle);
+   }
+}
+
+void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest &request, const MqlTradeResult &result) {
+   if(trans.type != TRADE_TRANSACTION_DEAL_ADD || trans.deal == 0) {
+      return;
+   }
+   if(!HistoryDealSelect(trans.deal)) {
+      return;
+   }
+   if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) {
+      return;
+   }
+   if((int)HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != MAGIC_NUMBER) {
+      return;
+   }
+
+   long entry = HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
+   if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY && entry != DEAL_ENTRY_INOUT) {
+      return;
+   }
+
+   double pnl =
+      HistoryDealGetDouble(trans.deal, DEAL_PROFIT) +
+      HistoryDealGetDouble(trans.deal, DEAL_SWAP) +
+      HistoryDealGetDouble(trans.deal, DEAL_COMMISSION);
+   realized_pnl += pnl;
+   closed_trade_count++;
+   if(pnl > 0.0) {
+      closed_win_count++;
+   } else if(pnl < 0.0) {
+      closed_loss_count++;
    }
 }
 
@@ -137,6 +192,42 @@ string SignalName(int signal) {
       return "SELL";
    }
    return "HOLD";
+}
+
+double StopDistance() {
+   if(R) {
+      return FIXED_MOVE;
+   }
+   return history[0].atr_trade * SL_MULTIPLIER;
+}
+
+double TargetDistance() {
+   if(R) {
+      return FIXED_MOVE;
+   }
+   return history[0].atr_trade * TP_MULTIPLIER;
+}
+
+void PrintRunSummary() {
+   Print(
+      StringFormat(
+         "[SUMMARY] risk_mode=%s fixed_move=%.2f predictions=%d hold_skips=%d confidence_skips=%d position_skips=%d stops_too_close=%d open_failures=%d trades_opened=%d trades_closed=%d wins=%d losses=%d realized_pnl=%.2f balance=%.2f",
+         (R ? "FIXED" : "ATR"),
+         FIXED_MOVE,
+         prediction_count,
+         hold_skip_count,
+         confidence_skip_count,
+         position_skip_count,
+         stops_too_close_skip_count,
+         trade_open_failed_count,
+         trades_opened_count,
+         closed_trade_count,
+         closed_win_count,
+         closed_loss_count,
+         realized_pnl,
+         AccountInfoDouble(ACCOUNT_BALANCE)
+      )
+   );
 }
 
 int UpdateTickSign(double bid) {
@@ -384,6 +475,7 @@ void Softmax(const float &logits[], float &probs[]) {
 }
 
 void Predict() {
+   prediction_count++;
    for(int i = 0; i < SEQ_LEN; i++) {
       int h = SEQ_LEN - 1 - i;
       int offset = i * MODEL_FEATURE_COUNT;
@@ -413,10 +505,12 @@ void Predict() {
       )
    );
    if(signal <= 0) {
+      hold_skip_count++;
       DebugPrint("skip trade: model chose HOLD");
       return;
    }
    if(probs[signal] < PRIMARY_CONFIDENCE) {
+      confidence_skip_count++;
       DebugPrint(
          StringFormat(
             "skip trade: confidence %.4f below threshold %.4f",
@@ -432,20 +526,35 @@ void Predict() {
 
 void Execute(int signal) {
    if(PositionSelect(_Symbol)) {
+      position_skip_count++;
       DebugPrint("skip trade: a position is already open on this symbol");
       return;
    }
 
    double price = (signal == 1) ? SymbolInfoDouble(_Symbol, SYMBOL_ASK) : SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double sl_distance = StopDistance();
+   double tp_distance = TargetDistance();
+   if(sl_distance <= 0.0 || tp_distance <= 0.0) {
+      trade_open_failed_count++;
+      DebugPrint(
+         StringFormat(
+            "skip trade: invalid risk distances sl_distance=%.5f tp_distance=%.5f",
+            sl_distance,
+            tp_distance
+         )
+      );
+      return;
+   }
    double sl = (signal == 1)
-      ? (price - history[0].atr_trade * SL_MULTIPLIER)
-      : (price + history[0].atr_trade * SL_MULTIPLIER);
+      ? (price - sl_distance)
+      : (price + sl_distance);
    double tp = (signal == 1)
-      ? (price + history[0].atr_trade * TP_MULTIPLIER)
-      : (price - history[0].atr_trade * TP_MULTIPLIER);
+      ? (price + tp_distance)
+      : (price - tp_distance);
 
    double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
    if(MathAbs(price - sl) < min_dist || MathAbs(tp - price) < min_dist) {
+      stops_too_close_skip_count++;
       DebugPrint(
          StringFormat(
             "skip trade: stops too close price=%.5f sl=%.5f tp=%.5f min_dist=%.5f",
@@ -460,6 +569,7 @@ void Execute(int signal) {
 
    bool opened = trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), LOT_SIZE, price, sl, tp);
    if(opened) {
+      trades_opened_count++;
       DebugPrint(
          StringFormat(
             "trade opened %s lot=%.2f price=%.5f sl=%.5f tp=%.5f",
@@ -471,6 +581,7 @@ void Execute(int signal) {
          )
       );
    } else {
+      trade_open_failed_count++;
       DebugPrint(
          StringFormat(
             "trade open failed %s retcode=%d last_error=%d",

@@ -1,0 +1,1 @@
+always give extremely concise responses in dialogue
