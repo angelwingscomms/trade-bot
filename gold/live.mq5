@@ -8,6 +8,10 @@
 #define MODEL_USE_ATR_RISK 1
 #endif
 
+#ifndef MODEL_USE_FIXED_TIME_BARS
+#define MODEL_USE_FIXED_TIME_BARS 0
+#endif
+
 #define INPUT_BUFFER_SIZE (SEQ_LEN * MODEL_FEATURE_COUNT)
 #define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 #define PRIMARY_BAR_MILLISECONDS ((ulong)PRIMARY_BAR_SECONDS * 1000)
@@ -17,6 +21,7 @@ input double FIXED_MOVE = DEFAULT_FIXED_MOVE;
 input double SL_MULTIPLIER = DEFAULT_SL_MULTIPLIER;
 input double TP_MULTIPLIER = DEFAULT_TP_MULTIPLIER;
 input double LOT_SIZE = DEFAULT_LOT_SIZE;
+input double RISK_PERCENT = DEFAULT_RISK_PERCENT;
 input int MAGIC_NUMBER = 777777;
 input bool DEBUG_LOG = true;
 
@@ -45,6 +50,7 @@ ulong last_tick_time = 0;
 double tick_imbalance_sum = 0.0;
 double last_bid = 0.0;
 int last_sign = 1;
+double primary_expected_abs_theta = 60.0;
 int warmup_count = 0;
 double warmup_sum_feature = 0.0;
 double warmup_sum_trade = 0.0;
@@ -55,6 +61,7 @@ int hold_skip_count = 0;
 int confidence_skip_count = 0;
 int position_skip_count = 0;
 int stops_too_close_skip_count = 0;
+int volume_skip_count = 0;
 int trade_open_failed_count = 0;
 int trades_opened_count = 0;
 int closed_trade_count = 0;
@@ -66,9 +73,12 @@ int UpdateTickSign(double bid);
 ulong BarBucket(ulong time_msc);
 ulong BarOpenTime(ulong bar_bucket);
 void StartBar(MqlTick &tick, ulong bar_bucket);
-bool RollBarIfNeeded(ulong next_bar_bucket, int &closed_tick_count);
+void StartImbalanceBar(MqlTick &tick);
+bool RollFixedTimeBarIfNeeded(ulong next_bar_bucket, int &closed_tick_count);
 void ProcessTick(MqlTick &tick, ulong bar_bucket);
 void UpdateIndicators(Bar &bar);
+bool ShouldClosePrimaryBar(double &observed_abs_theta);
+void UpdatePrimaryImbalanceThreshold(double observed_abs_theta);
 void CloseBar();
 void LoadHistory();
 float ScaleAndClip(float value, int feature_index);
@@ -84,6 +94,8 @@ void DebugPrint(string message);
 string SignalName(int signal);
 double StopDistance();
 double TargetDistance();
+double NormalizeVolume(double volume);
+double CalculateTradeVolume(int signal, double price, double sl);
 void PrintRunSummary();
 
 int OnInit() {
@@ -113,18 +125,23 @@ int OnInit() {
 
    ArrayInitialize(input_data, 0.0f);
    trade.SetExpertMagicNumber(MAGIC_NUMBER);
+   primary_expected_abs_theta = MathMax(2.0, (double)MathMax(2, IMBALANCE_MIN_TICKS / 3));
    DebugPrint(
       StringFormat(
-         "init seq=%d horizon=%d history=%d bar_seconds=%d risk_mode=%s fixed_move=%.2f sl=%.2f tp=%.2f lot=%.2f primary_conf=%.2f",
+         "init seq=%d horizon=%d history=%d bar_mode=%s imbalance_min_ticks=%d imbalance_span=%d bar_seconds=%d risk_mode=%s fixed_move=%.2f sl=%.2f tp=%.2f lot=%.2f risk_pct=%.3f primary_conf=%.2f",
          SEQ_LEN,
          TARGET_HORIZON,
          REQUIRED_HISTORY_INDEX,
+         (MODEL_USE_FIXED_TIME_BARS != 0 ? "FIXED_TIME" : "IMBALANCE"),
+         IMBALANCE_MIN_TICKS,
+         IMBALANCE_EMA_SPAN,
          PRIMARY_BAR_SECONDS,
          (R ? "FIXED" : "ATR"),
          FIXED_MOVE,
          SL_MULTIPLIER,
          TP_MULTIPLIER,
          LOT_SIZE,
+         RISK_PERCENT,
          PRIMARY_CONFIDENCE
       )
    );
@@ -220,7 +237,24 @@ void StartBar(MqlTick &tick, ulong bar_bucket) {
    bar_started = true;
 }
 
-bool RollBarIfNeeded(ulong next_bar_bucket, int &closed_tick_count) {
+void StartImbalanceBar(MqlTick &tick) {
+   current_bar.o = tick.bid;
+   current_bar.h = tick.bid;
+   current_bar.l = tick.bid;
+   current_bar.c = tick.bid;
+   current_bar.spread = tick.ask - tick.bid;
+   current_bar.tick_imbalance = 0.0;
+   current_bar.atr_feature = 0.0;
+   current_bar.atr_trade = 0.0;
+   current_bar.time_msc = tick.time_msc;
+   current_bar.valid = false;
+   ticks_in_bar = 0;
+   tick_imbalance_sum = 0.0;
+   current_bar_bucket = 0;
+   bar_started = true;
+}
+
+bool RollFixedTimeBarIfNeeded(ulong next_bar_bucket, int &closed_tick_count) {
    closed_tick_count = 0;
    if(!bar_started || next_bar_bucket == current_bar_bucket) {
       return false;
@@ -245,17 +279,82 @@ double TargetDistance() {
    return history[0].atr_trade * TP_MULTIPLIER;
 }
 
+double NormalizeVolume(double volume) {
+   double min_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double max_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   if(min_volume <= 0.0 || max_volume <= 0.0) {
+      return 0.0;
+   }
+   if(step <= 0.0) {
+      step = min_volume;
+   }
+   if(volume < min_volume - 1e-12) {
+      return 0.0;
+   }
+
+   volume = MathMin(volume, max_volume);
+   double steps = MathFloor(volume / step + 1e-9);
+   double normalized = steps * step;
+   if(normalized < min_volume) {
+      return 0.0;
+   }
+   if(normalized > max_volume) {
+      normalized = max_volume;
+   }
+   return NormalizeDouble(normalized, 8);
+}
+
+double CalculateTradeVolume(int signal, double price, double sl) {
+   if(RISK_PERCENT <= 0.0) {
+      return NormalizeVolume(LOT_SIZE);
+   }
+
+   double risk_amount = AccountInfoDouble(ACCOUNT_BALANCE) * (RISK_PERCENT / 100.0);
+   if(risk_amount <= 0.0) {
+      return 0.0;
+   }
+
+   double one_lot_pnl = 0.0;
+   ENUM_ORDER_TYPE order_type = (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+   if(!OrderCalcProfit(order_type, _Symbol, 1.0, price, sl, one_lot_pnl)) {
+      DebugPrint(
+         StringFormat(
+            "skip trade: OrderCalcProfit failed retcode=%d last_error=%d",
+            trade.ResultRetcode(),
+            GetLastError()
+         )
+      );
+      return 0.0;
+   }
+
+   double one_lot_loss = MathAbs(one_lot_pnl);
+   if(one_lot_loss <= 0.0) {
+      return 0.0;
+   }
+
+   double volume = risk_amount / one_lot_loss;
+   double manual_cap = NormalizeVolume(LOT_SIZE);
+   if(manual_cap > 0.0) {
+      volume = MathMin(volume, manual_cap);
+   }
+   return NormalizeVolume(volume);
+}
+
 void PrintRunSummary() {
    Print(
       StringFormat(
-         "[SUMMARY] risk_mode=%s fixed_move=%.2f predictions=%d hold_skips=%d confidence_skips=%d position_skips=%d stops_too_close=%d open_failures=%d trades_opened=%d trades_closed=%d wins=%d losses=%d realized_pnl=%.2f balance=%.2f",
+         "[SUMMARY] bar_mode=%s risk_mode=%s fixed_move=%.2f risk_pct=%.3f predictions=%d hold_skips=%d confidence_skips=%d position_skips=%d stops_too_close=%d volume_skips=%d open_failures=%d trades_opened=%d trades_closed=%d wins=%d losses=%d realized_pnl=%.2f balance=%.2f",
+         (MODEL_USE_FIXED_TIME_BARS != 0 ? "FIXED_TIME" : "IMBALANCE"),
          (R ? "FIXED" : "ATR"),
          FIXED_MOVE,
+         RISK_PERCENT,
          prediction_count,
          hold_skip_count,
          confidence_skip_count,
          position_skip_count,
          stops_too_close_skip_count,
+         volume_skip_count,
          trade_open_failed_count,
          trades_opened_count,
          closed_trade_count,
@@ -291,7 +390,11 @@ void ProcessTick(MqlTick &tick, ulong bar_bucket) {
    }
 
    if(!bar_started) {
-      StartBar(tick, bar_bucket);
+      if(MODEL_USE_FIXED_TIME_BARS != 0) {
+         StartBar(tick, bar_bucket);
+      } else {
+         StartImbalanceBar(tick);
+      }
    }
 
    int tick_sign = UpdateTickSign(tick.bid);
@@ -330,6 +433,26 @@ void UpdateIndicators(Bar &bar) {
    bar.valid = (warmup_count >= WARMUP_BARS);
 }
 
+bool ShouldClosePrimaryBar(double &observed_abs_theta) {
+   if(ticks_in_bar < IMBALANCE_MIN_TICKS) {
+      observed_abs_theta = 0.0;
+      return false;
+   }
+
+   observed_abs_theta = MathAbs(tick_imbalance_sum);
+   return (observed_abs_theta >= primary_expected_abs_theta);
+}
+
+void UpdatePrimaryImbalanceThreshold(double observed_abs_theta) {
+   if(observed_abs_theta <= 0.0) {
+      return;
+   }
+
+   double alpha = 2.0 / (MathMax(1, IMBALANCE_EMA_SPAN) + 1.0);
+   double observed = MathMax(2.0, observed_abs_theta);
+   primary_expected_abs_theta = (1.0 - alpha) * primary_expected_abs_theta + alpha * observed;
+}
+
 void CloseBar() {
    current_bar.tick_imbalance = tick_imbalance_sum / MathMax(1, ticks_in_bar);
    UpdateIndicators(current_bar);
@@ -357,14 +480,50 @@ void OnTick() {
          continue;
       }
 
-      ulong tick_bucket = BarBucket(ticks[i].time_msc);
-      int closed_tick_count = 0;
-      if(RollBarIfNeeded(tick_bucket, closed_tick_count)) {
+      if(MODEL_USE_FIXED_TIME_BARS != 0) {
+         ulong tick_bucket = BarBucket(ticks[i].time_msc);
+         int closed_tick_count = 0;
+         if(RollFixedTimeBarIfNeeded(tick_bucket, closed_tick_count)) {
+            DebugPrint(
+               StringFormat(
+                  "bar closed mode=FIXED_TIME seconds=%d ticks=%d atr_trade=%.5f close=%.5f",
+                  PRIMARY_BAR_SECONDS,
+                  closed_tick_count,
+                  history[0].atr_trade,
+                  history[0].c
+               )
+            );
+            if(history[REQUIRED_HISTORY_INDEX].valid) {
+               Predict();
+            } else {
+               DebugPrint(
+                  StringFormat(
+                     "history not ready yet: need index %d valid before predicting",
+                     REQUIRED_HISTORY_INDEX
+                  )
+               );
+            }
+         }
+
+         ProcessTick(ticks[i], tick_bucket);
+         last_tick_time = ticks[i].time_msc;
+         continue;
+      }
+
+      ProcessTick(ticks[i], 0);
+      last_tick_time = ticks[i].time_msc;
+
+      double observed_abs_theta = 0.0;
+      if(ShouldClosePrimaryBar(observed_abs_theta)) {
+         int closed_tick_count = ticks_in_bar;
+         CloseBar();
+         UpdatePrimaryImbalanceThreshold(observed_abs_theta);
          DebugPrint(
             StringFormat(
-               "bar closed seconds=%d ticks=%d atr_trade=%.5f close=%.5f",
-               PRIMARY_BAR_SECONDS,
+               "bar closed mode=IMBALANCE ticks=%d theta=%.2f next_threshold=%.2f atr_trade=%.5f close=%.5f",
                closed_tick_count,
+               observed_abs_theta,
+               primary_expected_abs_theta,
                history[0].atr_trade,
                history[0].c
             )
@@ -380,9 +539,6 @@ void OnTick() {
             );
          }
       }
-
-      ProcessTick(ticks[i], tick_bucket);
-      last_tick_time = ticks[i].time_msc;
    }
 }
 
@@ -404,11 +560,23 @@ void LoadHistory() {
          continue;
       }
 
-      ulong tick_bucket = BarBucket(ticks[i].time_msc);
-      int closed_tick_count = 0;
-      RollBarIfNeeded(tick_bucket, closed_tick_count);
-      ProcessTick(ticks[i], tick_bucket);
+      if(MODEL_USE_FIXED_TIME_BARS != 0) {
+         ulong tick_bucket = BarBucket(ticks[i].time_msc);
+         int closed_tick_count = 0;
+         RollFixedTimeBarIfNeeded(tick_bucket, closed_tick_count);
+         ProcessTick(ticks[i], tick_bucket);
+         last_tick_time = ticks[i].time_msc;
+         continue;
+      }
+
+      ProcessTick(ticks[i], 0);
       last_tick_time = ticks[i].time_msc;
+
+      double observed_abs_theta = 0.0;
+      if(ShouldClosePrimaryBar(observed_abs_theta)) {
+         CloseBar();
+         UpdatePrimaryImbalanceThreshold(observed_abs_theta);
+      }
    }
 }
 
@@ -570,14 +738,29 @@ void Execute(int signal) {
       return;
    }
 
-   bool opened = trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), LOT_SIZE, price, sl, tp);
+   double volume = CalculateTradeVolume(signal, price, sl);
+   if(volume <= 0.0) {
+      volume_skip_count++;
+      DebugPrint(
+         StringFormat(
+            "skip trade: no valid volume price=%.5f sl=%.5f risk_pct=%.3f lot_cap=%.2f",
+            price,
+            sl,
+            RISK_PERCENT,
+            LOT_SIZE
+         )
+      );
+      return;
+   }
+
+   bool opened = trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), volume, price, sl, tp);
    if(opened) {
       trades_opened_count++;
       DebugPrint(
          StringFormat(
             "trade opened %s lot=%.2f price=%.5f sl=%.5f tp=%.5f",
             SignalName(signal),
-            LOT_SIZE,
+            volume,
             price,
             sl,
             tp

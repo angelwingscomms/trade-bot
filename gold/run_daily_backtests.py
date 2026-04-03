@@ -380,6 +380,7 @@ def build_set_file(path: Path, shared: dict[str, int | float | str], model: dict
             set_line("SL_MULTIPLIER", f"{float(shared['DEFAULT_SL_MULTIPLIER']):.2f}"),
             set_line("TP_MULTIPLIER", f"{float(shared['DEFAULT_TP_MULTIPLIER']):.2f}"),
             set_line("LOT_SIZE", f"{float(shared['DEFAULT_LOT_SIZE']):.2f}"),
+            set_line("RISK_PERCENT", f"{float(shared['DEFAULT_RISK_PERCENT']):.2f}"),
             set_line("MAGIC_NUMBER", "777777"),
             set_line("DEBUG_LOG", "false"),
             "",
