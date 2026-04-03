@@ -20,8 +20,8 @@
 #define WARMUP_BARS 9
 #define REQUIRED_HISTORY_INDEX (SEQ_LEN + RETURN_PERIOD - 1)
 
-#define IMBALANCE_MIN_TICKS 27
-#define IMBALANCE_EMA_SPAN 27
+#define IMBALANCE_MIN_TICKS 18
+#define IMBALANCE_EMA_SPAN 18
 
 // Fixed stop/target distance in absolute price units, used when the trainer runs with -r
 // and when live.mq5 input R is true.
@@ -41,6 +41,6 @@
 
 #define DEFAULT_EPOCHS 18
 #define DEFAULT_BATCH_SIZE 54
-#define DEFAULT_MAX_TRAIN_WINDOWS 540
-#define DEFAULT_MAX_EVAL_WINDOWS 54
+#define DEFAULT_MAX_TRAIN_WINDOWS 54000
+#define DEFAULT_MAX_EVAL_WINDOWS 5400
 #define DEFAULT_PATIENCE 9

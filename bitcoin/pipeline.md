@@ -45,6 +45,7 @@ import pandas as pd
 import numpy as np
 import pandas_ta as ta
 import torch
+from tqdm import tqdm
 from mamba_ssm import Mamba
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -186,7 +187,7 @@ best_val_loss = float('inf')
 patience, wait = 10, 0
 best_state = None
 
-for epoch in range(54):
+for epoch in tqdm(range(54), desc="Training"):
     model.train()
     for xb, yb in train_loader:
         out = model(xb)

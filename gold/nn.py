@@ -520,6 +520,7 @@ def choose_confidence_threshold(probs: np.ndarray, labels: np.ndarray) -> float:
             best_precision = precision
             best_coverage = coverage
 
+    print ("Chosen confidence threshold: %.2f with precision %.4f and coverage %.4f" % (best_threshold, best_precision, best_coverage))
     return best_threshold
 
 

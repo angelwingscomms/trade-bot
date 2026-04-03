@@ -7,6 +7,7 @@ from pathlib import Path
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.utils.class_weight import compute_class_weight
+from tqdm import tqdm
 import os
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -126,7 +127,7 @@ best_val_loss = float('inf')
 patience, wait = 10, 0
 best_state = None
 
-for epoch in range(54):
+for epoch in tqdm(range(54), desc="Training"):
     model.train()
     for xb, yb in train_loader:
         out = model(xb)

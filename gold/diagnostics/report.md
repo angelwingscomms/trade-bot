@@ -3,8 +3,8 @@
 ## Shared Config
 - seq_len: 54
 - target_horizon: 27
-- imbalance_min_ticks: 9
-- imbalance_ema_span: 9
+- imbalance_min_ticks: 27
+- imbalance_ema_span: 27
 - feature_atr_period: 9
 - target_atr_period: 9
 - rv_period: 9
@@ -20,55 +20,55 @@
 - primary_confidence: 0.4000
 
 ## Bar Stats
-- bars: 161775
-- ticks_per_bar min=9.00
-- ticks_per_bar p50=79.00
-- ticks_per_bar p90=219.00
-- ticks_per_bar p99=437.00
-- ticks_per_bar mean=105.27
-- ticks_per_bar max=1635.00
-- bar_duration_ms min=976.00
-- bar_duration_ms p50=15431.00
-- bar_duration_ms p90=45871.60
-- bar_duration_ms p99=103174.30
-- bar_duration_ms mean=31078.81
-- bar_duration_ms max=180298897.00
+- bars: 33298
+- ticks_per_bar min=27.00
+- ticks_per_bar p50=346.00
+- ticks_per_bar p90=1109.00
+- ticks_per_bar p99=2454.03
+- ticks_per_bar mean=511.46
+- ticks_per_bar max=6790.00
+- bar_duration_ms min=4957.00
+- bar_duration_ms p50=72237.00
+- bar_duration_ms p90=232290.60
+- bar_duration_ms p99=531122.01
+- bar_duration_ms mean=151895.12
+- bar_duration_ms max=180432472.00
 
 ## Label Counts
 - full bars:
-  - HOLD: 96
-  - BUY: 44572
-  - SELL: 117098
+  - HOLD: 27
+  - BUY: 10948
+  - SELL: 22314
 - train windows:
-  - HOLD: 2
-  - BUY: 1588
-  - SELL: 3810
+  - HOLD: 0
+  - BUY: 214
+  - SELL: 326
 - validation windows:
   - HOLD: 0
-  - BUY: 160
-  - SELL: 380
+  - BUY: 20
+  - SELL: 34
 - holdout windows:
   - HOLD: 0
-  - BUY: 89
-  - SELL: 451
+  - BUY: 2
+  - SELL: 52
 
 ## Window Usage
-- train_available: 113156
-- train_used: 5400
-- validation_available: 24131
-- validation_used: 540
-- holdout_available: 24131
-- holdout_used: 540
+- train_available: 23222
+- train_used: 540
+- validation_available: 4859
+- validation_used: 54
+- holdout_available: 4860
+- holdout_used: 54
 
 ## Validation
-- selected_trades: 540
+- selected_trades: 54
 - trade_coverage: 1.0000
-- mean_confidence: 0.9999
+- mean_confidence: 0.9973
 
 ## Holdout
-- selected_trades: 540
+- selected_trades: 54
 - trade_coverage: 1.0000
-- mean_confidence: 0.9997
+- mean_confidence: 0.9972
 
 ## Files
 - bars.csv
