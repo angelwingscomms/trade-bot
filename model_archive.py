@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from mt5_runtime import (
     Mt5RuntimePaths,
     build_metaeditor_compile_command,
     ensure_runtime_dirs,
+    resolve_metaeditor_path,
+    runtime_env,
 )
 
 
