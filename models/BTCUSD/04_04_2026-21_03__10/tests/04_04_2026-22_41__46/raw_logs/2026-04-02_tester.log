@@ -1,0 +1,331 @@
+RJ	0	22:41:49.594	Tester	Local network farm switched off
+RP	0	22:41:49.594	Tester	Cloud servers switched off
+QK	0	22:41:51.886	Tester	"trade-bot\live.ex5" AVX2
+IL	0	22:41:52.098	Tester	BTCUSD: history data begins from 2024.11.26 00:00
+EK	0	22:41:52.099	Tester	BTCUSD: preliminary downloading of history ticks started, it may take quite a long time
+RG	0	22:41:52.099	Tester	BTCUSD: preliminary downloading of history ticks completed
+KN	0	22:41:52.099	Tester	BTCUSD: ticks data begins from 2026.02.01 00:00
+DI	0	22:41:52.101	Core 1	agent process started on 127.0.0.1:3000
+MO	0	22:41:52.101	Core 1	connecting to 127.0.0.1:3000
+QH	0	22:41:52.619	Core 1	connected
+IQ	0	22:41:52.625	Core 1	authorized (agent build 5729)
+RQ	0	22:41:52.635	Tester	BTCUSD,H1 (EGlobalTrade-Demo): testing of Experts\trade-bot\live.ex5 from 2026.04.02 00:00 to 2026.04.03 00:00
+JJ	0	22:41:52.642	Core 1	common synchronization completed
+JL	0	22:41:52.650	Core 1	BTCUSD: ticks synchronized already [43 bytes]
+IG	0	22:41:55.317	Core 1	MetaTester 5 started on 127.0.0.1:3000
+IM	0	22:41:55.317	Core 1	cloud network mode is off
+HN	0	22:41:55.317	Core 1	initialization finished
+QG	0	22:41:55.317	Core 1	login (build 5729)
+LP	0	22:41:55.317	Core 1	12968 bytes of account info loaded
+LD	0	22:41:55.317	Core 1	1478 bytes of tester parameters loaded
+HS	0	22:41:55.317	Core 1	5828 bytes of input parameters loaded
+CF	0	22:41:55.317	Core 1	2166 bytes of symbols list loaded (349 symbols)
+EP	0	22:41:55.317	Core 1	expert file added: Experts\trade-bot\live.ex5. 115708 bytes loaded
+ER	0	22:41:55.317	Core 1	2271 Mb available, 28 blocks set for ticks generating
+EG	0	22:41:55.317	Core 1	initial deposit 10000.00 USD, leverage 1:200
+KL	0	22:41:55.317	Core 1	successfully initialized
+CE	0	22:41:55.317	Core 1	116 Kb of total initialization data received
+RO	0	22:41:55.317	Core 1	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+OJ	0	22:41:55.317	Core 1	BTCUSD: symbol to be synchronized
+CN	0	22:41:55.317	Core 1	BTCUSD: symbol synchronized, 4520 bytes of symbol info received
+PI	0	22:41:55.317	Core 1	BTCUSD: load 27 bytes of history data to synchronize in 0:00:00.000
+IF	0	22:41:55.317	Core 1	BTCUSD: history synchronized from 2025.01.02 to 2026.04.03
+RO	0	22:41:55.317	Core 1	BTCUSD: ticks synchronization started
+IH	0	22:41:55.317	Core 1	BTCUSD: load 34 bytes of tick data to synchronize in 0:00:00.000
+JL	0	22:41:55.317	Core 1	BTCUSD: history ticks synchronized from 2026.04.02 to 2026.04.02
+EP	0	22:41:55.317	Core 1	BTCUSD,H1: history cache allocated for 10513 bars and contains 10496 bars from 2025.01.02 00:00 to 2026.04.01 23:00
+NO	0	22:41:55.317	Core 1	BTCUSD,H1: history begins from 2025.01.02 00:00
+IK	0	22:41:55.317	Core 1	BTCUSD,H1 (EGlobalTrade-Demo): generating based on real ticks
+FI	0	22:41:55.317	Core 1	BTCUSD,H1: testing of Experts\trade-bot\live.ex5 from 2026.04.02 00:00 to 2026.04.03 00:00 started with inputs:
+HK	0	22:41:55.317	Core 1	  R=false
+HF	0	22:41:55.317	Core 1	  FIXED_MOVE=1.44
+QN	0	22:41:55.317	Core 1	  SL_MULTIPLIER=0.54
+JE	0	22:41:55.317	Core 1	  TP_MULTIPLIER=0.54
+GF	0	22:41:55.317	Core 1	  LOT_SIZE=0.54
+IM	0	22:41:55.317	Core 1	  RISK_PERCENT=0.05
+FG	0	22:41:55.317	Core 1	  LOT_MIN=0.09
+HF	0	22:41:55.317	Core 1	  MAGIC_NUMBER=777777
+RN	0	22:41:55.317	Core 1	  DEBUG_LOG=false
+OK	0	22:41:55.317	Core 1	  LAST_MODEL=true
+LQ	0	22:41:55.317	Core 1	  MODEL_DATETIME=
+IQ	0	22:41:55.317	Core 1	api version 1.24.2 initialized
+PH	0	22:41:55.317	Core 1	2026.04.02 00:00:00   ONNX: CPU selected
+HN	0	22:41:55.317	Core 1	BTCUSD : real ticks begin from 2026.04.02 00:00:00
+EI	0	22:41:55.317	Core 1	2026.04.02 03:03:16   market buy 0.18 BTCUSD sl: 68347.83 tp: 68402.17 (68348.00 / 68375.00)
+FH	0	22:41:55.317	Core 1	2026.04.02 03:03:16   deal #2 buy 0.18 BTCUSD at 68375.00 done (based on order #2)
+DJ	0	22:41:55.317	Core 1	2026.04.02 03:03:16   deal performed [#2 buy 0.18 BTCUSD at 68375.00]
+QO	0	22:41:55.317	Core 1	2026.04.02 03:03:16   order performed buy 0.18 at 68375.00 [#2 buy 0.18 BTCUSD at 68375.00]
+LL	0	22:41:55.317	Core 1	2026.04.02 03:03:16   CTrade::OrderSend: market buy 0.18 BTCUSD sl: 68347.83 tp: 68402.17 [done at 68375.00]
+FO	0	22:41:55.317	Core 1	2026.04.02 03:03:19   stop loss triggered #2 buy 0.18 BTCUSD 68375.00 sl: 68347.83 tp: 68402.17 [#3 sell 0.18 BTCUSD at 68347.83]
+NK	0	22:41:55.317	Core 1	2026.04.02 03:03:19   deal #3 sell 0.18 BTCUSD at 68345.00 done (based on order #3)
+IF	0	22:41:55.317	Core 1	2026.04.02 03:03:19   deal performed [#3 sell 0.18 BTCUSD at 68345.00]
+LL	0	22:41:55.317	Core 1	2026.04.02 03:03:19   order performed sell 0.18 at 68345.00 [#3 sell 0.18 BTCUSD at 68347.83]
+FM	0	22:41:55.317	Core 1	2026.04.02 05:15:45   market buy 0.14 BTCUSD sl: 66740.92 tp: 66810.08 (66748.50 / 66775.50)
+RL	0	22:41:55.317	Core 1	2026.04.02 05:15:45   deal #4 buy 0.14 BTCUSD at 66775.50 done (based on order #4)
+NQ	0	22:41:55.317	Core 1	2026.04.02 05:15:45   deal performed [#4 buy 0.14 BTCUSD at 66775.50]
+JD	0	22:41:55.317	Core 1	2026.04.02 05:15:45   order performed buy 0.14 at 66775.50 [#4 buy 0.14 BTCUSD at 66775.50]
+JH	0	22:41:55.317	Core 1	2026.04.02 05:15:45   CTrade::OrderSend: market buy 0.14 BTCUSD sl: 66740.92 tp: 66810.08 [done at 66775.50]
+RK	0	22:41:55.317	Core 1	2026.04.02 05:15:49   stop loss triggered #4 buy 0.14 BTCUSD 66775.50 sl: 66740.92 tp: 66810.08 [#5 sell 0.14 BTCUSD at 66740.92]
+RF	0	22:41:55.317	Core 1	2026.04.02 05:15:49   deal #5 sell 0.14 BTCUSD at 66739.50 done (based on order #5)
+GK	0	22:41:55.317	Core 1	2026.04.02 05:15:49   deal performed [#5 sell 0.14 BTCUSD at 66739.50]
+MI	0	22:41:55.317	Core 1	2026.04.02 05:15:49   order performed sell 0.14 at 66739.50 [#5 sell 0.14 BTCUSD at 66740.92]
+FF	0	22:41:55.317	Core 1	2026.04.02 05:17:09   market buy 0.16 BTCUSD sl: 66756.42 tp: 66818.58 (66760.50 / 66787.50)
+EQ	0	22:41:55.317	Core 1	2026.04.02 05:17:09   deal #6 buy 0.16 BTCUSD at 66787.50 done (based on order #6)
+GM	0	22:41:55.317	Core 1	2026.04.02 05:17:09   deal performed [#6 buy 0.16 BTCUSD at 66787.50]
+JP	0	22:41:55.317	Core 1	2026.04.02 05:17:09   order performed buy 0.16 at 66787.50 [#6 buy 0.16 BTCUSD at 66787.50]
+PE	0	22:41:55.317	Core 1	2026.04.02 05:17:09   CTrade::OrderSend: market buy 0.16 BTCUSD sl: 66756.42 tp: 66818.58 [done at 66787.50]
+GP	0	22:41:55.317	Core 1	2026.04.02 05:17:59   stop loss triggered #6 buy 0.16 BTCUSD 66787.50 sl: 66756.42 tp: 66818.58 [#7 sell 0.16 BTCUSD at 66756.42]
+KR	0	22:41:55.317	Core 1	2026.04.02 05:17:59   deal #7 sell 0.16 BTCUSD at 66740.50 done (based on order #7)
+DO	0	22:41:55.317	Core 1	2026.04.02 05:17:59   deal performed [#7 sell 0.16 BTCUSD at 66740.50]
+JE	0	22:41:55.317	Core 1	2026.04.02 05:17:59   order performed sell 0.16 at 66740.50 [#7 sell 0.16 BTCUSD at 66756.42]
+RE	0	22:41:55.317	Core 1	2026.04.02 06:29:06   market sell 0.18 BTCUSD sl: 66407.52 tp: 66352.48 (66380.00 / 66407.00)
+LJ	0	22:41:55.317	Core 1	2026.04.02 06:29:06   deal #8 sell 0.18 BTCUSD at 66380.00 done (based on order #8)
+JG	0	22:41:55.317	Core 1	2026.04.02 06:29:06   deal performed [#8 sell 0.18 BTCUSD at 66380.00]
+MM	0	22:41:55.317	Core 1	2026.04.02 06:29:06   order performed sell 0.18 at 66380.00 [#8 sell 0.18 BTCUSD at 66380.00]
+CQ	0	22:41:55.317	Core 1	2026.04.02 06:29:06   CTrade::OrderSend: market sell 0.18 BTCUSD sl: 66407.52 tp: 66352.48 [done at 66380.00]
+RM	0	22:41:55.317	Core 1	2026.04.02 06:29:07   stop loss triggered #8 sell 0.18 BTCUSD 66380.00 sl: 66407.52 tp: 66352.48 [#9 buy 0.18 BTCUSD at 66407.52]
+PG	0	22:41:55.317	Core 1	2026.04.02 06:29:07   deal #9 buy 0.18 BTCUSD at 66408.00 done (based on order #9)
+GO	0	22:41:55.317	Core 1	2026.04.02 06:29:07   deal performed [#9 buy 0.18 BTCUSD at 66408.00]
+CR	0	22:41:55.317	Core 1	2026.04.02 06:29:07   order performed buy 0.18 at 66408.00 [#9 buy 0.18 BTCUSD at 66407.52]
+IO	0	22:41:55.317	Core 1	2026.04.02 08:30:57   market buy 0.17 BTCUSD sl: 66577.94 tp: 66634.06 (66579.00 / 66606.00)
+LN	0	22:41:55.317	Core 1	2026.04.02 08:30:57   deal #10 buy 0.17 BTCUSD at 66606.00 done (based on order #10)
+GD	0	22:41:55.317	Core 1	2026.04.02 08:30:57   deal performed [#10 buy 0.17 BTCUSD at 66606.00]
+PI	0	22:41:55.317	Core 1	2026.04.02 08:30:57   order performed buy 0.17 at 66606.00 [#10 buy 0.17 BTCUSD at 66606.00]
+JK	0	22:41:55.317	Core 1	2026.04.02 08:30:57   CTrade::OrderSend: market buy 0.17 BTCUSD sl: 66577.94 tp: 66634.06 [done at 66606.00]
+MK	0	22:41:55.317	Core 1	2026.04.02 08:31:33   take profit triggered #10 buy 0.17 BTCUSD 66606.00 sl: 66577.94 tp: 66634.06 [#11 sell 0.17 BTCUSD at 66634.06]
+GG	0	22:41:55.317	Core 1	2026.04.02 08:31:33   deal #11 sell 0.17 BTCUSD at 66637.00 done (based on order #11)
+QI	0	22:41:55.317	Core 1	2026.04.02 08:31:33   deal performed [#11 sell 0.17 BTCUSD at 66637.00]
+MK	0	22:41:55.317	Core 1	2026.04.02 08:31:33   order performed sell 0.17 at 66637.00 [#11 sell 0.17 BTCUSD at 66634.06]
+QN	0	22:41:55.317	Core 1	2026.04.02 11:15:26   market sell 0.18 BTCUSD sl: 66424.94 tp: 66370.06 (66397.50 / 66424.50)
+PO	0	22:41:55.317	Core 1	2026.04.02 11:15:26   deal #12 sell 0.18 BTCUSD at 66397.50 done (based on order #12)
+GQ	0	22:41:55.317	Core 1	2026.04.02 11:15:26   deal performed [#12 sell 0.18 BTCUSD at 66397.50]
+KS	0	22:41:55.317	Core 1	2026.04.02 11:15:26   order performed sell 0.18 at 66397.50 [#12 sell 0.18 BTCUSD at 66397.50]
+PJ	0	22:41:55.317	Core 1	2026.04.02 11:15:26   CTrade::OrderSend: market sell 0.18 BTCUSD sl: 66424.94 tp: 66370.06 [done at 66397.50]
+KP	0	22:41:55.317	Core 1	2026.04.02 11:15:37   stop loss triggered #12 sell 0.18 BTCUSD 66397.50 sl: 66424.94 tp: 66370.06 [#13 buy 0.18 BTCUSD at 66424.94]
+HR	0	22:41:55.317	Core 1	2026.04.02 11:15:37   deal #13 buy 0.18 BTCUSD at 66431.00 done (based on order #13)
+FP	0	22:41:55.317	Core 1	2026.04.02 11:15:37   deal performed [#13 buy 0.18 BTCUSD at 66431.00]
+EE	0	22:41:55.317	Core 1	2026.04.02 11:15:37   order performed buy 0.18 at 66431.00 [#13 buy 0.18 BTCUSD at 66424.94]
+LD	0	22:41:55.317	Core 1	2026.04.02 13:20:36   market sell 0.14 BTCUSD sl: 66397.84 tp: 66330.16 (66364.00 / 66391.00)
+PE	0	22:41:55.317	Core 1	2026.04.02 13:20:36   deal #14 sell 0.14 BTCUSD at 66364.00 done (based on order #14)
+EG	0	22:41:55.317	Core 1	2026.04.02 13:20:36   deal performed [#14 sell 0.14 BTCUSD at 66364.00]
+NM	0	22:41:55.317	Core 1	2026.04.02 13:20:36   order performed sell 0.14 at 66364.00 [#14 sell 0.14 BTCUSD at 66364.00]
+IP	0	22:41:55.317	Core 1	2026.04.02 13:20:36   CTrade::OrderSend: market sell 0.14 BTCUSD sl: 66397.84 tp: 66330.16 [done at 66364.00]
+EN	0	22:41:55.317	Core 1	2026.04.02 13:20:42   stop loss triggered #14 sell 0.14 BTCUSD 66364.00 sl: 66397.84 tp: 66330.16 [#15 buy 0.14 BTCUSD at 66397.84]
+QD	0	22:41:55.317	Core 1	2026.04.02 13:20:42   deal #15 buy 0.14 BTCUSD at 66398.50 done (based on order #15)
+QJ	0	22:41:55.317	Core 1	2026.04.02 13:20:42   deal performed [#15 buy 0.14 BTCUSD at 66398.50]
+PO	0	22:41:55.317	Core 1	2026.04.02 13:20:42   order performed buy 0.14 at 66398.50 [#15 buy 0.14 BTCUSD at 66397.84]
+HR	0	22:41:55.317	Core 1	2026.04.02 13:22:16   market sell 0.15 BTCUSD sl: 66413.25 tp: 66350.75 (66382.00 / 66409.00)
+GS	0	22:41:55.317	Core 1	2026.04.02 13:22:16   deal #16 sell 0.15 BTCUSD at 66382.00 done (based on order #16)
+LM	0	22:41:55.317	Core 1	2026.04.02 13:22:16   deal performed [#16 sell 0.15 BTCUSD at 66382.00]
+LG	0	22:41:55.317	Core 1	2026.04.02 13:22:16   order performed sell 0.15 at 66382.00 [#16 sell 0.15 BTCUSD at 66382.00]
+OF	0	22:41:55.317	Core 1	2026.04.02 13:22:16   CTrade::OrderSend: market sell 0.15 BTCUSD sl: 66413.25 tp: 66350.75 [done at 66382.00]
+ND	0	22:41:55.317	Core 1	2026.04.02 13:22:17   stop loss triggered #16 sell 0.15 BTCUSD 66382.00 sl: 66413.25 tp: 66350.75 [#17 buy 0.15 BTCUSD at 66413.25]
+MN	0	22:41:55.317	Core 1	2026.04.02 13:22:17   deal #17 buy 0.15 BTCUSD at 66415.00 done (based on order #17)
+KD	0	22:41:55.317	Core 1	2026.04.02 13:22:17   deal performed [#17 buy 0.15 BTCUSD at 66415.00]
+MI	0	22:41:55.317	Core 1	2026.04.02 13:22:17   order performed buy 0.15 at 66415.00 [#17 buy 0.15 BTCUSD at 66413.25]
+RH	0	22:41:55.317	Core 1	2026.04.02 14:31:54   market sell 0.16 BTCUSD sl: 66131.40 tp: 66069.60 (66100.50 / 66127.50)
+LI	0	22:41:55.317	Core 1	2026.04.02 14:31:54   deal #18 sell 0.16 BTCUSD at 66100.50 done (based on order #18)
+MS	0	22:41:55.317	Core 1	2026.04.02 14:31:54   deal performed [#18 sell 0.16 BTCUSD at 66100.50]
+GQ	0	22:41:55.317	Core 1	2026.04.02 14:31:54   order performed sell 0.16 at 66100.50 [#18 sell 0.16 BTCUSD at 66100.50]
+ML	0	22:41:55.317	Core 1	2026.04.02 14:31:54   CTrade::OrderSend: market sell 0.16 BTCUSD sl: 66131.40 tp: 66069.60 [done at 66100.50]
+NR	0	22:41:55.317	Core 1	2026.04.02 14:32:00   stop loss triggered #18 sell 0.16 BTCUSD 66100.50 sl: 66131.40 tp: 66069.60 [#19 buy 0.16 BTCUSD at 66131.40]
+KP	0	22:41:55.317	Core 1	2026.04.02 14:32:00   deal #19 buy 0.16 BTCUSD at 66133.00 done (based on order #19)
+GN	0	22:41:55.317	Core 1	2026.04.02 14:32:00   deal performed [#19 buy 0.16 BTCUSD at 66133.00]
+FS	0	22:41:55.317	Core 1	2026.04.02 14:32:00   order performed buy 0.16 at 66133.00 [#19 buy 0.16 BTCUSD at 66131.40]
+DF	0	22:41:55.317	Core 1	2026.04.02 15:05:34   market sell 0.17 BTCUSD sl: 66017.46 tp: 65961.54 (65989.50 / 66016.50)
+EG	0	22:41:55.317	Core 1	2026.04.02 15:05:34   deal #20 sell 0.17 BTCUSD at 65989.50 done (based on order #20)
+MI	0	22:41:55.317	Core 1	2026.04.02 15:05:34   deal performed [#20 sell 0.17 BTCUSD at 65989.50]
+RK	0	22:41:55.317	Core 1	2026.04.02 15:05:34   order performed sell 0.17 at 65989.50 [#20 sell 0.17 BTCUSD at 65989.50]
+JR	0	22:41:55.317	Core 1	2026.04.02 15:05:34   CTrade::OrderSend: market sell 0.17 BTCUSD sl: 66017.46 tp: 65961.54 [done at 65989.50]
+JH	0	22:41:55.317	Core 1	2026.04.02 15:05:35   stop loss triggered #20 sell 0.17 BTCUSD 65989.50 sl: 66017.46 tp: 65961.54 [#21 buy 0.17 BTCUSD at 66017.46]
+LJ	0	22:41:55.317	Core 1	2026.04.02 15:05:35   deal #21 buy 0.17 BTCUSD at 66020.00 done (based on order #21)
+QH	0	22:41:55.317	Core 1	2026.04.02 15:05:35   deal performed [#21 buy 0.17 BTCUSD at 66020.00]
+NM	0	22:41:55.317	Core 1	2026.04.02 15:05:35   order performed buy 0.17 at 66020.00 [#21 buy 0.17 BTCUSD at 66017.46]
+OS	0	22:41:55.317	Core 1	2026.04.02 15:32:31   market buy 0.13 BTCUSD sl: 65975.94 tp: 66052.06 (65987.00 / 66014.00)
+IR	0	22:41:55.317	Core 1	2026.04.02 15:32:31   deal #22 buy 0.13 BTCUSD at 66014.00 done (based on order #22)
+MP	0	22:41:55.317	Core 1	2026.04.02 15:32:31   deal performed [#22 buy 0.13 BTCUSD at 66014.00]
+EE	0	22:41:55.317	Core 1	2026.04.02 15:32:31   order performed buy 0.13 at 66014.00 [#22 buy 0.13 BTCUSD at 66014.00]
+FG	0	22:41:55.317	Core 1	2026.04.02 15:32:31   CTrade::OrderSend: market buy 0.13 BTCUSD sl: 65975.94 tp: 66052.06 [done at 66014.00]
+GF	0	22:41:55.317	Core 1	2026.04.02 15:32:38   stop loss triggered #22 buy 0.13 BTCUSD 66014.00 sl: 65975.94 tp: 66052.06 [#23 sell 0.13 BTCUSD at 65975.94]
+GP	0	22:41:55.317	Core 1	2026.04.02 15:32:38   deal #23 sell 0.13 BTCUSD at 65973.00 done (based on order #23)
+RJ	0	22:41:55.317	Core 1	2026.04.02 15:32:38   deal performed [#23 sell 0.13 BTCUSD at 65973.00]
+HG	0	22:41:55.317	Core 1	2026.04.02 15:32:38   order performed sell 0.13 at 65973.00 [#23 sell 0.13 BTCUSD at 65975.94]
+RE	0	22:41:55.317	Core 1	2026.04.02 15:32:51   market buy 0.13 BTCUSD sl: 65984.53 tp: 66057.47 (65994.00 / 66021.00)
+ED	0	22:41:55.317	Core 1	2026.04.02 15:32:51   deal #24 buy 0.13 BTCUSD at 66021.00 done (based on order #24)
+CM	0	22:41:55.317	Core 1	2026.04.02 15:32:51   deal performed [#24 buy 0.13 BTCUSD at 66021.00]
+IO	0	22:41:55.317	Core 1	2026.04.02 15:32:51   order performed buy 0.13 at 66021.00 [#24 buy 0.13 BTCUSD at 66021.00]
+MP	0	22:41:55.317	Core 1	2026.04.02 15:32:51   CTrade::OrderSend: market buy 0.13 BTCUSD sl: 65984.53 tp: 66057.47 [done at 66021.00]
+DS	0	22:41:55.317	Core 1	2026.04.02 15:32:51   stop loss triggered #24 buy 0.13 BTCUSD 66021.00 sl: 65984.53 tp: 66057.47 [#25 sell 0.13 BTCUSD at 65984.53]
+DN	0	22:41:55.317	Core 1	2026.04.02 15:32:51   deal #25 sell 0.13 BTCUSD at 65978.50 done (based on order #25)
+OP	0	22:41:55.317	Core 1	2026.04.02 15:32:51   deal performed [#25 sell 0.13 BTCUSD at 65978.50]
+NR	0	22:41:55.317	Core 1	2026.04.02 15:32:51   order performed sell 0.13 at 65978.50 [#25 sell 0.13 BTCUSD at 65984.53]
+GM	0	22:41:55.317	Core 1	2026.04.02 15:36:05   market buy 0.1 BTCUSD sl: 65783.28 tp: 65873.72 (65801.50 / 65828.50)
+LJ	0	22:41:55.317	Core 1	2026.04.02 15:36:05   deal #26 buy 0.1 BTCUSD at 65828.50 done (based on order #26)
+ND	0	22:41:55.317	Core 1	2026.04.02 15:36:05   deal performed [#26 buy 0.1 BTCUSD at 65828.50]
+JJ	0	22:41:55.317	Core 1	2026.04.02 15:36:05   order performed buy 0.1 at 65828.50 [#26 buy 0.1 BTCUSD at 65828.50]
+NJ	0	22:41:55.317	Core 1	2026.04.02 15:36:05   CTrade::OrderSend: market buy 0.10 BTCUSD sl: 65783.28 tp: 65873.72 [done at 65828.50]
+KH	0	22:41:55.317	Core 1	2026.04.02 15:36:07   stop loss triggered #26 buy 0.1 BTCUSD 65828.50 sl: 65783.28 tp: 65873.72 [#27 sell 0.1 BTCUSD at 65783.28]
+CF	0	22:41:55.317	Core 1	2026.04.02 15:36:07   deal #27 sell 0.1 BTCUSD at 65778.00 done (based on order #27)
+PD	0	22:41:55.317	Core 1	2026.04.02 15:36:07   deal performed [#27 sell 0.1 BTCUSD at 65778.00]
+MM	0	22:41:55.317	Core 1	2026.04.02 15:36:07   order performed sell 0.1 at 65778.00 [#27 sell 0.1 BTCUSD at 65783.28]
+FP	0	22:41:55.317	Core 1	2026.04.02 15:37:00   market buy 0.1 BTCUSD sl: 65769.23 tp: 65861.77 (65788.50 / 65815.50)
+LQ	0	22:41:55.317	Core 1	2026.04.02 15:37:00   deal #28 buy 0.1 BTCUSD at 65815.50 done (based on order #28)
+HP	0	22:41:55.317	Core 1	2026.04.02 15:37:00   deal performed [#28 buy 0.1 BTCUSD at 65815.50]
+JF	0	22:41:55.317	Core 1	2026.04.02 15:37:00   order performed buy 0.1 at 65815.50 [#28 buy 0.1 BTCUSD at 65815.50]
+QF	0	22:41:55.317	Core 1	2026.04.02 15:37:00   CTrade::OrderSend: market buy 0.10 BTCUSD sl: 65769.23 tp: 65861.77 [done at 65815.50]
+HD	0	22:41:55.317	Core 1	2026.04.02 15:37:09   take profit triggered #28 buy 0.1 BTCUSD 65815.50 sl: 65769.23 tp: 65861.77 [#29 sell 0.1 BTCUSD at 65861.77]
+QS	0	22:41:55.317	Core 1	2026.04.02 15:37:09   deal #29 sell 0.1 BTCUSD at 65864.50 done (based on order #29)
+DH	0	22:41:55.317	Core 1	2026.04.02 15:37:09   deal performed [#29 sell 0.1 BTCUSD at 65864.50]
+FH	0	22:41:55.317	Core 1	2026.04.02 15:37:09   order performed sell 0.1 at 65864.50 [#29 sell 0.1 BTCUSD at 65861.77]
+JG	0	22:41:55.317	Core 1	2026.04.02 15:38:16   market buy 0.11 BTCUSD sl: 65875.54 tp: 65965.46 (65893.50 / 65920.50)
+NF	0	22:41:55.317	Core 1	2026.04.02 15:38:16   deal #30 buy 0.11 BTCUSD at 65920.50 done (based on order #30)
+GL	0	22:41:55.317	Core 1	2026.04.02 15:38:16   deal performed [#30 buy 0.11 BTCUSD at 65920.50]
+IQ	0	22:41:55.317	Core 1	2026.04.02 15:38:16   order performed buy 0.11 at 65920.50 [#30 buy 0.11 BTCUSD at 65920.50]
+LS	0	22:41:55.317	Core 1	2026.04.02 15:38:16   CTrade::OrderSend: market buy 0.11 BTCUSD sl: 65875.54 tp: 65965.46 [done at 65920.50]
+GR	0	22:41:55.317	Core 1	2026.04.02 15:38:38   stop loss triggered #30 buy 0.11 BTCUSD 65920.50 sl: 65875.54 tp: 65965.46 [#31 sell 0.11 BTCUSD at 65875.54]
+GO	0	22:41:55.317	Core 1	2026.04.02 15:38:38   deal #31 sell 0.11 BTCUSD at 65872.00 done (based on order #31)
+OQ	0	22:41:55.317	Core 1	2026.04.02 15:38:38   deal performed [#31 sell 0.11 BTCUSD at 65872.00]
+LS	0	22:41:55.317	Core 1	2026.04.02 15:38:38   order performed sell 0.11 at 65872.00 [#31 sell 0.11 BTCUSD at 65875.54]
+JE	0	22:41:55.317	Core 1	2026.04.02 15:42:11   market sell 0.1 BTCUSD sl: 65857.14 tp: 65761.86 (65809.50 / 65836.50)
+ID	0	22:41:55.317	Core 1	2026.04.02 15:42:11   deal #32 sell 0.1 BTCUSD at 65809.50 done (based on order #32)
+FJ	0	22:41:55.317	Core 1	2026.04.02 15:42:11   deal performed [#32 sell 0.1 BTCUSD at 65809.50]
+MK	0	22:41:55.317	Core 1	2026.04.02 15:42:11   order performed sell 0.1 at 65809.50 [#32 sell 0.1 BTCUSD at 65809.50]
+QR	0	22:41:55.317	Core 1	2026.04.02 15:42:11   CTrade::OrderSend: market sell 0.10 BTCUSD sl: 65857.14 tp: 65761.86 [done at 65809.50]
+JH	0	22:41:55.317	Core 1	2026.04.02 15:43:06   stop loss triggered #32 sell 0.1 BTCUSD 65809.50 sl: 65857.14 tp: 65761.86 [#33 buy 0.1 BTCUSD at 65857.14]
+QF	0	22:41:55.317	Core 1	2026.04.02 15:43:06   deal #33 buy 0.1 BTCUSD at 65858.00 done (based on order #33)
+CH	0	22:41:55.317	Core 1	2026.04.02 15:43:06   deal performed [#33 buy 0.1 BTCUSD at 65858.00]
+GN	0	22:41:55.317	Core 1	2026.04.02 15:43:06   order performed buy 0.1 at 65858.00 [#33 buy 0.1 BTCUSD at 65857.14]
+CM	0	22:41:55.317	Core 1	2026.04.02 15:52:25   market sell 0.13 BTCUSD sl: 66125.67 tp: 66049.33 (66087.50 / 66114.50)
+ER	0	22:41:55.317	Core 1	2026.04.02 15:52:25   deal #34 sell 0.13 BTCUSD at 66087.50 done (based on order #34)
+RL	0	22:41:55.317	Core 1	2026.04.02 15:52:25   deal performed [#34 sell 0.13 BTCUSD at 66087.50]
+MF	0	22:41:55.317	Core 1	2026.04.02 15:52:25   order performed sell 0.13 at 66087.50 [#34 sell 0.13 BTCUSD at 66087.50]
+DI	0	22:41:55.317	Core 1	2026.04.02 15:52:25   CTrade::OrderSend: market sell 0.13 BTCUSD sl: 66125.67 tp: 66049.33 [done at 66087.50]
+EE	0	22:41:55.317	Core 1	2026.04.02 15:52:46   stop loss triggered #34 sell 0.13 BTCUSD 66087.50 sl: 66125.67 tp: 66049.33 [#35 buy 0.13 BTCUSD at 66125.67]
+FO	0	22:41:55.317	Core 1	2026.04.02 15:52:46   deal #35 buy 0.13 BTCUSD at 66136.00 done (based on order #35)
+PE	0	22:41:55.317	Core 1	2026.04.02 15:52:46   deal performed [#35 buy 0.13 BTCUSD at 66136.00]
+FH	0	22:41:55.317	Core 1	2026.04.02 15:52:46   order performed buy 0.13 at 66136.00 [#35 buy 0.13 BTCUSD at 66125.67]
+CD	0	22:41:55.317	Core 1	2026.04.02 16:28:54   market buy 0.12 BTCUSD sl: 66249.46 tp: 66328.54 (66262.00 / 66289.00)
+OG	0	22:41:55.317	Core 1	2026.04.02 16:28:54   deal #36 buy 0.12 BTCUSD at 66289.00 done (based on order #36)
+DM	0	22:41:55.317	Core 1	2026.04.02 16:28:54   deal performed [#36 buy 0.12 BTCUSD at 66289.00]
+MP	0	22:41:55.317	Core 1	2026.04.02 16:28:54   order performed buy 0.12 at 66289.00 [#36 buy 0.12 BTCUSD at 66289.00]
+OP	0	22:41:55.317	Core 1	2026.04.02 16:28:54   CTrade::OrderSend: market buy 0.12 BTCUSD sl: 66249.46 tp: 66328.54 [done at 66289.00]
+NR	0	22:41:55.317	Core 1	2026.04.02 16:28:58   stop loss triggered #36 buy 0.12 BTCUSD 66289.00 sl: 66249.46 tp: 66328.54 [#37 sell 0.12 BTCUSD at 66249.46]
+KO	0	22:41:55.317	Core 1	2026.04.02 16:28:58   deal #37 sell 0.12 BTCUSD at 66248.50 done (based on order #37)
+IQ	0	22:41:55.317	Core 1	2026.04.02 16:28:58   deal performed [#37 sell 0.12 BTCUSD at 66248.50]
+PS	0	22:41:55.317	Core 1	2026.04.02 16:28:58   order performed sell 0.12 at 66248.50 [#37 sell 0.12 BTCUSD at 66249.46]
+ON	0	22:41:55.317	Core 1	2026.04.02 16:30:39   market buy 0.12 BTCUSD sl: 66271.53 tp: 66350.47 (66284.00 / 66311.00)
+EH	0	22:41:55.317	Core 1	2026.04.02 16:30:39   deal #38 buy 0.12 BTCUSD at 66311.00 done (based on order #38)
+DF	0	22:41:55.317	Core 1	2026.04.02 16:30:39   deal performed [#38 buy 0.12 BTCUSD at 66311.00]
+MK	0	22:41:55.317	Core 1	2026.04.02 16:30:39   order performed buy 0.12 at 66311.00 [#38 buy 0.12 BTCUSD at 66311.00]
+CM	0	22:41:55.317	Core 1	2026.04.02 16:30:39   CTrade::OrderSend: market buy 0.12 BTCUSD sl: 66271.53 tp: 66350.47 [done at 66311.00]
+FH	0	22:41:55.317	Core 1	2026.04.02 16:30:50   stop loss triggered #38 buy 0.12 BTCUSD 66311.00 sl: 66271.53 tp: 66350.47 [#39 sell 0.12 BTCUSD at 66271.53]
+OE	0	22:41:55.317	Core 1	2026.04.02 16:30:50   deal #39 sell 0.12 BTCUSD at 66263.50 done (based on order #39)
+OG	0	22:41:55.317	Core 1	2026.04.02 16:30:50   deal performed [#39 sell 0.12 BTCUSD at 66263.50]
+CM	0	22:41:55.317	Core 1	2026.04.02 16:30:50   order performed sell 0.12 at 66263.50 [#39 sell 0.12 BTCUSD at 66271.53]
+DS	0	22:41:55.317	Core 1	2026.04.02 16:31:01   market buy 0.12 BTCUSD sl: 66315.58 tp: 66393.42 (66327.50 / 66354.50)
+KR	0	22:41:55.317	Core 1	2026.04.02 16:31:01   deal #40 buy 0.12 BTCUSD at 66354.50 done (based on order #40)
+GP	0	22:41:55.317	Core 1	2026.04.02 16:31:01   deal performed [#40 buy 0.12 BTCUSD at 66354.50]
+NE	0	22:41:55.317	Core 1	2026.04.02 16:31:01   order performed buy 0.12 at 66354.50 [#40 buy 0.12 BTCUSD at 66354.50]
+KG	0	22:41:55.317	Core 1	2026.04.02 16:31:01   CTrade::OrderSend: market buy 0.12 BTCUSD sl: 66315.58 tp: 66393.42 [done at 66354.50]
+HF	0	22:41:55.317	Core 1	2026.04.02 16:31:11   stop loss triggered #40 buy 0.12 BTCUSD 66354.50 sl: 66315.58 tp: 66393.42 [#41 sell 0.12 BTCUSD at 66315.58]
+NS	0	22:41:55.317	Core 1	2026.04.02 16:31:11   deal #41 sell 0.12 BTCUSD at 66312.50 done (based on order #41)
+GM	0	22:41:55.317	Core 1	2026.04.02 16:31:11   deal performed [#41 sell 0.12 BTCUSD at 66312.50]
+KG	0	22:41:55.317	Core 1	2026.04.02 16:31:11   order performed sell 0.12 at 66312.50 [#41 sell 0.12 BTCUSD at 66315.58]
+JE	0	22:41:55.317	Core 1	2026.04.02 16:33:47   market buy 0.11 BTCUSD sl: 66467.83 tp: 66553.17 (66483.50 / 66510.50)
+DD	0	22:41:55.317	Core 1	2026.04.02 16:33:47   deal #42 buy 0.11 BTCUSD at 66510.50 done (based on order #42)
+RJ	0	22:41:55.317	Core 1	2026.04.02 16:33:47   deal performed [#42 buy 0.11 BTCUSD at 66510.50]
+HO	0	22:41:55.317	Core 1	2026.04.02 16:33:47   order performed buy 0.11 at 66510.50 [#42 buy 0.11 BTCUSD at 66510.50]
+RQ	0	22:41:55.317	Core 1	2026.04.02 16:33:47   CTrade::OrderSend: market buy 0.11 BTCUSD sl: 66467.83 tp: 66553.17 [done at 66510.50]
+IM	0	22:41:55.317	Core 1	2026.04.02 16:33:51   take profit triggered #42 buy 0.11 BTCUSD 66510.50 sl: 66467.83 tp: 66553.17 [#43 sell 0.11 BTCUSD at 66553.17]
+PI	0	22:41:55.317	Core 1	2026.04.02 16:33:51   deal #43 sell 0.11 BTCUSD at 66553.50 done (based on order #43)
+CS	0	22:41:55.317	Core 1	2026.04.02 16:33:51   deal performed [#43 sell 0.11 BTCUSD at 66553.50]
+CQ	0	22:41:55.317	Core 1	2026.04.02 16:33:51   order performed sell 0.11 at 66553.50 [#43 sell 0.11 BTCUSD at 66553.17]
+HP	0	22:41:55.317	Core 1	2026.04.02 16:37:01   market sell 0.09 BTCUSD sl: 66794.01 tp: 66689.99 (66742.00 / 66769.00)
+KQ	0	22:41:55.317	Core 1	2026.04.02 16:37:01   deal #44 sell 0.09 BTCUSD at 66742.00 done (based on order #44)
+EK	0	22:41:55.317	Core 1	2026.04.02 16:37:01   deal performed [#44 sell 0.09 BTCUSD at 66742.00]
+RI	0	22:41:55.317	Core 1	2026.04.02 16:37:01   order performed sell 0.09 at 66742.00 [#44 sell 0.09 BTCUSD at 66742.00]
+HD	0	22:41:55.317	Core 1	2026.04.02 16:37:01   CTrade::OrderSend: market sell 0.09 BTCUSD sl: 66794.01 tp: 66689.99 [done at 66742.00]
+JJ	0	22:41:55.317	Core 1	2026.04.02 16:37:02   stop loss triggered #44 sell 0.09 BTCUSD 66742.00 sl: 66794.01 tp: 66689.99 [#45 buy 0.09 BTCUSD at 66794.01]
+PH	0	22:41:55.317	Core 1	2026.04.02 16:37:02   deal #45 buy 0.09 BTCUSD at 66805.00 done (based on order #45)
+GF	0	22:41:55.317	Core 1	2026.04.02 16:37:02   deal performed [#45 buy 0.09 BTCUSD at 66805.00]
+PK	0	22:41:55.317	Core 1	2026.04.02 16:37:02   order performed buy 0.09 at 66805.00 [#45 buy 0.09 BTCUSD at 66794.01]
+LQ	0	22:41:55.317	Core 1	2026.04.02 16:43:37   market buy 0.09 BTCUSD sl: 66896.77 tp: 67004.23 (66923.50 / 66950.50)
+CP	0	22:41:55.317	Core 1	2026.04.02 16:43:37   deal #46 buy 0.09 BTCUSD at 66950.50 done (based on order #46)
+MN	0	22:41:55.317	Core 1	2026.04.02 16:43:37   deal performed [#46 buy 0.09 BTCUSD at 66950.50]
+DS	0	22:41:55.317	Core 1	2026.04.02 16:43:37   order performed buy 0.09 at 66950.50 [#46 buy 0.09 BTCUSD at 66950.50]
+IE	0	22:41:55.317	Core 1	2026.04.02 16:43:37   CTrade::OrderSend: market buy 0.09 BTCUSD sl: 66896.77 tp: 67004.23 [done at 66950.50]
+DP	0	22:41:55.317	Core 1	2026.04.02 16:43:44   stop loss triggered #46 buy 0.09 BTCUSD 66950.50 sl: 66896.77 tp: 67004.23 [#47 sell 0.09 BTCUSD at 66896.77]
+MR	0	22:41:55.317	Core 1	2026.04.02 16:43:44   deal #47 sell 0.09 BTCUSD at 66896.00 done (based on order #47)
+FL	0	22:41:55.317	Core 1	2026.04.02 16:43:44   deal performed [#47 sell 0.09 BTCUSD at 66896.00]
+CE	0	22:41:55.317	Core 1	2026.04.02 16:43:44   order performed sell 0.09 at 66896.00 [#47 sell 0.09 BTCUSD at 66896.77]
+OK	0	22:41:55.317	Core 1	2026.04.02 18:22:33   market buy 0.12 BTCUSD sl: 66876.83 tp: 66956.17 (66889.50 / 66916.50)
+DJ	0	22:41:55.317	Core 1	2026.04.02 18:22:33   deal #48 buy 0.12 BTCUSD at 66916.50 done (based on order #48)
+HH	0	22:41:55.317	Core 1	2026.04.02 18:22:33   deal performed [#48 buy 0.12 BTCUSD at 66916.50]
+IM	0	22:41:55.317	Core 1	2026.04.02 18:22:33   order performed buy 0.12 at 66916.50 [#48 buy 0.12 BTCUSD at 66916.50]
+MO	0	22:41:55.317	Core 1	2026.04.02 18:22:33   CTrade::OrderSend: market buy 0.12 BTCUSD sl: 66876.83 tp: 66956.17 [done at 66916.50]
+KM	0	22:41:55.317	Core 1	2026.04.02 18:23:25   stop loss triggered #48 buy 0.12 BTCUSD 66916.50 sl: 66876.83 tp: 66956.17 [#49 sell 0.12 BTCUSD at 66876.83]
+FH	0	22:41:55.317	Core 1	2026.04.02 18:23:25   deal #49 sell 0.12 BTCUSD at 66875.50 done (based on order #49)
+GR	0	22:41:55.317	Core 1	2026.04.02 18:23:25   deal performed [#49 sell 0.12 BTCUSD at 66875.50]
+CP	0	22:41:55.317	Core 1	2026.04.02 18:23:25   order performed sell 0.12 at 66875.50 [#49 sell 0.12 BTCUSD at 66876.83]
+FM	0	22:41:55.317	Core 1	2026.04.02 18:24:16   market buy 0.12 BTCUSD sl: 66829.41 tp: 66905.59 (66840.50 / 66867.50)
+NO	0	22:41:55.317	Core 1	2026.04.02 18:24:16   deal #50 buy 0.12 BTCUSD at 66867.50 done (based on order #50)
+IE	0	22:41:55.317	Core 1	2026.04.02 18:24:16   deal performed [#50 buy 0.12 BTCUSD at 66867.50]
+EH	0	22:41:55.317	Core 1	2026.04.02 18:24:16   order performed buy 0.12 at 66867.50 [#50 buy 0.12 BTCUSD at 66867.50]
+KH	0	22:41:55.317	Core 1	2026.04.02 18:24:16   CTrade::OrderSend: market buy 0.12 BTCUSD sl: 66829.41 tp: 66905.59 [done at 66867.50]
+CK	0	22:41:55.317	Core 1	2026.04.02 18:24:34   stop loss triggered #50 buy 0.12 BTCUSD 66867.50 sl: 66829.41 tp: 66905.59 [#51 sell 0.12 BTCUSD at 66829.41]
+RF	0	22:41:55.317	Core 1	2026.04.02 18:24:34   deal #51 sell 0.12 BTCUSD at 66827.50 done (based on order #51)
+DH	0	22:41:55.317	Core 1	2026.04.02 18:24:34   deal performed [#51 sell 0.12 BTCUSD at 66827.50]
+LJ	0	22:41:55.317	Core 1	2026.04.02 18:24:34   order performed sell 0.12 at 66827.50 [#51 sell 0.12 BTCUSD at 66829.41]
+HI	0	22:41:55.317	Core 1	2026.04.02 19:19:50   market sell 0.14 BTCUSD sl: 67361.18 tp: 67292.82 (67327.00 / 67354.00)
+DN	0	22:41:55.317	Core 1	2026.04.02 19:19:50   deal #52 sell 0.14 BTCUSD at 67327.00 done (based on order #52)
+OP	0	22:41:55.317	Core 1	2026.04.02 19:19:50   deal performed [#52 sell 0.14 BTCUSD at 67327.00]
+FQ	0	22:41:55.317	Core 1	2026.04.02 19:19:50   order performed sell 0.14 at 67327.00 [#52 sell 0.14 BTCUSD at 67327.00]
+IL	0	22:41:55.317	Core 1	2026.04.02 19:19:50   CTrade::OrderSend: market sell 0.14 BTCUSD sl: 67361.18 tp: 67292.82 [done at 67327.00]
+QR	0	22:41:55.317	Core 1	2026.04.02 19:19:52   stop loss triggered #52 sell 0.14 BTCUSD 67327.00 sl: 67361.18 tp: 67292.82 [#53 buy 0.14 BTCUSD at 67361.18]
+QS	0	22:41:55.317	Core 1	2026.04.02 19:19:52   deal #53 buy 0.14 BTCUSD at 67361.50 done (based on order #53)
+CQ	0	22:41:55.317	Core 1	2026.04.02 19:19:52   deal performed [#53 buy 0.14 BTCUSD at 67361.50]
+ED	0	22:41:55.317	Core 1	2026.04.02 19:19:52   order performed buy 0.14 at 67361.50 [#53 buy 0.14 BTCUSD at 67361.18]
+DG	0	22:41:55.317	Core 1	2026.04.02 20:53:56   market sell 0.12 BTCUSD sl: 67034.91 tp: 66957.09 (66996.00 / 67023.00)
+GD	0	22:41:55.317	Core 1	2026.04.02 20:53:56   deal #54 sell 0.12 BTCUSD at 66996.00 done (based on order #54)
+RF	0	22:41:55.317	Core 1	2026.04.02 20:53:56   deal performed [#54 sell 0.12 BTCUSD at 66996.00]
+JK	0	22:41:55.317	Core 1	2026.04.02 20:53:56   order performed sell 0.12 at 66996.00 [#54 sell 0.12 BTCUSD at 66996.00]
+DR	0	22:41:55.317	Core 1	2026.04.02 20:53:56   CTrade::OrderSend: market sell 0.12 BTCUSD sl: 67034.91 tp: 66957.09 [done at 66996.00]
+DH	0	22:41:55.317	Core 1	2026.04.02 20:53:58   stop loss triggered #54 sell 0.12 BTCUSD 66996.00 sl: 67034.91 tp: 66957.09 [#55 buy 0.12 BTCUSD at 67034.91]
+EE	0	22:41:55.317	Core 1	2026.04.02 20:53:58   deal #55 buy 0.12 BTCUSD at 67036.00 done (based on order #55)
+MK	0	22:41:55.317	Core 1	2026.04.02 20:53:58   deal performed [#55 buy 0.12 BTCUSD at 67036.00]
+ON	0	22:41:55.317	Core 1	2026.04.02 20:53:58   order performed buy 0.12 at 67036.00 [#55 buy 0.12 BTCUSD at 67034.91]
+EM	0	22:41:55.317	Core 1	2026.04.02 20:54:16   market sell 0.13 BTCUSD sl: 67005.45 tp: 66929.55 (66967.50 / 66994.50)
+PR	0	22:41:55.317	Core 1	2026.04.02 20:54:16   deal #56 sell 0.13 BTCUSD at 66967.50 done (based on order #56)
+GL	0	22:41:55.317	Core 1	2026.04.02 20:54:16   deal performed [#56 sell 0.13 BTCUSD at 66967.50]
+IE	0	22:41:55.317	Core 1	2026.04.02 20:54:16   order performed sell 0.13 at 66967.50 [#56 sell 0.13 BTCUSD at 66967.50]
+FH	0	22:41:55.317	Core 1	2026.04.02 20:54:16   CTrade::OrderSend: market sell 0.13 BTCUSD sl: 67005.45 tp: 66929.55 [done at 66967.50]
+NF	0	22:41:55.317	Core 1	2026.04.02 20:54:38   stop loss triggered #56 sell 0.13 BTCUSD 66967.50 sl: 67005.45 tp: 66929.55 [#57 buy 0.13 BTCUSD at 67005.45]
+HO	0	22:41:55.317	Core 1	2026.04.02 20:54:38   deal #57 buy 0.13 BTCUSD at 67013.00 done (based on order #57)
+RE	0	22:41:55.317	Core 1	2026.04.02 20:54:38   deal performed [#57 buy 0.13 BTCUSD at 67013.00]
+FH	0	22:41:55.317	Core 1	2026.04.02 20:54:38   order performed buy 0.13 at 67013.00 [#57 buy 0.13 BTCUSD at 67005.45]
+EK	0	22:41:55.317	Core 1	2026.04.02 20:56:44   market sell 0.13 BTCUSD sl: 66981.58 tp: 66908.42 (66945.00 / 66972.00)
+PH	0	22:41:55.317	Core 1	2026.04.02 20:56:44   deal #58 sell 0.13 BTCUSD at 66945.00 done (based on order #58)
+MR	0	22:41:55.317	Core 1	2026.04.02 20:56:44   deal performed [#58 sell 0.13 BTCUSD at 66945.00]
+PO	0	22:41:55.317	Core 1	2026.04.02 20:56:44   order performed sell 0.13 at 66945.00 [#58 sell 0.13 BTCUSD at 66945.00]
+QN	0	22:41:55.317	Core 1	2026.04.02 20:56:44   CTrade::OrderSend: market sell 0.13 BTCUSD sl: 66981.58 tp: 66908.42 [done at 66945.00]
+CL	0	22:41:55.317	Core 1	2026.04.02 20:56:46   stop loss triggered #58 sell 0.13 BTCUSD 66945.00 sl: 66981.58 tp: 66908.42 [#59 buy 0.13 BTCUSD at 66981.58]
+MQ	0	22:41:55.317	Core 1	2026.04.02 20:56:46   deal #59 buy 0.13 BTCUSD at 66986.00 done (based on order #59)
+QO	0	22:41:55.317	Core 1	2026.04.02 20:56:46   deal performed [#59 buy 0.13 BTCUSD at 66986.00]
+MR	0	22:41:55.317	Core 1	2026.04.02 20:56:46   order performed buy 0.13 at 66986.00 [#59 buy 0.13 BTCUSD at 66981.58]
+NN	0	22:41:55.317	Core 1	2026.04.02 21:42:06   market buy 0.14 BTCUSD sl: 66995.40 tp: 67061.60 (67001.50 / 67028.50)
+CI	0	22:41:55.317	Core 1	2026.04.02 21:42:06   deal #60 buy 0.14 BTCUSD at 67028.50 done (based on order #60)
+QG	0	22:41:55.317	Core 1	2026.04.02 21:42:06   deal performed [#60 buy 0.14 BTCUSD at 67028.50]
+QJ	0	22:41:55.317	Core 1	2026.04.02 21:42:06   order performed buy 0.14 at 67028.50 [#60 buy 0.14 BTCUSD at 67028.50]
+GJ	0	22:41:55.317	Core 1	2026.04.02 21:42:06   CTrade::OrderSend: market buy 0.14 BTCUSD sl: 66995.40 tp: 67061.60 [done at 67028.50]
+NI	0	22:41:55.317	Core 1	2026.04.02 21:42:19   stop loss triggered #60 buy 0.14 BTCUSD 67028.50 sl: 66995.40 tp: 67061.60 [#61 sell 0.14 BTCUSD at 66995.40]
+JD	0	22:41:55.317	Core 1	2026.04.02 21:42:19   deal #61 sell 0.14 BTCUSD at 66992.50 done (based on order #61)
+MF	0	22:41:55.317	Core 1	2026.04.02 21:42:19   deal performed [#61 sell 0.14 BTCUSD at 66992.50]
+NL	0	22:41:55.317	Core 1	2026.04.02 21:42:19   order performed sell 0.14 at 66992.50 [#61 sell 0.14 BTCUSD at 66995.40]
+JQ	0	22:41:55.317	Core 1	final balance 9871.47 USD
+OD	0	22:41:55.317	Core 1	2026.04.02 23:59:56   [SUMMARY] bar_mode=IMBALANCE risk_mode=ATR fixed_move=1.44 risk_pct=0.050 predictions=1418 hold_skips=830 confidence_skips=520 position_skips=2 stops_too_close=25 volume_skips=11 open_failures=0 trades_opened=30 trades_closed=30 wins=3 losses=27 realized_pnl=-128.53 balance=9871.47
+NO	0	22:41:55.317	Core 1	BTCUSD,H1: 108569 ticks, 24 bars generated. Environment synchronized in 0:00:00.018. Test passed in 0:00:02.673.
+KL	0	22:41:55.317	Core 1	BTCUSD,H1: total time from login to stop testing 0:00:02.691 (including 0:00:00.018 for history data synchronization)
+CK	0	22:41:55.317	Core 1	83 Mb memory used including 0.94 Mb of history data, 64 Mb of tick data
+JS	0	22:41:55.317	Core 1	log file "C:\Program Files\MetaTrader 5\Tester\Agent-127.0.0.1-3000\logs\20260404.log" written
+EO	0	22:41:55.326	Tester	automatical testing finished
+NE	0	22:41:55.326	Core 1	connection closed

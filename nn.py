@@ -29,14 +29,15 @@ from model_archive import (
     ACTIVE_SHARED_CONFIG_PATH,
     DEFAULT_METAEDITOR_PATH,
     compile_live_expert,
+    deploy_to_last_model,
     ensure_default_test_config,
     format_model_stamp,
     load_define_file,
     read_text_best_effort,
-    resolve_metaeditor_path,
     symbol_models_dir,
     sync_directory_contents,
 )
+from mt5_runtime import resolve_mt5_runtime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -51,6 +52,16 @@ DEFAULT_OUTPUT_FILE = ACTIVE_ONNX_PATH.name
 SHARED_CONFIG_PATH = ACTIVE_SHARED_CONFIG_PATH
 DEFAULT_MINIROCKET_FEATURES = 10_080
 DEFAULT_FOCAL_GAMMA = 2.0
+DEFAULT_MIN_SELECTED_TRADES = 12
+DEFAULT_MIN_TRADE_PRECISION = 0.50
+DISABLE_TRADING_CONFIDENCE = 1.01
+DEFAULT_MAMBA_LR = 6e-4
+DEFAULT_MINIROCKET_LR = 1e-4
+DEFAULT_MAMBA_WEIGHT_DECAY = 1e-4
+DEFAULT_MINIROCKET_WEIGHT_DECAY = 0.0
+DEFAULT_CONFIDENCE_SEARCH_MIN = 0.40
+DEFAULT_CONFIDENCE_SEARCH_MAX = 0.99
+DEFAULT_CONFIDENCE_SEARCH_STEPS = 60
 FEATURE_MACRO_TO_NAME = {
     "FEATURE_IDX_RET1": "ret1",
     "FEATURE_IDX_HIGH_REL_PREV": "high_rel_prev",
@@ -165,6 +176,60 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip automatic live.mq5 compile after exporting ONNX and config.",
     )
+    parser.add_argument(
+        "--archive-only",
+        action="store_true",
+        help="Archive diagnostics and model artifacts without updating the active live model files.",
+    )
+    parser.add_argument(
+        "--loss-mode",
+        type=str,
+        default="auto",
+        choices=("auto", "focal", "cross-entropy"),
+        help="Loss for classifier training. 'auto' uses focal for Mamba and cross-entropy for MiniRocket.",
+    )
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=0.0,
+        help="Optional learning rate override. Defaults depend on the selected encoder.",
+    )
+    parser.add_argument(
+        "--weight-decay",
+        type=float,
+        default=-1.0,
+        help="Optional weight decay override. Defaults depend on the selected encoder.",
+    )
+    parser.add_argument(
+        "--min-selected-trades",
+        type=int,
+        default=DEFAULT_MIN_SELECTED_TRADES,
+        help="Minimum selected BUY/SELL validation trades required to approve a model for live deployment.",
+    )
+    parser.add_argument(
+        "--min-trade-precision",
+        type=float,
+        default=DEFAULT_MIN_TRADE_PRECISION,
+        help="Minimum BUY/SELL validation precision required to approve a model for live deployment.",
+    )
+    parser.add_argument(
+        "--confidence-search-min",
+        type=float,
+        default=DEFAULT_CONFIDENCE_SEARCH_MIN,
+        help="Minimum confidence threshold to consider when selecting PRIMARY_CONFIDENCE.",
+    )
+    parser.add_argument(
+        "--confidence-search-max",
+        type=float,
+        default=DEFAULT_CONFIDENCE_SEARCH_MAX,
+        help="Maximum confidence threshold to consider when selecting PRIMARY_CONFIDENCE.",
+    )
+    parser.add_argument(
+        "--confidence-search-steps",
+        type=int,
+        default=DEFAULT_CONFIDENCE_SEARCH_STEPS,
+        help="Number of threshold candidates to evaluate when selecting PRIMARY_CONFIDENCE.",
+    )
     return parser.parse_args()
 
 
@@ -249,11 +314,15 @@ def build_time_bar_ids(time_msc: np.ndarray) -> np.ndarray:
 
 def build_market_bars(csv_path: Path, use_fixed_time_bars: bool) -> pd.DataFrame:
     t0 = time.time()
-    df = pd.read_csv(
+    chunks = []
+    for chunk in pd.read_csv(
         csv_path,
         usecols=["time_msc", "bid", "ask"],
         dtype={"time_msc": np.int64, "bid": np.float64, "ask": np.float64},
-    ).sort_values("time_msc").reset_index(drop=True)
+        chunksize=50000,
+    ):
+        chunks.append(chunk)
+    df = pd.concat(chunks, ignore_index=True).sort_values("time_msc").reset_index(drop=True)
     if df.empty:
         raise ValueError(f"No ticks found in {csv_path}")
 
@@ -508,22 +577,55 @@ def softmax(logits: np.ndarray) -> np.ndarray:
     return probs
 
 
-def choose_confidence_threshold(probs: np.ndarray, labels: np.ndarray) -> float:
+def gate_metrics(labels: np.ndarray, probs: np.ndarray, threshold: float) -> dict[str, float | int]:
+    preds = probs.argmax(axis=1)
+    confidences = probs.max(axis=1)
+    selected = (preds > 0) & (confidences >= threshold)
+    selected_trades = int(selected.sum())
+    precision = float((preds[selected] == labels[selected]).mean()) if selected_trades else float("nan")
+    selected_mean_confidence = float(confidences[selected].mean()) if selected_trades else float("nan")
+    return {
+        "selected_trades": selected_trades,
+        "trade_coverage": float(selected.mean()),
+        "precision": precision,
+        "mean_confidence": float(confidences.mean()),
+        "selected_mean_confidence": selected_mean_confidence,
+    }
+
+
+def format_metric(value: float) -> str:
+    return f"{value:.4f}" if np.isfinite(value) else "n/a"
+
+
+def choose_confidence_threshold(
+    probs: np.ndarray,
+    labels: np.ndarray,
+    min_selected: int,
+    threshold_min: float,
+    threshold_max: float,
+    threshold_steps: int,
+) -> float:
     preds = probs.argmax(axis=1)
     candidate_mask = preds > 0
     if not candidate_mask.any():
-        return 0.60
+        log.warning("Confidence gate selection: model produced no BUY/SELL predictions; disabling live trades.")
+        return DISABLE_TRADING_CONFIDENCE
 
-    min_selected = max(12, int(0.03 * len(labels)))
+    min_selected = max(1, min_selected)
     best_threshold = 0.60
     best_precision = -1.0
     best_coverage = -1.0
     confidences = probs.max(axis=1)
+    found_candidate = False
+    threshold_min = min(max(0.0, float(threshold_min)), 0.999999)
+    threshold_max = min(max(threshold_min, float(threshold_max)), 0.999999)
+    threshold_steps = max(2, int(threshold_steps))
 
-    for threshold in np.linspace(0.40, 0.85, 19):
+    for threshold in np.linspace(threshold_min, threshold_max, threshold_steps):
         selected = candidate_mask & (confidences >= threshold)
         if selected.sum() < min_selected:
             continue
+        found_candidate = True
 
         precision = float((preds[selected] == labels[selected]).mean())
         coverage = float(selected.mean())
@@ -534,26 +636,32 @@ def choose_confidence_threshold(probs: np.ndarray, labels: np.ndarray) -> float:
             best_precision = precision
             best_coverage = coverage
 
+    if not found_candidate:
+        log.warning(
+            "Confidence gate selection: no threshold produced at least %d BUY/SELL trades; disabling live trades.",
+            min_selected,
+        )
+        return DISABLE_TRADING_CONFIDENCE
+
     print ("Chosen confidence threshold: %.2f with precision %.4f and coverage %.4f" % (best_threshold, best_precision, best_coverage))
     return best_threshold
 
 
-def summarize_gate(name: str, probs: np.ndarray, labels: np.ndarray, threshold: float) -> None:
-    preds = probs.argmax(axis=1)
-    selected = (preds > 0) & (probs.max(axis=1) >= threshold)
-    coverage = float(selected.mean())
-    if selected.any():
-        precision = float((preds[selected] == labels[selected]).mean())
+def summarize_gate(name: str, probs: np.ndarray, labels: np.ndarray, threshold: float) -> dict[str, float | int]:
+    metrics = gate_metrics(labels, probs, threshold)
+    if metrics["selected_trades"]:
         log.info(
-            "%s: threshold=%.2f precision=%.4f coverage=%.4f trades=%d",
+            "%s: threshold=%.2f precision=%.4f coverage=%.4f trades=%d mean_selected_conf=%.4f",
             name,
             threshold,
-            precision,
-            coverage,
-            int(selected.sum()),
+            float(metrics["precision"]),
+            float(metrics["trade_coverage"]),
+            int(metrics["selected_trades"]),
+            float(metrics["selected_mean_confidence"]),
         )
     else:
         log.warning("%s: threshold=%.2f produced no trades.", name, threshold)
+    return metrics
 
 
 def class_count_lines(labels: np.ndarray) -> list[str]:
@@ -614,7 +722,12 @@ def write_diagnostics(
     y_test: np.ndarray,
     val_probs: np.ndarray,
     test_probs: np.ndarray,
-    primary_confidence: float,
+    selected_primary_confidence: float,
+    deployed_primary_confidence: float,
+    validation_gate: dict[str, float | int],
+    holdout_gate: dict[str, float | int],
+    quality_gate_passed: bool,
+    quality_gate_reason: str,
     available_window_counts: dict[str, int],
     used_window_counts: dict[str, int],
     use_atr_risk: bool,
@@ -626,8 +739,8 @@ def write_diagnostics(
 ) -> None:
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
 
-    val_predictions = build_prediction_frame(y_val, val_probs, primary_confidence)
-    test_predictions = build_prediction_frame(y_test, test_probs, primary_confidence)
+    val_predictions = build_prediction_frame(y_val, val_probs, selected_primary_confidence)
+    test_predictions = build_prediction_frame(y_test, test_probs, selected_primary_confidence)
     val_confusion = confusion_matrix_df(y_val, val_predictions["pred_label"].to_numpy(dtype=np.int64))
     test_confusion = confusion_matrix_df(y_test, test_predictions["pred_label"].to_numpy(dtype=np.int64))
 
@@ -649,8 +762,6 @@ def write_diagnostics(
     )
     (diagnostics_dir / "model_config_snapshot.mqh").write_text(model_config_text, encoding="utf-8")
 
-    selected_val = val_predictions["selected_trade"].to_numpy(dtype=np.int64)
-    selected_test = test_predictions["selected_trade"].to_numpy(dtype=np.int64)
     report_lines = [
         "# Model Diagnostics",
         "",
@@ -683,7 +794,10 @@ def write_diagnostics(
         f"- execution_sl_multiplier: {EXECUTION_SL_MULTIPLIER:.2f}",
         f"- execution_tp_multiplier: {EXECUTION_TP_MULTIPLIER:.2f}",
         f"- use_all_windows: {int(USE_ALL_WINDOWS)}",
-        f"- primary_confidence: {primary_confidence:.4f}",
+        f"- selected_primary_confidence: {selected_primary_confidence:.4f}",
+        f"- deployed_primary_confidence: {deployed_primary_confidence:.4f}",
+        f"- quality_gate_passed: {int(quality_gate_passed)}",
+        f"- quality_gate_reason: {quality_gate_reason or '-'}",
         "",
         "## Bar Stats",
         f"- bars: {len(bars)}",
@@ -709,14 +823,18 @@ def write_diagnostics(
         f"- holdout_used: {used_window_counts['holdout']}",
         "",
         "## Validation",
-        f"- selected_trades: {int(selected_val.sum())}",
-        f"- trade_coverage: {float(selected_val.mean()):.4f}",
-        f"- mean_confidence: {float(val_predictions['confidence'].mean()):.4f}",
+        f"- selected_trades: {int(validation_gate['selected_trades'])}",
+        f"- trade_coverage: {float(validation_gate['trade_coverage']):.4f}",
+        f"- selected_trade_precision: {format_metric(float(validation_gate['precision']))}",
+        f"- selected_trade_mean_confidence: {format_metric(float(validation_gate['selected_mean_confidence']))}",
+        f"- mean_confidence_all_predictions: {float(validation_gate['mean_confidence']):.4f}",
         "",
         "## Holdout",
-        f"- selected_trades: {int(selected_test.sum())}",
-        f"- trade_coverage: {float(selected_test.mean()):.4f}",
-        f"- mean_confidence: {float(test_predictions['confidence'].mean()):.4f}",
+        f"- selected_trades: {int(holdout_gate['selected_trades'])}",
+        f"- trade_coverage: {float(holdout_gate['trade_coverage']):.4f}",
+        f"- selected_trade_precision: {format_metric(float(holdout_gate['precision']))}",
+        f"- selected_trade_mean_confidence: {format_metric(float(holdout_gate['selected_mean_confidence']))}",
+        f"- mean_confidence_all_predictions: {float(holdout_gate['mean_confidence']):.4f}",
         "",
         "## Files",
         "- bars.csv",
@@ -766,6 +884,12 @@ def build_mql_config(
     )
 
 
+def resolve_loss_mode(use_minirocket: bool, requested_mode: str) -> str:
+    if requested_mode != "auto":
+        return requested_mode
+    return "cross-entropy" if use_minirocket else "focal"
+
+
 def main() -> None:
     t0 = time.time()
     args = parse_args()
@@ -784,6 +908,9 @@ def main() -> None:
     config_path = ACTIVE_MODEL_CONFIG_PATH
     active_output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    archive_only = bool(args.archive_only)
+    if archive_only and not args.skip_live_compile:
+        log.info("archive-only mode implies --skip-live-compile; active live files will not be updated.")
 
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
     log.info("Using device: %s", device)
@@ -864,8 +991,8 @@ def main() -> None:
     x_test, y_test = build_windows(x_scaled, y, test_end_idx, SEQ_LEN)
     log.info("Window counts | train=%d val=%d test=%d", len(x_train), len(x_val), len(x_test))
 
-    class_weights = make_class_weights(y_train).to(device)
-    criterion = FocalLoss(alpha=class_weights, gamma=args.focal_gamma).to(device)
+    loss_mode = resolve_loss_mode(args.use_minirocket_encoder, args.loss_mode)
+    scheduler = None
     export_model: nn.Module | None = None
 
     if args.use_minirocket_encoder:
@@ -898,12 +1025,25 @@ def main() -> None:
         feature_std = np.where(train_features.std(axis=0) < 1e-6, 1.0, train_features.std(axis=0)).astype(
             np.float32
         )
-        train_features = ((train_features - feature_mean) / feature_std).astype(np.float32)
-        val_features = ((val_features - feature_mean) / feature_std).astype(np.float32)
-        test_features = ((test_features - feature_mean) / feature_std).astype(np.float32)
+        train_features -= feature_mean
+        train_features /= feature_std
+        val_features -= feature_mean
+        val_features /= feature_std
+        test_features -= feature_mean
+        test_features /= feature_std
 
         training_model = nn.Linear(train_features.shape[1], len(LABEL_NAMES)).to(device)
-        optimizer = torch.optim.AdamW(training_model.parameters(), lr=1e-3, weight_decay=1e-4)
+        nn.init.zeros_(training_model.weight)
+        nn.init.zeros_(training_model.bias)
+        learning_rate = args.lr if args.lr > 0.0 else DEFAULT_MINIROCKET_LR
+        weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_MINIROCKET_WEIGHT_DECAY
+        optimizer = torch.optim.Adam(training_model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            factor=0.5,
+            min_lr=1e-8,
+            patience=max(1, args.patience // 2),
+        )
         train_loader = make_loader(train_features, y_train, args.batch_size, shuffle=True)
         val_loader = make_loader(
             val_features,
@@ -919,8 +1059,10 @@ def main() -> None:
         )
         model_backend = "minirocket-multivariate"
     else:
+        learning_rate = args.lr if args.lr > 0.0 else DEFAULT_MAMBA_LR
+        weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_MAMBA_WEIGHT_DECAY
         training_model = MambaLiteClassifier(n_features=MODEL_FEATURE_COUNT).to(device)
-        optimizer = torch.optim.AdamW(training_model.parameters(), lr=6e-4, weight_decay=1e-4)
+        optimizer = torch.optim.AdamW(training_model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         train_loader = make_loader(x_train, y_train, args.batch_size, shuffle=True)
         val_loader = make_loader(
             x_val,
@@ -935,6 +1077,21 @@ def main() -> None:
             shuffle=False,
         )
         model_backend = getattr(training_model, "backend_name", "portable-mamba-lite")
+
+    if loss_mode == "cross-entropy":
+        criterion: nn.Module = nn.CrossEntropyLoss().to(device)
+    else:
+        class_weights = make_class_weights(y_train).to(device)
+        criterion = FocalLoss(alpha=class_weights, gamma=args.focal_gamma).to(device)
+    log.info(
+        "Optimization | loss=%s lr=%.6g weight_decay=%.6g confidence_search=[%.2f, %.2f]x%d",
+        loss_mode,
+        learning_rate,
+        weight_decay,
+        args.confidence_search_min,
+        args.confidence_search_max,
+        args.confidence_search_steps,
+    )
 
     best_state = None
     best_val_loss = float("inf")
@@ -967,6 +1124,8 @@ def main() -> None:
             wait,
             args.patience,
         )
+        if scheduler is not None:
+            scheduler.step(val_loss)
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
@@ -985,12 +1144,43 @@ def main() -> None:
 
     val_logits, val_labels = evaluate_model(training_model, val_loader, device)
     val_probs = softmax(val_logits)
-    primary_confidence = choose_confidence_threshold(val_probs, val_labels)
-    summarize_gate("validation", val_probs, val_labels, primary_confidence)
+    selected_primary_confidence = choose_confidence_threshold(
+        val_probs,
+        val_labels,
+        min_selected=max(1, args.min_selected_trades),
+        threshold_min=args.confidence_search_min,
+        threshold_max=args.confidence_search_max,
+        threshold_steps=args.confidence_search_steps,
+    )
+    validation_gate = summarize_gate("validation", val_probs, val_labels, selected_primary_confidence)
 
     test_logits, test_labels = evaluate_model(training_model, test_loader, device)
     test_probs = softmax(test_logits)
-    summarize_gate("holdout", test_probs, test_labels, primary_confidence)
+    holdout_gate = summarize_gate("holdout", test_probs, test_labels, selected_primary_confidence)
+
+    quality_gate_reasons: list[str] = []
+    if int(validation_gate["selected_trades"]) < args.min_selected_trades:
+        quality_gate_reasons.append(
+            "validation selected trades "
+            f"{int(validation_gate['selected_trades'])} < required {args.min_selected_trades}"
+        )
+    validation_precision = float(validation_gate["precision"])
+    if not np.isfinite(validation_precision):
+        quality_gate_reasons.append("validation selected-trade precision unavailable")
+    elif validation_precision < args.min_trade_precision:
+        quality_gate_reasons.append(
+            f"validation selected-trade precision {validation_precision:.4f} < required {args.min_trade_precision:.4f}"
+        )
+    quality_gate_passed = len(quality_gate_reasons) == 0
+    quality_gate_reason = "; ".join(quality_gate_reasons)
+    deployed_primary_confidence = selected_primary_confidence
+    if not quality_gate_passed:
+        deployed_primary_confidence = DISABLE_TRADING_CONFIDENCE
+        log.warning(
+            "Model failed the live quality gate (%s). Deploying with PRIMARY_CONFIDENCE=%.2f to disable live trading.",
+            quality_gate_reason,
+            deployed_primary_confidence,
+        )
 
     if args.use_minirocket_encoder:
         export_model = MiniRocketClassifier(
@@ -1010,34 +1200,38 @@ def main() -> None:
     model_diagnostics_dir = model_dir / "diagnostics"
     model_test_dir = model_dir / "tests"
     model_test_dir.mkdir(parents=True, exist_ok=True)
+    archive_output_path = model_dir / "model.onnx"
 
     export_model.eval()
     export_model.to("cpu")
     dummy = torch.randn(1, SEQ_LEN, MODEL_FEATURE_COUNT)
+    export_target_path = archive_output_path if archive_only else active_output_path
     torch.onnx.export(
         export_model,
         dummy,
-        str(active_output_path),
+        str(export_target_path),
         input_names=["input"],
         output_names=["output"],
         opset_version=14,
         dynamo=False,
     )
-    if output_path != active_output_path:
-        shutil.copy2(active_output_path, output_path)
+    should_copy_to_output = output_path != export_target_path and (not archive_only or output_path != ACTIVE_ONNX_PATH)
+    if should_copy_to_output:
+        shutil.copy2(export_target_path, output_path)
 
     model_config_text = (
         build_mql_config(
             median=median,
             iqr=iqr,
-            primary_confidence=primary_confidence,
+            primary_confidence=deployed_primary_confidence,
             use_atr_risk=use_atr_risk,
             use_fixed_time_bars=use_fixed_time_bars,
             use_minirocket=args.use_minirocket_encoder,
         )
         + "\n"
     )
-    config_path.write_text(model_config_text, encoding="utf-8")
+    if not archive_only:
+        config_path.write_text(model_config_text, encoding="utf-8")
     write_diagnostics(
         diagnostics_dir=model_diagnostics_dir,
         bars=bars,
@@ -1047,7 +1241,12 @@ def main() -> None:
         y_test=y_test,
         val_probs=val_probs,
         test_probs=test_probs,
-        primary_confidence=primary_confidence,
+        selected_primary_confidence=selected_primary_confidence,
+        deployed_primary_confidence=deployed_primary_confidence,
+        validation_gate=validation_gate,
+        holdout_gate=holdout_gate,
+        quality_gate_passed=quality_gate_passed,
+        quality_gate_reason=quality_gate_reason,
         available_window_counts={
             "train": len(train_end_idx_all),
             "validation": len(val_end_idx_all),
@@ -1065,12 +1264,25 @@ def main() -> None:
         focal_gamma=args.focal_gamma,
         model_config_text=model_config_text,
     )
-    sync_directory_contents(model_diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
-    shutil.copy2(active_output_path, model_dir / "model.onnx")
+    if not archive_only:
+        sync_directory_contents(model_diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
     ensure_default_test_config(model_test_dir, symbol=SYMBOL)
-    if not args.skip_live_compile:
-        metaeditor_path = resolve_metaeditor_path(args.metaeditor_path)
-        compile_log_path = compile_live_expert(metaeditor_path)
+    
+    if not archive_only:
+        # Deploy to models/last_model/ for live.mq5 to reference
+        model_config_snapshot = model_diagnostics_dir / "model_config_snapshot.mqh"
+        shared_config_snapshot = model_diagnostics_dir / "shared_config_snapshot.mqh"
+        deploy_to_last_model(
+            onnx_path=model_dir / "model.onnx",
+            model_config_path=model_config_snapshot,
+            shared_config_path=shared_config_snapshot,
+            diagnostics_dir=model_diagnostics_dir,
+            tests_dir=model_test_dir,
+        )
+
+    if not archive_only and not args.skip_live_compile:
+        runtime_paths = resolve_mt5_runtime(metaeditor_path_override=args.metaeditor_path)
+        compile_log_path = compile_live_expert(runtime_paths, skip_deployment=True)
         warnings_match = re.search(
             r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?",
             read_text_best_effort(compile_log_path),
@@ -1083,12 +1295,55 @@ def main() -> None:
         )
         shutil.copy2(compile_log_path, model_diagnostics_dir / compile_log_path.name)
         log.info("Saved live compile log to %s", compile_log_path)
-    log.info("Saved ONNX to %s", active_output_path)
-    if output_path != active_output_path:
+    if archive_only:
+        log.info("Archived ONNX to %s", archive_output_path)
+    else:
+        log.info("Saved ONNX to %s", active_output_path)
+    if should_copy_to_output:
         log.info("Copied ONNX to %s", output_path)
-    log.info("Saved config to %s", config_path)
+    if not archive_only:
+        log.info("Saved config to %s", config_path)
     log.info("Saved diagnostics to %s", model_diagnostics_dir)
     log.info("Archived model artifacts to %s", model_dir)
+
+    if not archive_only:
+        # Create/update last_model symlink for this symbol
+        symbol_models = symbol_models_dir(SYMBOL)
+        last_model_link = symbol_models / "last_model"
+        if last_model_link.exists() or last_model_link.is_symlink():
+            try:
+                if last_model_link.is_symlink():
+                    last_model_link.unlink()
+                else:
+                    import shutil as shutil_module
+                    shutil_module.rmtree(last_model_link)
+            except Exception as e:
+                log.warning("Could not remove old last_model link/directory: %s", e)
+        
+        try:
+            # Create a symbolic link from last_model to the current model directory
+            last_model_link.symlink_to(model_dir, target_is_directory=True)
+            log.info("Created last_model symlink: %s -> %s", last_model_link, model_dir)
+        except OSError as e:
+            # Fall back to copying files if symlink fails (Windows sometimes needs admin)
+            log.warning("Symlink creation failed (%s), copying files instead", e)
+            try:
+                last_model_link.mkdir(parents=True, exist_ok=True)
+                for item in ["model.onnx", "diagnostics", "tests"]:
+                    src = model_dir / item
+                    dst = last_model_link / item
+                    if src.exists():
+                        if src.is_dir():
+                            if dst.exists():
+                                import shutil as shutil_module
+                                shutil_module.rmtree(dst)
+                            shutil.copytree(src, dst)
+                        else:
+                            shutil.copy2(src, dst)
+                log.info("Copied model files to last_model directory: %s", last_model_link)
+            except Exception as e:
+                log.error("Failed to create last_model backup: %s", e)
+    
     log.info("Total runtime: %.2fs", time.time() - t0)
 
 

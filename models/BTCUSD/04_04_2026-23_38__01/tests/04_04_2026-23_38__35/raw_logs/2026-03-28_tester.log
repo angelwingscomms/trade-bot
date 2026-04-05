@@ -1,0 +1,63 @@
+GL	0	23:39:28.859	Tester	Local network farm switched off
+OE	0	23:39:28.859	Tester	Cloud servers switched off
+KF	0	23:39:30.902	Tester	"trade-bot\live.ex5" AVX2
+HQ	0	23:39:31.122	Tester	BTCUSD: preliminary downloading of M1 history started
+EM	0	23:39:31.223	Tester	BTCUSD: preliminary downloading of M1 history completed in 0:00:00.312
+FI	0	23:39:31.223	Tester	BTCUSD: history data begins from 2024.11.26 00:00
+DO	0	23:39:31.224	Tester	BTCUSD: preliminary downloading of history ticks started, it may take quite a long time
+GR	0	23:39:31.224	Tester	BTCUSD: preliminary downloading of history ticks completed
+FK	0	23:39:31.224	Tester	BTCUSD: ticks data begins from 2026.02.01 00:00
+CE	0	23:39:31.226	Core 1	agent process started on 127.0.0.1:3000
+FR	0	23:39:31.226	Core 1	connecting to 127.0.0.1:3000
+ES	0	23:39:31.739	Core 1	connected
+QJ	0	23:39:31.745	Core 1	authorized (agent build 5729)
+IL	0	23:39:31.754	Tester	BTCUSD,H1 (EGlobalTrade-Demo): testing of Experts\trade-bot\live.ex5 from 2026.03.28 00:00 to 2026.03.29 00:00
+MQ	0	23:39:31.763	Core 1	common synchronization completed
+PF	0	23:39:31.775	Core 1	BTCUSD: ticks synchronization completed [210 Kb]
+JR	0	23:39:36.072	Core 1	MetaTester 5 started on 127.0.0.1:3000
+FH	0	23:39:36.072	Core 1	cloud network mode is off
+CR	0	23:39:36.072	Core 1	initialization finished
+FK	0	23:39:36.072	Core 1	login (build 5729)
+KD	0	23:39:36.072	Core 1	12968 bytes of account info loaded
+OQ	0	23:39:36.072	Core 1	1478 bytes of tester parameters loaded
+GF	0	23:39:36.072	Core 1	5828 bytes of input parameters loaded
+DS	0	23:39:36.072	Core 1	2166 bytes of symbols list loaded (349 symbols)
+GL	0	23:39:36.072	Core 1	expert file added: Experts\trade-bot\live.ex5. 197310 bytes loaded
+QI	0	23:39:36.072	Core 1	2278 Mb available, 28 blocks set for ticks generating
+JP	0	23:39:36.072	Core 1	initial deposit 10000.00 USD, leverage 1:200
+LI	0	23:39:36.072	Core 1	successfully initialized
+HQ	0	23:39:36.072	Core 1	196 Kb of total initialization data received
+QH	0	23:39:36.072	Core 1	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+PN	0	23:39:36.072	Core 1	BTCUSD: symbol to be synchronized
+DI	0	23:39:36.072	Core 1	BTCUSD: symbol synchronized, 4520 bytes of symbol info received
+OD	0	23:39:36.072	Core 1	BTCUSD: load 27 bytes of history data to synchronize in 0:00:00.000
+JS	0	23:39:36.072	Core 1	BTCUSD: history synchronized from 2025.01.02 to 2026.04.03
+MK	0	23:39:36.072	Core 1	BTCUSD: ticks synchronization started
+RR	0	23:39:36.072	Core 1	BTCUSD: load 209 Kb of tick data to synchronize in 0:00:00.000
+NQ	0	23:39:36.072	Core 1	BTCUSD: history ticks synchronized from 2026.03.26 to 2026.04.02
+IG	0	23:39:36.072	Core 1	BTCUSD,H1: history cache allocated for 10399 bars and contains 10380 bars from 2025.01.02 00:00 to 2026.03.27 21:00
+MD	0	23:39:36.072	Core 1	BTCUSD,H1: history begins from 2025.01.02 00:00
+JF	0	23:39:36.072	Core 1	BTCUSD,H1 (EGlobalTrade-Demo): generating based on real ticks
+ER	0	23:39:36.072	Core 1	BTCUSD,H1: testing of Experts\trade-bot\live.ex5 from 2026.03.28 00:00 to 2026.03.29 00:00 started with inputs:
+GO	0	23:39:36.072	Core 1	  R=false
+GI	0	23:39:36.072	Core 1	  FIXED_MOVE=1.44
+NJ	0	23:39:36.072	Core 1	  SL_MULTIPLIER=0.72
+KP	0	23:39:36.072	Core 1	  TP_MULTIPLIER=0.12
+HK	0	23:39:36.072	Core 1	  LOT_SIZE=0.54
+JQ	0	23:39:36.072	Core 1	  RISK_PERCENT=0.05
+EP	0	23:39:36.072	Core 1	  LOT_MIN=0.09
+KK	0	23:39:36.072	Core 1	  MAGIC_NUMBER=777777
+ES	0	23:39:36.072	Core 1	  DEBUG_LOG=false
+DN	0	23:39:36.072	Core 1	  LAST_MODEL=true
+GJ	0	23:39:36.072	Core 1	  MODEL_DATETIME=
+NN	0	23:39:36.072	Core 1	api version 1.24.2 initialized
+FE	0	23:39:36.072	Core 1	2026.03.28 00:00:00   ONNX: CPU selected
+LS	0	23:39:36.072	Core 1	BTCUSD : real ticks begin from 2026.03.26 00:00:00
+LF	0	23:39:36.072	Core 1	final balance 10000.00 USD
+JR	0	23:39:36.072	Core 1	2026.03.28 23:59:56   [SUMMARY] bar_mode=IMBALANCE risk_mode=ATR fixed_move=1.44 risk_pct=0.050 predictions=664 hold_skips=609 confidence_skips=55 position_skips=0 stops_too_close=0 volume_skips=0 open_failures=0 trades_opened=0 trades_closed=0 wins=0 losses=0 realized_pnl=0.00 balance=10000.00
+KK	0	23:39:36.072	Core 1	BTCUSD,H1: 52222 ticks, 21 bars generated. Environment synchronized in 0:00:00.024. Test passed in 0:00:04.303.
+GI	0	23:39:36.072	Core 1	BTCUSD,H1: total time from login to stop testing 0:00:04.327 (including 0:00:00.024 for history data synchronization)
+KF	0	23:39:36.072	Core 1	86 Mb memory used including 0.94 Mb of history data, 64 Mb of tick data
+EE	0	23:39:36.072	Core 1	log file "C:\Program Files\MetaTrader 5\Tester\Agent-127.0.0.1-3000\logs\20260404.log" written
+IJ	0	23:39:36.082	Tester	automatical testing finished
+FG	0	23:39:36.082	Core 1	connection closed

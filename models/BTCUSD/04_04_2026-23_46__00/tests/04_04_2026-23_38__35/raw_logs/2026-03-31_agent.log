@@ -1,0 +1,53 @@
+CS	0	23:40:11.862	Startup	MetaTester 5 build 5729, 3 Apr 2026
+CS	0	23:40:11.862	Startup	Windows 11 build 22621, 8 x Intel Core i7-8565U  @ 1.80GHz, AVX2, 2 / 7 Gb memory, 214 / 238 Gb disk, admin, GMT+1
+CS	0	23:40:11.863	Server	MetaTester 5 started on 127.0.0.1:3000
+CS	0	23:40:11.864	Startup	cloud network mode is off
+CS	0	23:40:11.864	Startup	initialization finished
+CS	0	23:40:12.091	127.0.0.1	login (build 5729)
+CS	0	23:40:12.107	Network	12968 bytes of account info loaded
+CS	0	23:40:12.107	Network	1478 bytes of tester parameters loaded
+CS	0	23:40:12.107	Network	5828 bytes of input parameters loaded
+CS	0	23:40:12.107	Network	2166 bytes of symbols list loaded (349 symbols)
+CS	0	23:40:12.107	Tester	expert file added: Experts\trade-bot\live.ex5. 197310 bytes loaded
+CS	0	23:40:12.111	Tester	2282 Mb available, 28 blocks set for ticks generating
+CS	0	23:40:12.111	Tester	initial deposit 10000.00 USD, leverage 1:200
+CS	0	23:40:12.111	Tester	successfully initialized
+CS	0	23:40:12.111	Network	196 Kb of total initialization data received
+CS	0	23:40:12.111	Tester	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+CS	0	23:40:12.119	Symbols	BTCUSD: symbol to be synchronized
+CS	0	23:40:12.120	Symbols	BTCUSD: symbol synchronized, 4520 bytes of symbol info received
+CS	0	23:40:12.121	History	BTCUSD: load 27 bytes of history data to synchronize in 0:00:00.000
+CS	0	23:40:12.121	History	BTCUSD: history synchronized from 2025.01.02 to 2026.04.03
+CS	0	23:40:12.121	Ticks	BTCUSD: ticks synchronization started
+CS	0	23:40:12.130	Ticks	BTCUSD: load 536 Kb of tick data to synchronize in 0:00:00.015
+CS	0	23:40:12.130	Ticks	BTCUSD: history ticks synchronized from 2026.03.26 to 2026.04.02
+CS	0	23:40:12.191	History	BTCUSD,H1: history cache allocated for 10465 bars and contains 10448 bars from 2025.01.02 00:00 to 2026.03.30 23:00
+CS	0	23:40:12.191	History	BTCUSD,H1: history begins from 2025.01.02 00:00
+CS	0	23:40:12.211	Tester	BTCUSD,H1 (EGlobalTrade-Demo): generating based on real ticks
+CS	0	23:40:12.211	Tester	BTCUSD,H1: testing of Experts\trade-bot\live.ex5 from 2026.03.31 00:00 to 2026.04.01 00:00 started with inputs:
+CS	0	23:40:12.211	Tester	  R=false
+CS	0	23:40:12.211	Tester	  FIXED_MOVE=1.44
+CS	0	23:40:12.211	Tester	  SL_MULTIPLIER=0.72
+CS	0	23:40:12.211	Tester	  TP_MULTIPLIER=0.12
+CS	0	23:40:12.211	Tester	  LOT_SIZE=0.54
+CS	0	23:40:12.211	Tester	  RISK_PERCENT=0.05
+CS	0	23:40:12.211	Tester	  LOT_MIN=0.09
+CS	0	23:40:12.211	Tester	  MAGIC_NUMBER=777777
+CS	0	23:40:12.211	Tester	  DEBUG_LOG=false
+CS	0	23:40:12.211	Tester	  LAST_MODEL=true
+CS	0	23:40:12.211	Tester	  MODEL_DATETIME=
+CS	0	23:40:12.271	ONNX	api version 1.24.2 initialized
+CS	0	23:40:12.954	live (BTCUSD,H1)	2026.03.31 00:00:00   ONNX: CPU selected
+CS	0	23:40:13.028	Ticks	BTCUSD : real ticks begin from 2026.03.26 00:00:00
+CS	0	23:40:21.197	Tester	final balance 10000.00 USD
+CS	0	23:40:21.197	live (BTCUSD,H1)	2026.03.31 23:59:56   [SUMMARY] bar_mode=IMBALANCE risk_mode=ATR fixed_move=1.44 risk_pct=0.050 predictions=1607 hold_skips=908 confidence_skips=694 position_skips=0 stops_too_close=0 volume_skips=5 open_failures=0 trades_opened=0 trades_closed=0 wins=0 losses=0 realized_pnl=0.00 balance=10000.00
+CS	0	23:40:21.224	Tester	BTCUSD,H1: 116020 ticks, 24 bars generated. Environment synchronized in 0:00:00.028. Test passed in 0:00:09.104 (including ticks preprocessing 0:00:00.016).
+CS	0	23:40:21.224	Tester	BTCUSD,H1: total time from login to stop testing 0:00:09.132 (including 0:00:00.028 for history data synchronization)
+CS	0	23:40:21.224	Tester	99 Mb memory used including 0.94 Mb of history data, 64 Mb of tick data
+CS	0	23:40:21.224	Tester	log file "C:\Program Files\MetaTrader 5\Tester\Agent-127.0.0.1-3000\logs\20260404.log" written
+CS	0	23:40:21.224	Tester	test Experts\trade-bot\live.ex5 on BTCUSD,H1 thread finished
+CS	0	23:40:21.232	127.0.0.1	tester forced to close
+CS	0	23:40:21.232	127.0.0.1	prepare for shutdown
+CS	0	23:40:21.232	127.0.0.1	stop immediately
+CS	0	23:40:21.232	127.0.0.1	shutdown finished
+CS	0	23:40:21.364	Server	MetaTester 5 stopped

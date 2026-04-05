@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "deposit": 10000.0,
+  "from_date": "2026-04-01",
+  "leverage": "1:200",
+  "month": "2026-04",
+  "retries": 1,
+  "symbol": "BTCUSD",
+  "timeout_seconds": 900,
+  "to_date": "2026-04-03"
+}

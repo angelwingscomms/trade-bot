@@ -1,0 +1,107 @@
+CS	0	00:44:51.967	Startup	MetaTester 5 build 5729, 3 Apr 2026
+CS	0	00:44:51.967	Startup	Windows 11 build 22621, 8 x Intel Core i7-8565U  @ 1.80GHz, AVX2, 2 / 7 Gb memory, 214 / 238 Gb disk, admin, GMT+1
+CS	0	00:44:51.968	Server	MetaTester 5 started on 127.0.0.1:3000
+CS	0	00:44:51.969	Startup	cloud network mode is off
+CS	0	00:44:51.969	Startup	initialization finished
+CS	0	00:44:52.290	127.0.0.1	login (build 5729)
+CS	0	00:44:52.306	Network	12968 bytes of account info loaded
+CS	0	00:44:52.306	Network	1478 bytes of tester parameters loaded
+CS	0	00:44:52.306	Network	5828 bytes of input parameters loaded
+CS	0	00:44:52.306	Network	2166 bytes of symbols list loaded (349 symbols)
+CS	0	00:44:52.307	Tester	expert file added: Experts\trade-bot\live.ex5. 196600 bytes loaded
+CS	0	00:44:52.309	Tester	2207 Mb available, 27 blocks set for ticks generating
+CS	0	00:44:52.309	Tester	initial deposit 10000.00 USD, leverage 1:200
+CS	0	00:44:52.310	Tester	successfully initialized
+CS	0	00:44:52.310	Network	195 Kb of total initialization data received
+CS	0	00:44:52.310	Tester	Intel Core i7-8565U  @ 1.80GHz, 8006 MB
+CS	0	00:44:52.319	Symbols	BTCUSD: symbol to be synchronized
+CS	0	00:44:52.319	Symbols	BTCUSD: symbol synchronized, 4520 bytes of symbol info received
+CS	0	00:44:52.320	History	BTCUSD: load 27 bytes of history data to synchronize in 0:00:00.000
+CS	0	00:44:52.320	History	BTCUSD: history synchronized from 2025.01.02 to 2026.04.04
+CS	0	00:44:52.321	Ticks	BTCUSD: ticks synchronization started
+CS	0	00:44:52.321	Ticks	BTCUSD: load 34 bytes of tick data to synchronize in 0:00:00.000
+CS	0	00:44:52.321	Ticks	BTCUSD: history ticks synchronized from 2026.03.26 to 2026.04.03
+CS	0	00:44:52.376	History	BTCUSD,H1: history cache allocated for 10465 bars and contains 10448 bars from 2025.01.02 00:00 to 2026.03.30 23:00
+CS	0	00:44:52.376	History	BTCUSD,H1: history begins from 2025.01.02 00:00
+CS	0	00:44:52.394	Tester	BTCUSD,H1 (EGlobalTrade-Demo): generating based on real ticks
+CS	0	00:44:52.394	Tester	BTCUSD,H1: testing of Experts\trade-bot\live.ex5 from 2026.03.31 00:00 to 2026.04.01 00:00 started with inputs:
+CS	0	00:44:52.394	Tester	  R=false
+CS	0	00:44:52.394	Tester	  FIXED_MOVE=1.44
+CS	0	00:44:52.394	Tester	  SL_MULTIPLIER=0.72
+CS	0	00:44:52.394	Tester	  TP_MULTIPLIER=0.12
+CS	0	00:44:52.395	Tester	  LOT_SIZE=0.54
+CS	0	00:44:52.395	Tester	  RISK_PERCENT=0.05
+CS	0	00:44:52.395	Tester	  LOT_MIN=0.09
+CS	0	00:44:52.395	Tester	  MAGIC_NUMBER=777777
+CS	0	00:44:52.395	Tester	  DEBUG_LOG=false
+CS	0	00:44:52.395	Tester	  LAST_MODEL=true
+CS	0	00:44:52.395	Tester	  MODEL_DATETIME=
+CS	0	00:44:52.444	ONNX	api version 1.24.2 initialized
+CS	0	00:44:52.919	live (BTCUSD,H1)	2026.03.31 00:00:00   ONNX: CPU selected
+CS	0	00:44:52.983	Ticks	BTCUSD : real ticks begin from 2026.03.26 00:00:00
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:25   market buy 0.09 BTCUSD sl: 66666.08 tp: 66729.57 (66693.50 / 66720.50)
+CS	0	00:44:55.623	Trades	2026.03.31 10:45:25   deal #2 buy 0.09 BTCUSD at 66720.50 done (based on order #2)
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:25   deal performed [#2 buy 0.09 BTCUSD at 66720.50]
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:25   order performed buy 0.09 at 66720.50 [#2 buy 0.09 BTCUSD at 66720.50]
+CS	0	00:44:55.623	live (BTCUSD,H1)	2026.03.31 10:45:25   CTrade::OrderSend: market buy 0.09 BTCUSD sl: 66666.08 tp: 66729.57 [done at 66720.50]
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:32   stop loss triggered #2 buy 0.09 BTCUSD 66720.50 sl: 66666.08 tp: 66729.57 [#3 sell 0.09 BTCUSD at 66666.08]
+CS	0	00:44:55.623	Trades	2026.03.31 10:45:32   deal #3 sell 0.09 BTCUSD at 66659.00 done (based on order #3)
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:32   deal performed [#3 sell 0.09 BTCUSD at 66659.00]
+CS	0	00:44:55.623	Trade	2026.03.31 10:45:32   order performed sell 0.09 at 66659.00 [#3 sell 0.09 BTCUSD at 66666.08]
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:37   market buy 0.09 BTCUSD sl: 66672.49 tp: 66737.25 (66701.00 / 66728.00)
+CS	0	00:44:55.630	Trades	2026.03.31 10:46:37   deal #4 buy 0.09 BTCUSD at 66728.00 done (based on order #4)
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:37   deal performed [#4 buy 0.09 BTCUSD at 66728.00]
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:37   order performed buy 0.09 at 66728.00 [#4 buy 0.09 BTCUSD at 66728.00]
+CS	0	00:44:55.630	live (BTCUSD,H1)	2026.03.31 10:46:37   CTrade::OrderSend: market buy 0.09 BTCUSD sl: 66672.49 tp: 66737.25 [done at 66728.00]
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:52   take profit triggered #4 buy 0.09 BTCUSD 66728.00 sl: 66672.49 tp: 66737.25 [#5 sell 0.09 BTCUSD at 66737.25]
+CS	0	00:44:55.630	Trades	2026.03.31 10:46:52   deal #5 sell 0.09 BTCUSD at 66753.00 done (based on order #5)
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:52   deal performed [#5 sell 0.09 BTCUSD at 66753.00]
+CS	0	00:44:55.630	Trade	2026.03.31 10:46:52   order performed sell 0.09 at 66753.00 [#5 sell 0.09 BTCUSD at 66737.25]
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:31   market sell 0.09 BTCUSD sl: 67205.67 tp: 67141.31 (67150.50 / 67177.50)
+CS	0	00:44:57.688	Trades	2026.03.31 17:22:31   deal #6 sell 0.09 BTCUSD at 67150.50 done (based on order #6)
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:31   deal performed [#6 sell 0.09 BTCUSD at 67150.50]
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:31   order performed sell 0.09 at 67150.50 [#6 sell 0.09 BTCUSD at 67150.50]
+CS	0	00:44:57.688	live (BTCUSD,H1)	2026.03.31 17:22:31   CTrade::OrderSend: market sell 0.09 BTCUSD sl: 67205.67 tp: 67141.31 [done at 67150.50]
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:48   stop loss triggered #6 sell 0.09 BTCUSD 67150.50 sl: 67205.67 tp: 67141.31 [#7 buy 0.09 BTCUSD at 67205.67]
+CS	0	00:44:57.688	Trades	2026.03.31 17:22:48   deal #7 buy 0.09 BTCUSD at 67210.00 done (based on order #7)
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:48   deal performed [#7 buy 0.09 BTCUSD at 67210.00]
+CS	0	00:44:57.688	Trade	2026.03.31 17:22:48   order performed buy 0.09 at 67210.00 [#7 buy 0.09 BTCUSD at 67205.67]
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:10   market sell 0.09 BTCUSD sl: 67219.96 tp: 67155.84 (67165.00 / 67192.00)
+CS	0	00:44:57.692	Trades	2026.03.31 17:23:10   deal #8 sell 0.09 BTCUSD at 67165.00 done (based on order #8)
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:10   deal performed [#8 sell 0.09 BTCUSD at 67165.00]
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:10   order performed sell 0.09 at 67165.00 [#8 sell 0.09 BTCUSD at 67165.00]
+CS	0	00:44:57.692	live (BTCUSD,H1)	2026.03.31 17:23:10   CTrade::OrderSend: market sell 0.09 BTCUSD sl: 67219.96 tp: 67155.84 [done at 67165.00]
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:48   take profit triggered #8 sell 0.09 BTCUSD 67165.00 sl: 67219.96 tp: 67155.84 [#9 buy 0.09 BTCUSD at 67155.84]
+CS	0	00:44:57.692	Trades	2026.03.31 17:23:48   deal #9 buy 0.09 BTCUSD at 67152.50 done (based on order #9)
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:48   deal performed [#9 buy 0.09 BTCUSD at 67152.50]
+CS	0	00:44:57.692	Trade	2026.03.31 17:23:48   order performed buy 0.09 at 67152.50 [#9 buy 0.09 BTCUSD at 67155.84]
+CS	0	00:44:57.697	Trade	2026.03.31 17:23:49   market sell 0.09 BTCUSD sl: 67173.27 tp: 67109.37 (67118.50 / 67145.50)
+CS	0	00:44:57.697	Trades	2026.03.31 17:23:49   deal #10 sell 0.09 BTCUSD at 67118.50 done (based on order #10)
+CS	0	00:44:57.697	Trade	2026.03.31 17:23:49   deal performed [#10 sell 0.09 BTCUSD at 67118.50]
+CS	0	00:44:57.697	Trade	2026.03.31 17:23:49   order performed sell 0.09 at 67118.50 [#10 sell 0.09 BTCUSD at 67118.50]
+CS	0	00:44:57.697	live (BTCUSD,H1)	2026.03.31 17:23:49   CTrade::OrderSend: market sell 0.09 BTCUSD sl: 67173.27 tp: 67109.37 [done at 67118.50]
+CS	0	00:44:57.697	Trade	2026.03.31 17:24:01   stop loss triggered #10 sell 0.09 BTCUSD 67118.50 sl: 67173.27 tp: 67109.37 [#11 buy 0.09 BTCUSD at 67173.27]
+CS	0	00:44:57.697	Trades	2026.03.31 17:24:01   deal #11 buy 0.09 BTCUSD at 67173.50 done (based on order #11)
+CS	0	00:44:57.697	Trade	2026.03.31 17:24:01   deal performed [#11 buy 0.09 BTCUSD at 67173.50]
+CS	0	00:44:57.697	Trade	2026.03.31 17:24:01   order performed buy 0.09 at 67173.50 [#11 buy 0.09 BTCUSD at 67173.27]
+CS	0	00:44:58.576	Trade	2026.03.31 19:56:28   market buy 0.09 BTCUSD sl: 67351.87 tp: 67410.94 (67375.50 / 67402.50)
+CS	0	00:44:58.576	Trades	2026.03.31 19:56:28   deal #12 buy 0.09 BTCUSD at 67402.50 done (based on order #12)
+CS	0	00:44:58.576	Trade	2026.03.31 19:56:28   deal performed [#12 buy 0.09 BTCUSD at 67402.50]
+CS	0	00:44:58.576	Trade	2026.03.31 19:56:28   order performed buy 0.09 at 67402.50 [#12 buy 0.09 BTCUSD at 67402.50]
+CS	0	00:44:58.576	live (BTCUSD,H1)	2026.03.31 19:56:28   CTrade::OrderSend: market buy 0.09 BTCUSD sl: 67351.87 tp: 67410.94 [done at 67402.50]
+CS	0	00:44:58.580	Trade	2026.03.31 19:56:42   stop loss triggered #12 buy 0.09 BTCUSD 67402.50 sl: 67351.87 tp: 67410.94 [#13 sell 0.09 BTCUSD at 67351.87]
+CS	0	00:44:58.580	Trades	2026.03.31 19:56:42   deal #13 sell 0.09 BTCUSD at 67350.50 done (based on order #13)
+CS	0	00:44:58.580	Trade	2026.03.31 19:56:42   deal performed [#13 sell 0.09 BTCUSD at 67350.50]
+CS	0	00:44:58.580	Trade	2026.03.31 19:56:42   order performed sell 0.09 at 67350.50 [#13 sell 0.09 BTCUSD at 67351.87]
+CS	0	00:44:59.598	Tester	final balance 9982.85 USD
+CS	0	00:44:59.598	live (BTCUSD,H1)	2026.03.31 23:59:56   [SUMMARY] bar_mode=IMBALANCE risk_mode=ATR fixed_move=1.44 risk_pct=0.050 predictions=1607 hold_skips=908 confidence_skips=671 position_skips=0 stops_too_close=0 volume_skips=22 open_failures=0 trades_opened=6 trades_closed=6 wins=2 losses=4 realized_pnl=-17.15 balance=9982.85
+CS	0	00:44:59.624	Tester	BTCUSD,H1: 116020 ticks, 24 bars generated. Environment synchronized in 0:00:00.020. Test passed in 0:00:07.313 (including ticks preprocessing 0:00:00.016).
+CS	0	00:44:59.624	Tester	BTCUSD,H1: total time from login to stop testing 0:00:07.333 (including 0:00:00.020 for history data synchronization)
+CS	0	00:44:59.624	Tester	99 Mb memory used including 0.94 Mb of history data, 64 Mb of tick data
+CS	0	00:44:59.624	Tester	log file "C:\Program Files\MetaTrader 5\Tester\Agent-127.0.0.1-3000\logs\20260405.log" written
+CS	0	00:44:59.624	Tester	test Experts\trade-bot\live.ex5 on BTCUSD,H1 thread finished
+CS	0	00:44:59.634	127.0.0.1	tester forced to close
+CS	0	00:44:59.634	127.0.0.1	prepare for shutdown
+CS	0	00:44:59.634	127.0.0.1	stop immediately
+CS	0	00:44:59.634	127.0.0.1	shutdown finished
+CS	0	00:44:59.870	Server	MetaTester 5 stopped

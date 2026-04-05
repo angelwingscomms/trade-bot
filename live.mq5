@@ -1,8 +1,8 @@
 #include <Trade\Trade.mqh>
-#include "shared_config.mqh"
-#include "model_config.mqh"
+#include "models/last_model/shared_config.mqh"
+#include "models/last_model/model_config.mqh"
 
-#resource "\\Experts\\nn\\model.onnx" as uchar model_buffer[]
+#resource "\\Experts\\trade-bot\\models\\last_model\\model.onnx" as uchar model_buffer[]
 
 #ifndef MODEL_USE_ATR_RISK
 #define MODEL_USE_ATR_RISK 1
@@ -22,8 +22,11 @@ input double SL_MULTIPLIER = DEFAULT_SL_MULTIPLIER;
 input double TP_MULTIPLIER = DEFAULT_TP_MULTIPLIER;
 input double LOT_SIZE = DEFAULT_LOT_SIZE;
 input double RISK_PERCENT = DEFAULT_RISK_PERCENT;
+input double LOT_MIN = DEFAULT_LOT_MIN;
 input int MAGIC_NUMBER = 777777;
 input bool DEBUG_LOG = true;
+input bool LAST_MODEL = true;
+input string MODEL_DATETIME = "";    // Format: DD_MM_YYYY-HH_MM__SS, e.g., "04_04_2026-18_20__08". Leave empty if LAST_MODEL=true.
 
 long onnx_handle = INVALID_HANDLE;
 CTrade trade;
@@ -99,6 +102,17 @@ double CalculateTradeVolume(int signal, double price, double sl);
 void PrintRunSummary();
 
 int OnInit() {
+   // Validate model selection parameters
+   if(!LAST_MODEL && MODEL_DATETIME == "") {
+      Print("[FATAL] LAST_MODEL is false but MODEL_DATETIME is empty. Provide MODEL_DATETIME in format DD_MM_YYYY-HH_MM__SS.");
+      return INIT_FAILED;
+   }
+   if(LAST_MODEL && MODEL_DATETIME != "") {
+      DebugPrint("LAST_MODEL=true, ignoring provided MODEL_DATETIME: " + MODEL_DATETIME);
+   }
+   string model_selector = LAST_MODEL ? "LAST_MODEL" : ("MODEL_DATETIME=" + MODEL_DATETIME);
+   DebugPrint("Model selector: " + model_selector);
+
    onnx_handle = OnnxCreateFromBuffer(model_buffer, ONNX_DEFAULT);
    if(onnx_handle == INVALID_HANDLE) {
       Print("[FATAL] OnnxCreateFromBuffer failed: ", GetLastError());
@@ -145,6 +159,9 @@ int OnInit() {
          PRIMARY_CONFIDENCE
       )
    );
+   if(PRIMARY_CONFIDENCE > 1.0) {
+      Print("[INFO] Live trading disabled because the active model failed the trainer quality gate.");
+   }
 
    MqlTick tick;
    if(SymbolInfoTick(_Symbol, tick)) {
@@ -280,7 +297,7 @@ double TargetDistance() {
 }
 
 double NormalizeVolume(double volume) {
-   double min_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double min_volume = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN), LOT_MIN);
    double max_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
    double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
    if(min_volume <= 0.0 || max_volume <= 0.0) {
@@ -702,7 +719,17 @@ void Execute(int signal) {
       return;
    }
 
-   double price = (signal == 1) ? SymbolInfoDouble(_Symbol, SYMBOL_ASK) : SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   if(bid <= 0.0 || ask <= 0.0) {
+      trade_open_failed_count++;
+      DebugPrint(StringFormat("skip trade: invalid bid/ask bid=%.5f ask=%.5f", bid, ask));
+      return;
+   }
+
+   int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
+   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   double price = (signal == 1) ? ask : bid;
    double sl_distance = StopDistance();
    double tp_distance = TargetDistance();
    if(sl_distance <= 0.0 || tp_distance <= 0.0) {
@@ -722,16 +749,29 @@ void Execute(int signal) {
    double tp = (signal == 1)
       ? (price + tp_distance)
       : (price - tp_distance);
+   price = NormalizeDouble(price, digits);
+   sl = NormalizeDouble(sl, digits);
+   tp = NormalizeDouble(tp, digits);
 
-   double min_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   if(MathAbs(price - sl) < min_dist || MathAbs(tp - price) < min_dist) {
+   double min_stop_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_STOPS_LEVEL) * point;
+   double freeze_dist = SymbolInfoInteger(_Symbol, SYMBOL_TRADE_FREEZE_LEVEL) * point;
+   double min_dist = MathMax(min_stop_dist, freeze_dist);
+   double trigger_price = (signal == 1) ? bid : ask;
+   double sl_gap = (signal == 1) ? (trigger_price - sl) : (sl - trigger_price);
+   double tp_gap = (signal == 1) ? (tp - trigger_price) : (trigger_price - tp);
+   if(sl_gap < min_dist || tp_gap < min_dist) {
       stops_too_close_skip_count++;
       DebugPrint(
          StringFormat(
-            "skip trade: stops too close price=%.5f sl=%.5f tp=%.5f min_dist=%.5f",
+            "skip trade: stops too close bid=%.5f ask=%.5f price=%.5f trigger=%.5f sl=%.5f tp=%.5f sl_gap=%.5f tp_gap=%.5f min_dist=%.5f",
+            bid,
+            ask,
             price,
+            trigger_price,
             sl,
             tp,
+            sl_gap,
+            tp_gap,
             min_dist
          )
       );
@@ -752,6 +792,19 @@ void Execute(int signal) {
       );
       return;
    }
+
+   double sl_pct_change = (sl - price) / price * 100.0;
+   double tp_pct_change = (tp - price) / price * 100.0;
+   DebugPrint(
+      StringFormat(
+         "Intent to place trade: volume=%.2f sl=%.5f tp=%.5f sl_pct_change=%.3f%% tp_pct_change=%.3f%%",
+         volume,
+         sl,
+         tp,
+         sl_pct_change,
+         tp_pct_change
+      )
+   );
 
    bool opened = trade.PositionOpen(_Symbol, (signal == 1 ? ORDER_TYPE_BUY : ORDER_TYPE_SELL), volume, price, sl, tp);
    if(opened) {

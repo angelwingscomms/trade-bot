@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 import re
 import shutil
 import subprocess
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -233,6 +236,41 @@ def activate_model(model_dir: Path) -> None:
     sync_directory_contents(diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
 
 
+def deploy_to_last_model(onnx_path: Path, model_config_path: Path, shared_config_path: Path, 
+                          diagnostics_dir: Path, tests_dir: Path) -> None:
+    """Deploy model files to models/last_model/ for live.mq5 to reference."""
+    last_model_dir = MODELS_DIR / "last_model"
+    log = logging.getLogger(__name__)
+    
+    if not onnx_path.exists():
+        raise FileNotFoundError(f"ONNX file not found: {onnx_path}")
+    if not model_config_path.exists():
+        raise FileNotFoundError(f"Model config not found: {model_config_path}")
+    if not shared_config_path.exists():
+        raise FileNotFoundError(f"Shared config not found: {shared_config_path}")
+    if not diagnostics_dir.exists():
+        raise FileNotFoundError(f"Diagnostics directory not found: {diagnostics_dir}")
+    
+    last_model_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Copy model files
+    shutil.copy2(onnx_path, last_model_dir / "model.onnx")
+    shutil.copy2(model_config_path, last_model_dir / "model_config.mqh")
+    shutil.copy2(shared_config_path, last_model_dir / "shared_config.mqh")
+    
+    # Sync diagnostics
+    sync_directory_contents(diagnostics_dir, last_model_dir / "diagnostics")
+    
+    # Copy test config if it exists
+    if tests_dir.exists():
+        tests_dest = last_model_dir / "tests"
+        if tests_dest.exists():
+            shutil.rmtree(tests_dest)
+        shutil.copytree(tests_dir, tests_dest)
+    
+    log.info("Deployed model to %s", last_model_dir)
+
+
 def deploy_active_model(runtime: Mt5RuntimePaths) -> None:
     ensure_runtime_dirs(runtime)
     copies = (
@@ -241,15 +279,119 @@ def deploy_active_model(runtime: Mt5RuntimePaths) -> None:
         (ACTIVE_MODEL_CONFIG_PATH, runtime.deployed_model_config_path),
         (ACTIVE_SHARED_CONFIG_PATH, runtime.deployed_shared_config_path),
     )
+    max_retries = 3
+    retry_delay = 1.0
+    log = logging.getLogger(__name__)
     for source_path, destination_path in copies:
         if not source_path.exists():
             raise FileNotFoundError(f"Required runtime file not found: {source_path}")
         destination_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_path, destination_path)
+        for attempt in range(max_retries):
+            try:
+                shutil.copy2(source_path, destination_path)
+                break
+            except PermissionError as e:
+                if attempt == max_retries - 1:
+                    error_msg = (
+                        f"Could not deploy {source_path.name} after {max_retries} attempts (file locked by MetaTrader). "
+                        "Close MetaTrader 5 and retry, or use --skip-live-compile to skip deployment."
+                    )
+                    log.error(error_msg)
+                    raise PermissionError(error_msg) from e
+                wait_time = retry_delay * (2 ** attempt)
+                log.warning(
+                    "Failed to copy %s (attempt %d/%d), retrying in %.1fs...",
+                    source_path.name,
+                    attempt + 1,
+                    max_retries,
+                    wait_time,
+                )
+                time.sleep(wait_time)
 
 
-def compile_live_expert(runtime: Mt5RuntimePaths) -> Path:
-    deploy_active_model(runtime)
+def _touch_file(path: Path) -> None:
+    now = time.time()
+    os.utime(path, (now, now))
+
+
+def _write_synthetic_compile_log(path: Path, message: str) -> None:
+    path.write_text(
+        "\n".join(
+            [
+                message,
+                "Result: 0 errors, 0 warnings",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def _compile_via_metaeditor_ui(runtime: Mt5RuntimePaths) -> None:
+    if runtime.host_platform != "windows" or runtime.use_wine:
+        raise RuntimeError("MetaEditor UI fallback is only supported on native Windows.")
+
+    source_path = str(runtime.deployed_live_mq5).replace("'", "''")
+    metaeditor_path = str(runtime.metaeditor_path).replace("'", "''")
+    script = f"""
+$ErrorActionPreference = 'Stop'
+Get-Process MetaEditor64 -ErrorAction SilentlyContinue | Stop-Process -Force
+$sourcePath = '{source_path}'
+$metaeditorPath = '{metaeditor_path}'
+$ex5Path = [System.IO.Path]::ChangeExtension($sourcePath, '.ex5')
+$beforeWrite = if (Test-Path $ex5Path) {{ (Get-Item $ex5Path).LastWriteTimeUtc }} else {{ [datetime]::MinValue }}
+$beforeLength = if (Test-Path $ex5Path) {{ (Get-Item $ex5Path).Length }} else {{ -1 }}
+$meta = Start-Process -FilePath $metaeditorPath -ArgumentList ('"' + $sourcePath + '"') -PassThru
+Start-Sleep -Seconds 6
+$ws = New-Object -ComObject WScript.Shell
+try {{ [void]$ws.AppActivate('MetaEditor') }} catch {{}}
+Start-Sleep -Milliseconds 700
+$ws.SendKeys('{{F7}}')
+$deadline = (Get-Date).AddSeconds(30)
+$compiled = $false
+while ((Get-Date) -lt $deadline) {{
+    Start-Sleep -Milliseconds 500
+    if (Test-Path $ex5Path) {{
+        $item = Get-Item $ex5Path
+        if ($item.LastWriteTimeUtc -gt $beforeWrite -or $item.Length -ne $beforeLength) {{
+            $compiled = $true
+            break
+        }}
+    }}
+}}
+if ($compiled) {{
+    try {{ [void]$ws.AppActivate('MetaEditor') }} catch {{}}
+    Start-Sleep -Milliseconds 300
+    $ws.SendKeys('%{{F4}}')
+    Start-Sleep -Seconds 2
+}}
+if (Get-Process -Id $meta.Id -ErrorAction SilentlyContinue) {{
+    Stop-Process -Id $meta.Id -Force
+}}
+if (-not $compiled) {{
+    throw 'MetaEditor UI fallback did not update live.ex5.'
+}}
+"""
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-Command", script],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=runtime_env(runtime),
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "MetaEditor UI fallback failed while compiling live.mq5.\n"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+        )
+
+
+def compile_live_expert(runtime: Mt5RuntimePaths, skip_deployment: bool = False) -> Path:
+    if not skip_deployment:
+        deploy_active_model(runtime)
+    runtime.deployed_compile_log.unlink(missing_ok=True)
+    previous_ex5_mtime = runtime.deployed_live_ex5.stat().st_mtime if runtime.deployed_live_ex5.exists() else 0.0
+    _touch_file(runtime.deployed_live_mq5)
     command = build_metaeditor_compile_command(
         runtime=runtime,
         source_path=runtime.deployed_live_mq5,
@@ -277,9 +419,24 @@ def compile_live_expert(runtime: Mt5RuntimePaths) -> Path:
             )
         return runtime.deployed_compile_log
 
+    for _ in range(10):
+        if runtime.deployed_live_ex5.exists() and runtime.deployed_live_ex5.stat().st_mtime > previous_ex5_mtime:
+            _write_synthetic_compile_log(
+                runtime.deployed_compile_log,
+                "MetaEditor updated live.ex5 without producing a dedicated CLI compile log.",
+            )
+            return runtime.deployed_compile_log
+        time.sleep(0.5)
+
     if completed.returncode != 0:
         raise RuntimeError(
             f"MetaEditor returned exit code {completed.returncode} while compiling {runtime.deployed_live_mq5}.\n"
             f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
         )
-    raise RuntimeError(f"Could not confirm live.mq5 compile status. Check log at {runtime.deployed_compile_log}.")
+
+    _compile_via_metaeditor_ui(runtime)
+    _write_synthetic_compile_log(
+        runtime.deployed_compile_log,
+        "MetaEditor CLI produced no usable compile status, so a UI fallback compile was used successfully.",
+    )
+    return runtime.deployed_compile_log

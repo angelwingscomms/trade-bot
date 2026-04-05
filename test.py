@@ -3,31 +3,33 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import os
 import re
-import subprocess
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from model_archive import (
+    ACTIVE_DIAGNOSTICS_DIR,
     ACTIVE_MODEL_CONFIG_PATH,
+    ACTIVE_ONNX_PATH,
     ACTIVE_SHARED_CONFIG_PATH,
     DEFAULT_METAEDITOR_PATH,
     activate_model,
     compile_live_expert,
     configured_symbol,
+    deploy_to_last_model,
     ensure_default_test_config,
     format_model_stamp,
     load_define_file,
     load_test_config,
     model_tests_dir,
     read_text_best_effort,
-    resolve_metaeditor_path,
     resolve_model_dir,
     sanitize_symbol,
 )
+from mt5_runtime import PROJECT_DIR_NAME, iter_agent_log_paths, launch_terminal as launch_mt5_terminal, resolve_mt5_runtime
 
 
 SUMMARY_PATTERN = re.compile(r"\[SUMMARY\]\s+(.*)")
@@ -44,15 +46,6 @@ STATUS_LINE_PATTERN = re.compile(r"testing of .* from (\d{4}\.\d{2}\.\d{2} \d{2}
 SCRIPT_DIR = Path(__file__).resolve().parent
 SHARED_CONFIG_PATH = ACTIVE_SHARED_CONFIG_PATH
 MODEL_CONFIG_PATH = ACTIVE_MODEL_CONFIG_PATH
-
-
-@dataclass
-class RuntimePaths:
-    instance_root: Path
-    data_tester_dir: Path
-    terminal_log_dir: Path
-    agent_root: Path
-    terminal_path: Path
 
 
 @dataclass
@@ -158,6 +151,13 @@ def filter_days(days: list[date], from_date: str, to_date: str) -> list[date]:
 
 def bool_literal(value: bool) -> str:
     return "true" if value else "false"
+
+
+def ini_leverage_value(value: str) -> str:
+    text = str(value).strip()
+    if ":" in text:
+        text = text.split(":", 1)[1].strip()
+    return text or "200"
 
 
 def set_line(name: str, value: str) -> str:
@@ -376,10 +376,10 @@ def build_ini_file(
     contents = "\n".join(
         [
             "[Tester]",
-            "Expert=nn\\live.ex5",
+            f"Expert={PROJECT_DIR_NAME}\\live.ex5",
             f"ExpertParameters={set_name}",
             f"Symbol={symbol}",
-            "Period=1",
+            "Period=H1",
             "Model=4",
             f"FromDate={day_value.strftime('%Y.%m.%d')}",
             f"ToDate={(day_value + timedelta(days=1)).strftime('%Y.%m.%d')}",
@@ -390,7 +390,7 @@ def build_ini_file(
             "ShutdownTerminal=1",
             f"Deposit={deposit:.2f}",
             f"Currency={currency}",
-            f"Leverage={leverage}",
+            f"Leverage={ini_leverage_value(leverage)}",
             "UseLocal=1",
             "UseRemote=0",
             "UseCloud=0",
@@ -407,71 +407,15 @@ def wait_for_tester_completion(main_log_path: Path, offset: int, timeout_seconds
     deadline = time.time() + timeout_seconds
     while time.time() < deadline:
         tester_text = read_appended_text(main_log_path, offset)
-        if "automatical testing finished" in tester_text.lower():
+        tester_text_lower = tester_text.lower()
+        if (
+            "automatical testing finished" in tester_text_lower
+            or "thread finished" in tester_text_lower
+            or "stop testing" in tester_text_lower
+        ):
             return tester_text
         time.sleep(1.0)
     raise TimeoutError(f"Timed out waiting for tester completion in {main_log_path}.")
-
-
-def launch_terminal(config_path: Path, timeout_seconds: int, terminal_path: Path) -> None:
-    command = [
-        "powershell",
-        "-NoProfile",
-        "-Command",
-        (
-            "$cfg = '{cfg}'; "
-            "Get-Process terminal64 -ErrorAction SilentlyContinue | Stop-Process -Force; "
-            "& '{terminal}' /config:$cfg"
-        ).format(cfg=str(config_path), terminal=str(terminal_path)),
-    ]
-    subprocess.run(command, check=False, timeout=max(timeout_seconds + 60, 120))
-
-
-def find_instance_root(start: Path) -> Path | None:
-    for candidate in [start, *start.parents]:
-        if (candidate / "MQL5").exists() and (candidate / "Tester").exists():
-            return candidate
-    return None
-
-
-def resolve_runtime_paths(instance_root_override: str, terminal_path_override: str) -> RuntimePaths:
-    if instance_root_override:
-        instance_root = Path(instance_root_override).expanduser().resolve()
-    else:
-        detected = find_instance_root(SCRIPT_DIR)
-        if detected is None:
-            raise FileNotFoundError(
-                "Could not infer the MT5 instance root. Pass --instance-root with the terminal data folder."
-            )
-        instance_root = detected
-
-    data_tester_dir = instance_root / "MQL5" / "Profiles" / "Tester"
-    terminal_log_dir = instance_root / "Tester" / "logs"
-    origin_path = instance_root / "origin.txt"
-
-    if terminal_path_override:
-        terminal_path = Path(terminal_path_override).expanduser().resolve()
-    else:
-        if not origin_path.exists():
-            raise FileNotFoundError(
-                f"origin.txt not found at {origin_path}. Pass --terminal-path or --instance-root."
-            )
-        terminal_install_dir = Path(read_text_best_effort(origin_path).strip())
-        terminal_path = terminal_install_dir / "terminal64.exe"
-
-    appdata_raw = os.environ.get("APPDATA", "").strip()
-    if not appdata_raw:
-        raise EnvironmentError("APPDATA is not set. Run test.py from a Windows environment with MetaTrader installed.")
-    appdata = Path(appdata_raw)
-    agent_root = appdata / "MetaQuotes" / "Tester" / instance_root.name
-
-    return RuntimePaths(
-        instance_root=instance_root,
-        data_tester_dir=data_tester_dir,
-        terminal_log_dir=terminal_log_dir,
-        agent_root=agent_root,
-        terminal_path=terminal_path,
-    )
 
 
 def merged_test_config(args: argparse.Namespace, default_symbol: str, model_dir: Path) -> dict[str, int | float | str]:
@@ -549,9 +493,20 @@ def main() -> None:
     symbol = args.symbol or configured_symbol()
     model_dir = resolve_model_dir(symbol, args.revision)
     test_config = merged_test_config(args, default_symbol=symbol, model_dir=model_dir)
-    runtime = resolve_runtime_paths(args.instance_root, args.terminal_path)
+    runtime = resolve_mt5_runtime(
+        instance_root_override=args.instance_root,
+        terminal_path_override=args.terminal_path,
+        metaeditor_path_override=args.metaeditor_path,
+    )
 
     activate_model(model_dir)
+    deploy_to_last_model(
+        onnx_path=ACTIVE_ONNX_PATH,
+        model_config_path=ACTIVE_MODEL_CONFIG_PATH,
+        shared_config_path=ACTIVE_SHARED_CONFIG_PATH,
+        diagnostics_dir=ACTIVE_DIAGNOSTICS_DIR,
+        tests_dir=model_tests_dir(model_dir),
+    )
 
     run_stamp = format_model_stamp()
     run_dir = model_tests_dir(model_dir) / run_stamp
@@ -564,8 +519,7 @@ def main() -> None:
     compile_dir.mkdir(parents=True, exist_ok=True)
 
     if not args.skip_live_compile:
-        metaeditor_path = resolve_metaeditor_path(args.metaeditor_path)
-        compile_log_path = compile_live_expert(metaeditor_path)
+        compile_log_path = compile_live_expert(runtime, skip_deployment=True)
         (compile_dir / compile_log_path.name).write_text(
             read_text_best_effort(compile_log_path),
             encoding="utf-8",
@@ -582,7 +536,7 @@ def main() -> None:
     )
 
     set_name = f"{sanitize_symbol(str(test_config['symbol']))}_daily_backtest_{run_stamp}.set"
-    set_path = runtime.data_tester_dir / set_name
+    set_path = runtime.tester_profile_dir / set_name
     build_set_file(set_path, shared=shared, model=model)
     (run_dir / "tester_inputs.set").write_text(set_path.read_text(encoding="ascii"), encoding="ascii")
     (run_dir / "shared_config_snapshot.mqh").write_text(SHARED_CONFIG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
@@ -601,6 +555,9 @@ def main() -> None:
             raise FileNotFoundError(f"terminal64.exe not found at {runtime.terminal_path}")
 
         config_path = config_dir / f"{day_value.isoformat()}.ini"
+        launch_config_dir = Path(tempfile.gettempdir()) / "mt5_tester_configs"
+        launch_config_dir.mkdir(parents=True, exist_ok=True)
+        launch_config_path = launch_config_dir / f"{sanitize_symbol(str(test_config['symbol']))}_{day_value.isoformat()}.ini"
         build_ini_file(
             path=config_path,
             set_name=set_name,
@@ -610,6 +567,7 @@ def main() -> None:
             leverage=str(test_config["leverage"]),
             symbol=str(test_config["symbol"]),
         )
+        launch_config_path.write_text(config_path.read_text(encoding="ascii"), encoding="ascii")
 
         last_error = ""
         day_result: BacktestResult | None = None
@@ -617,13 +575,15 @@ def main() -> None:
         agent_log_output = raw_log_dir / f"{day_value.isoformat()}_agent.log"
         for _attempt in range(int(test_config["retries"]) + 1):
             tester_offsets = log_offsets([main_log_path])
-            agent_log_paths = list(runtime.agent_root.glob("Agent-127.0.0.1-*/logs/*.log"))
+            agent_log_paths = list(iter_agent_log_paths(runtime))
             agent_offsets = log_offsets(agent_log_paths)
             try:
-                launch_terminal(
-                    config_path,
-                    int(test_config["timeout_seconds"]),
-                    runtime.terminal_path,
+                launch_mt5_terminal(
+                    runtime,
+                    launch_config_path,
+                    timeout_seconds=int(test_config["timeout_seconds"]),
+                    detach=True,
+                    stop_existing=True,
                 )
                 tester_text = wait_for_tester_completion(
                     main_log_path=main_log_path,
@@ -632,7 +592,7 @@ def main() -> None:
                 )
                 time.sleep(1.0)
                 agent_chunks: list[str] = []
-                for path in runtime.agent_root.glob("Agent-127.0.0.1-*/logs/*.log"):
+                for path in iter_agent_log_paths(runtime):
                     agent_chunks.append(read_appended_text(path, agent_offsets.get(path, 0)))
                 agent_text = "\n".join(chunk for chunk in agent_chunks if chunk)
 
@@ -648,7 +608,7 @@ def main() -> None:
                 tester_text = read_appended_text(main_log_path, tester_offsets.get(main_log_path, 0))
                 tester_log_output.write_text(tester_text, encoding="utf-8")
                 agent_chunks = []
-                for path in runtime.agent_root.glob("Agent-127.0.0.1-*/logs/*.log"):
+                for path in iter_agent_log_paths(runtime):
                     agent_chunks.append(read_appended_text(path, agent_offsets.get(path, 0)))
                 agent_text = "\n".join(chunk for chunk in agent_chunks if chunk)
                 agent_log_output.write_text(agent_text, encoding="utf-8")

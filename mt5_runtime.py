@@ -325,7 +325,8 @@ def runtime_env(runtime: Mt5RuntimePaths) -> dict[str, str]:
 
 
 def build_terminal_command(runtime: Mt5RuntimePaths, config_path: Path) -> list[str]:
-    config_arg = f"/config:{to_windows_path(runtime, config_path)}" if runtime.use_wine else f"/config:{config_path}"
+    config_value = to_windows_path(runtime, config_path) if runtime.use_wine else str(config_path)
+    config_arg = f"/config:{config_value}"
     command = [str(runtime.terminal_path), config_arg]
     if runtime.portable_mode:
         command.append("/portable")
@@ -339,17 +340,19 @@ def build_metaeditor_compile_command(
     source_path: Path,
     log_path: Path,
 ) -> list[str]:
+    source_value = to_windows_path(runtime, source_path) if runtime.use_wine else str(source_path)
+    log_value = to_windows_path(runtime, log_path) if runtime.use_wine else str(log_path)
     if runtime.use_wine:
         return [
             "wine",
             str(runtime.metaeditor_path),
-            f"/compile:{to_windows_path(runtime, source_path)}",
-            f"/log:{to_windows_path(runtime, log_path)}",
+            f'/compile:"{source_value}"',
+            f'/log:"{log_value}"',
         ]
     return [
         str(runtime.metaeditor_path),
-        f"/compile:{source_path}",
-        f"/log:{log_path}",
+        f'/compile:"{source_value}"',
+        f'/log:"{log_value}"',
     ]
 
 
