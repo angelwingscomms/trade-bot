@@ -48,6 +48,7 @@ MODEL_FILE_NAME = "model.onnx"
 MODEL_CONFIG_SNAPSHOT_NAME = "model_config_snapshot.mqh"
 SHARED_CONFIG_SNAPSHOT_NAME = "shared_config_snapshot.mqh"
 DEFAULT_TEST_CONFIG_NAME = "backtest_config.json"
+SYMBOL_CONFIG_DIR_NAME = "config"
 LIVE_MODEL_BLOCK_BEGIN = "// @active-model-reference begin"
 LIVE_MODEL_BLOCK_END = "// @active-model-reference end"
 LIVE_MODEL_BLOCK_PATTERN = re.compile(
@@ -149,6 +150,22 @@ def symbol_models_dir(symbol: str) -> Path:
     return MODELS_DIR / sanitize_symbol(symbol)
 
 
+def symbol_config_dir(symbol: str) -> Path:
+    return symbol_models_dir(symbol) / SYMBOL_CONFIG_DIR_NAME
+
+
+def symbol_shared_config_path(symbol: str) -> Path:
+    return symbol_config_dir(symbol) / ACTIVE_SHARED_CONFIG_PATH.name
+
+
+def symbol_model_config_path(symbol: str) -> Path:
+    return symbol_config_dir(symbol) / ACTIVE_MODEL_CONFIG_PATH.name
+
+
+def symbol_backtest_config_path(symbol: str) -> Path:
+    return symbol_config_dir(symbol) / DEFAULT_TEST_CONFIG_NAME
+
+
 def iter_model_dirs(symbol: str) -> list[Path]:
     root = symbol_models_dir(symbol)
     if not root.exists():
@@ -242,7 +259,12 @@ def write_test_config(path: Path, data: dict[str, int | float | str]) -> None:
 def ensure_default_test_config(tests_dir: Path, symbol: str) -> Path:
     config_path = tests_dir / DEFAULT_TEST_CONFIG_NAME
     if not config_path.exists():
-        write_test_config(config_path, default_test_config(symbol))
+        symbol_default_path = symbol_backtest_config_path(symbol)
+        if symbol_default_path.exists():
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(symbol_default_path, config_path)
+        else:
+            write_test_config(config_path, default_test_config(symbol))
     return config_path
 
 

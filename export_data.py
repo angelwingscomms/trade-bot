@@ -1,183 +1,256 @@
 """
-Execute data.mq5 via MT5 terminal and move output to ./data/SYMBOL/ticks.csv
+Compile and execute data.mq5 via MT5, then move output to ./data/SYMBOL/ticks.csv.
 """
 from __future__ import annotations
 
+import argparse
 import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
-from typing import Optional
 
-# MT5 Configuration
-TERMINAL_PATH = Path(r"C:\Program Files\MetaTrader 5\terminal64.exe")
-MT5_INSTANCE_ROOT = Path(r"C:\Users\Admin\AppData\Roaming\MetaTrader 5")  # Adjust if needed
-EXPERTS_DIR = MT5_INSTANCE_ROOT / "MQL5" / "Experts" / "trade-bot"
-FILES_DIR = MT5_INSTANCE_ROOT / "Files"
+from model_archive import ACTIVE_SHARED_CONFIG_PATH, configured_symbol, load_define_file, symbol_shared_config_path
+from mt5_runtime import (
+    PROJECT_DIR_NAME,
+    build_metaeditor_compile_command,
+    build_terminal_command,
+    resolve_mt5_runtime,
+    runtime_env,
+    stop_terminal_best_effort,
+)
 
-# Project paths
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = SCRIPT_DIR / "data"
+DEFAULT_OUTPUT_FILE = "market_ticks.csv"
+COMPILE_LOG_PATH = SCRIPT_DIR / "data.compile.log"
+STARTUP_CONFIG_DIR = Path(tempfile.gettempdir()) / "mt5_export_configs"
 
 
-def get_symbol() -> str:
-    """Extract SYMBOL from shared_config.mqh"""
-    config_path = SCRIPT_DIR / "shared_config.mqh"
-    with open(config_path, "r") as f:
-        for line in f:
-            if '#define SYMBOL' in line:
-                # Extract symbol from: #define SYMBOL "XAUUSD"
-                symbol = line.split('"')[1]
-                return symbol
-    raise ValueError("Could not find SYMBOL in shared_config.mqh")
+def runtime_script_dir(runtime) -> Path:
+    return runtime.instance_root / "MQL5" / "Scripts" / PROJECT_DIR_NAME
 
 
-def find_csv_file(symbol: str, max_wait: float = 30.0) -> Optional[Path]:
-    """
-    Wait for the script output CSV file to appear in MT5 Files folder.
-    
-    Args:
-        symbol: The trading symbol
-        max_wait: Maximum seconds to wait for file
-        
-    Returns:
-        Path to the CSV file, or None if not found
-    """
+def deploy_script_files(runtime, shared_config_path: Path) -> tuple[Path, Path]:
+    script_dir = runtime_script_dir(runtime)
+    script_dir.mkdir(parents=True, exist_ok=True)
+    deployed_source = script_dir / "data.mq5"
+    deployed_shared_config = script_dir / "shared_config.mqh"
+    shutil.copy2(SCRIPT_DIR / "data.mq5", deployed_source)
+    shutil.copy2(shared_config_path, deployed_shared_config)
+    return deployed_source, deployed_shared_config
+
+
+def resolve_symbol_config(requested_symbol: str) -> tuple[str, Path]:
+    requested = requested_symbol.strip()
+    if requested:
+        config_path = symbol_shared_config_path(requested)
+        if not config_path.exists():
+            raise FileNotFoundError(f"Shared config not found for symbol '{requested}': {config_path}")
+        shared = load_define_file(config_path)
+        symbol = str(shared.get("SYMBOL", requested)).strip() or requested
+        return symbol, config_path
+
+    active_symbol = configured_symbol()
+    config_path = symbol_shared_config_path(active_symbol)
+    if config_path.exists():
+        shared = load_define_file(config_path)
+        symbol = str(shared.get("SYMBOL", active_symbol)).strip() or active_symbol
+        return symbol, config_path
+    return active_symbol, ACTIVE_SHARED_CONFIG_PATH
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Export MT5 tick data into ./data/<SYMBOL>/ticks.csv.")
+    parser.add_argument("--symbol", type=str, default="", help="Optional symbol config to load from models/<SYMBOL>/config.")
+    parser.add_argument("--instance-root", type=str, default="", help="Optional explicit MT5 data root.")
+    parser.add_argument("--terminal-path", type=str, default="", help="Optional explicit terminal64.exe path.")
+    parser.add_argument("--metaeditor-path", type=str, default="", help="Optional explicit MetaEditor path.")
+    parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=60,
+        help="Maximum time to wait for the exported CSV to appear in MQL5/Files.",
+    )
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        default=DEFAULT_OUTPUT_FILE,
+        help="CSV filename written by data.mq5 inside MQL5/Files.",
+    )
+    return parser.parse_args()
+
+
+def compile_data_script(runtime, shared_config_path: Path) -> Path:
+    source_path, deployed_shared_config = deploy_script_files(runtime, shared_config_path)
+    target_path = source_path.with_suffix(".ex5")
+    COMPILE_LOG_PATH.unlink(missing_ok=True)
+
+    newest_input_mtime = max(source_path.stat().st_mtime, deployed_shared_config.stat().st_mtime)
+    if target_path.exists() and target_path.stat().st_mtime >= newest_input_mtime:
+        return target_path
+
+    command = build_metaeditor_compile_command(
+        runtime=runtime,
+        source_path=source_path,
+        log_path=COMPILE_LOG_PATH,
+    )
+    completed = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=runtime_env(runtime),
+    )
+
+    if completed.returncode != 0 and not target_path.exists():
+        raise RuntimeError(
+            "MetaEditor failed to compile data.mq5.\n"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+        )
+    deadline = time.time() + (60.0 if runtime.use_wine else 10.0)
+    while time.time() < deadline:
+        if target_path.exists() and target_path.stat().st_mtime >= newest_input_mtime:
+            return target_path
+        time.sleep(0.5)
+    if not target_path.exists():
+        raise FileNotFoundError(f"Compiled script not found after MetaEditor run: {target_path}")
+    return target_path
+
+
+def write_startup_config(symbol: str) -> Path:
+    STARTUP_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    startup_config_path = STARTUP_CONFIG_DIR / f"{symbol.lower()}_data_export.ini"
+    startup_config_path.write_text(
+        "\n".join(
+            [
+                "[StartUp]",
+                f"Script={PROJECT_DIR_NAME}\\data",
+                f"Symbol={symbol}",
+                "Period=M1",
+                "ShutdownTerminal=1",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return startup_config_path
+
+
+def run_script(runtime, symbol: str) -> None:
+    if not runtime.terminal_path.exists():
+        raise FileNotFoundError(f"MT5 terminal not found: {runtime.terminal_path}")
+
+    stop_terminal_best_effort(runtime)
+    config_path = write_startup_config(symbol)
+    command = build_terminal_command(runtime, config_path)
+    print(f"[INFO] Launching MT5 with data.mq5 for {symbol}...")
+    print(f"[INFO] Command: {' '.join(command)}")
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        env=runtime_env(runtime),
+        text=True,
+        start_new_session=(runtime.host_platform != "windows"),
+    )
+    print(f"[INFO] Terminal started (PID: {process.pid})")
+
+
+def find_csv_file(files_dir: Path, output_file: str, max_wait: float) -> Path | None:
     start_time = time.time()
-    
-    # data.mq5 defaults to "market_ticks.csv" 
-    csv_name = "market_ticks.csv"
-    csv_path = FILES_DIR / csv_name
-    
+    csv_path = files_dir / output_file
     print(f"[INFO] Waiting for {csv_path}...")
-    
+
     while time.time() - start_time < max_wait:
         if csv_path.exists():
-            # Give it a moment to finish writing
             time.sleep(0.5)
-            if csv_path.stat().st_size > 100:  # Ensure it has content
+            if csv_path.stat().st_size > 100:
                 print(f"[INFO] Found: {csv_path}")
                 return csv_path
         time.sleep(0.5)
-    
     return None
 
 
-def run_script(symbol: str) -> bool:
-    """
-    Run data.mq5 script via MT5 terminal.
-    
-    Args:
-        symbol: The trading symbol to export
-        
-    Returns:
-        True if script execution was triggered
-    """
-    if not TERMINAL_PATH.exists():
-        print(f"[ERROR] MT5 terminal not found: {TERMINAL_PATH}")
-        return False
-    
-    print(f"[INFO] Launching MT5 with data.mq5 script...")
-    print(f"[INFO] Symbol: {symbol}")
-    
-    try:
-        # Run terminal with script
-        # /script parameter runs the script in the Experts folder
-        proc = subprocess.Popen(
-            [str(TERMINAL_PATH), "/script=trade-bot::data"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        
-        print(f"[INFO] Terminal started (PID: {proc.pid})")
-        return True
-        
-    except Exception as e:
-        print(f"[ERROR] Failed to launch terminal: {e}")
-        return False
-
-
 def move_to_data_dir(symbol: str, csv_path: Path) -> Path:
-    """
-    Move CSV file to ./data/SYMBOL/ticks.csv
-    
-    Args:
-        symbol: Trading symbol
-        csv_path: Source CSV file path
-        
-    Returns:
-        Path to the destination file
-    """
     symbol_dir = OUTPUT_DIR / symbol
     symbol_dir.mkdir(parents=True, exist_ok=True)
-    
     dest_path = symbol_dir / "ticks.csv"
-    
+
     print(f"[INFO] Moving {csv_path.name} to {dest_path}...")
     shutil.move(str(csv_path), str(dest_path))
-    
     file_size_mb = dest_path.stat().st_size / (1024 * 1024)
     print(f"[INFO] Successfully moved file ({file_size_mb:.2f} MB)")
     print(f"[INFO] Output: {dest_path}")
-    
     return dest_path
 
 
-def main():
-    """Main execution flow"""
+def main() -> bool:
+    args = parse_args()
     print("=" * 60)
     print("MT5 Data Export Tool")
     print("=" * 60)
     print()
-    
+
     try:
-        # Step 1: Get symbol from config
-        print("[STEP 1] Reading configuration...")
-        symbol = get_symbol()
+        print("[STEP 1] Resolving symbol configuration...")
+        symbol, config_path = resolve_symbol_config(args.symbol)
         print(f"[STEP 1] SUCCESS - Symbol: {symbol}")
+        print(f"[STEP 1] Config: {config_path}")
         print()
-        
-        # Step 2: Run MT5 script
-        print("[STEP 2] Launching MT5 terminal with data.mq5...")
-        if not run_script(symbol):
-            print("[STEP 2] FAILED - Could not launch terminal")
-            return False
-        print("[STEP 2] SUCCESS")
+
+        print("[STEP 2] Resolving MT5 runtime...")
+        runtime = resolve_mt5_runtime(
+            instance_root_override=args.instance_root,
+            terminal_path_override=args.terminal_path,
+            metaeditor_path_override=args.metaeditor_path,
+        )
+        print(f"[STEP 2] SUCCESS - Terminal: {runtime.terminal_path}")
+        print(f"[STEP 2] SUCCESS - MetaEditor: {runtime.metaeditor_path}")
         print()
-        
-        # Step 3: Wait for output file
-        print("[STEP 3] Waiting for script output (up to 30 seconds)...")
-        csv_path = find_csv_file(symbol, max_wait=30.0)
-        
-        if csv_path is None:
-            print("[STEP 3] FAILED - Timeout waiting for CSV file")
-            print("[INFO] Possible issues:")
-            print(f"  - MT5 Files folder: {FILES_DIR}")
-            print("  - Check MT5 Experts log for errors")
-            print("  - Symbol may not have tick history downloaded")
-            return False
-        print("[STEP 3] SUCCESS")
+
+        if config_path != ACTIVE_SHARED_CONFIG_PATH:
+            shutil.copy2(config_path, ACTIVE_SHARED_CONFIG_PATH)
+
+        print("[STEP 3] Compiling data.mq5...")
+        compiled_path = compile_data_script(runtime, config_path)
+        print(f"[STEP 3] SUCCESS - Compiled: {compiled_path}")
         print()
-        
-        # Step 4: Move to data directory
-        print("[STEP 4] Moving file to data directory...")
-        dest_path = move_to_data_dir(symbol, csv_path)
+
+        print("[STEP 4] Launching MT5 terminal with data.mq5...")
+        stale_output = runtime.files_dir / args.output_file
+        stale_output.unlink(missing_ok=True)
+        run_script(runtime, symbol)
         print("[STEP 4] SUCCESS")
         print()
-        
+
+        print(f"[STEP 5] Waiting for script output (up to {args.timeout_seconds} seconds)...")
+        csv_path = find_csv_file(runtime.files_dir, args.output_file, max_wait=float(args.timeout_seconds))
+        if csv_path is None:
+            print("[STEP 5] FAILED - Timeout waiting for CSV file")
+            print("[INFO] Possible issues:")
+            print(f"  - MT5 Files folder: {runtime.files_dir}")
+            print("  - Check MT5 Experts and Tester logs for errors")
+            print("  - Symbol may not have tick history downloaded")
+            return False
+        print("[STEP 5] SUCCESS")
+        print()
+
+        print("[STEP 6] Moving file to data directory...")
+        move_to_data_dir(symbol, csv_path)
+        print("[STEP 6] SUCCESS")
+        print()
+
         print("=" * 60)
         print("Export completed successfully!")
         print("=" * 60)
         return True
-        
-    except Exception as e:
-        print(f"[ERROR] {e}")
-        import traceback
-        traceback.print_exc()
+    except Exception as exc:
+        print(f"[ERROR] {exc}")
         return False
 
 
 if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    raise SystemExit(0 if main() else 1)

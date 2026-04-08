@@ -14,7 +14,6 @@ from model_archive import (
     ACTIVE_DIAGNOSTICS_DIR,
     ACTIVE_MODEL_CONFIG_PATH,
     ACTIVE_SHARED_CONFIG_PATH,
-    DEFAULT_METAEDITOR_PATH,
     activate_model,
     compile_live_expert,
     configured_symbol,
@@ -479,8 +478,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--metaeditor-path",
         type=str,
-        default=str(DEFAULT_METAEDITOR_PATH),
-        help="Path to MetaEditor used to compile live.mq5 before testing.",
+        default="",
+        help="Optional explicit MetaEditor path. Leave blank to auto-detect on Windows or Linux/Wine.",
     )
     parser.add_argument(
         "--skip-live-compile",

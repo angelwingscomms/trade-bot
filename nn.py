@@ -41,14 +41,16 @@ from model_archive import (
     ACTIVE_MODEL_CONFIG_PATH,
     ACTIVE_ONNX_PATH,
     ACTIVE_SHARED_CONFIG_PATH,
-    DEFAULT_METAEDITOR_PATH,
     compile_live_expert,
+    configured_symbol,
     ensure_default_test_config,
     format_model_dir_name,
     load_define_file,
     read_text_best_effort,
     sanitize_model_name,
     set_live_model_reference,
+    symbol_model_config_path,
+    symbol_shared_config_path,
     symbol_models_dir,
     sync_directory_contents,
 )
@@ -160,31 +162,116 @@ SEQUENCE_EXTRA_FEATURES = (
 ALL_FEATURE_COLUMNS = tuple(dict.fromkeys(BASE_FEATURE_COLUMNS + MINIROCKET_EXTRA_FEATURES + SEQUENCE_EXTRA_FEATURES))
 
 
-SHARED = load_define_file(SHARED_CONFIG_PATH)
-SYMBOL = str(SHARED.get("SYMBOL", "XAUUSD"))
-SEQ_LEN = int(SHARED["SEQ_LEN"])
-TARGET_HORIZON = int(SHARED["TARGET_HORIZON"])
-FEATURE_ATR_PERIOD = int(SHARED["FEATURE_ATR_PERIOD"])
-TARGET_ATR_PERIOD = int(SHARED["TARGET_ATR_PERIOD"])
-RV_PERIOD = int(SHARED["RV_PERIOD"])
-RETURN_PERIOD = int(SHARED["RETURN_PERIOD"])
-WARMUP_BARS = int(SHARED["WARMUP_BARS"])
-IMBALANCE_MIN_TICKS = int(SHARED["IMBALANCE_MIN_TICKS"])
-IMBALANCE_EMA_SPAN = int(SHARED["IMBALANCE_EMA_SPAN"])
-PRIMARY_BAR_SECONDS = int(SHARED["PRIMARY_BAR_SECONDS"])
-BAR_DURATION_MS = PRIMARY_BAR_SECONDS * 1000
-DEFAULT_FIXED_MOVE = float(SHARED["DEFAULT_FIXED_MOVE"])
-LABEL_SL_MULTIPLIER = float(SHARED["LABEL_SL_MULTIPLIER"])
-LABEL_TP_MULTIPLIER = float(SHARED["LABEL_TP_MULTIPLIER"])
-EXECUTION_SL_MULTIPLIER = float(SHARED["DEFAULT_SL_MULTIPLIER"])
-EXECUTION_TP_MULTIPLIER = float(SHARED["DEFAULT_TP_MULTIPLIER"])
-USE_ALL_WINDOWS = bool(int(SHARED["USE_ALL_WINDOWS"]))
-DEFAULT_EPOCHS = int(SHARED["DEFAULT_EPOCHS"])
-DEFAULT_BATCH_SIZE = int(SHARED["DEFAULT_BATCH_SIZE"])
-DEFAULT_MAX_TRAIN_WINDOWS = int(SHARED["DEFAULT_MAX_TRAIN_WINDOWS"])
-DEFAULT_MAX_EVAL_WINDOWS = int(SHARED["DEFAULT_MAX_EVAL_WINDOWS"])
-DEFAULT_PATIENCE = int(SHARED["DEFAULT_PATIENCE"])
+CURRENT_SHARED_CONFIG_PATH = SHARED_CONFIG_PATH
+CURRENT_SYMBOL_MODEL_CONFIG_PATH = ACTIVE_MODEL_CONFIG_PATH
+SHARED: dict[str, int | float | str] = {}
+SYMBOL = "XAUUSD"
+SEQ_LEN = 0
+TARGET_HORIZON = 0
+FEATURE_ATR_PERIOD = 0
+TARGET_ATR_PERIOD = 0
+RV_PERIOD = 0
+RETURN_PERIOD = 0
+WARMUP_BARS = 0
+IMBALANCE_MIN_TICKS = 0
+IMBALANCE_EMA_SPAN = 0
+PRIMARY_BAR_SECONDS = 0
+BAR_DURATION_MS = 0
+DEFAULT_FIXED_MOVE = 0.0
+LABEL_SL_MULTIPLIER = 0.0
+LABEL_TP_MULTIPLIER = 0.0
+EXECUTION_SL_MULTIPLIER = 0.0
+EXECUTION_TP_MULTIPLIER = 0.0
+USE_ALL_WINDOWS = False
+DEFAULT_EPOCHS = 0
+DEFAULT_BATCH_SIZE = 0
+DEFAULT_MAX_TRAIN_WINDOWS = 0
+DEFAULT_MAX_EVAL_WINDOWS = 0
+DEFAULT_PATIENCE = 0
 LABEL_NAMES = ("HOLD", "BUY", "SELL")
+
+
+def apply_shared_settings(shared: dict[str, int | float | str], shared_config_path: Path | None = None) -> None:
+    global SHARED
+    global CURRENT_SHARED_CONFIG_PATH
+    global CURRENT_SYMBOL_MODEL_CONFIG_PATH
+    global SYMBOL
+    global SEQ_LEN
+    global TARGET_HORIZON
+    global FEATURE_ATR_PERIOD
+    global TARGET_ATR_PERIOD
+    global RV_PERIOD
+    global RETURN_PERIOD
+    global WARMUP_BARS
+    global IMBALANCE_MIN_TICKS
+    global IMBALANCE_EMA_SPAN
+    global PRIMARY_BAR_SECONDS
+    global BAR_DURATION_MS
+    global DEFAULT_FIXED_MOVE
+    global LABEL_SL_MULTIPLIER
+    global LABEL_TP_MULTIPLIER
+    global EXECUTION_SL_MULTIPLIER
+    global EXECUTION_TP_MULTIPLIER
+    global USE_ALL_WINDOWS
+    global DEFAULT_EPOCHS
+    global DEFAULT_BATCH_SIZE
+    global DEFAULT_MAX_TRAIN_WINDOWS
+    global DEFAULT_MAX_EVAL_WINDOWS
+    global DEFAULT_PATIENCE
+
+    SHARED = dict(shared)
+    if shared_config_path is not None:
+        CURRENT_SHARED_CONFIG_PATH = shared_config_path
+
+    SYMBOL = str(SHARED.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD"
+    CURRENT_SYMBOL_MODEL_CONFIG_PATH = symbol_model_config_path(SYMBOL)
+    SEQ_LEN = int(SHARED["SEQ_LEN"])
+    TARGET_HORIZON = int(SHARED["TARGET_HORIZON"])
+    FEATURE_ATR_PERIOD = int(SHARED["FEATURE_ATR_PERIOD"])
+    TARGET_ATR_PERIOD = int(SHARED["TARGET_ATR_PERIOD"])
+    RV_PERIOD = int(SHARED["RV_PERIOD"])
+    RETURN_PERIOD = int(SHARED["RETURN_PERIOD"])
+    WARMUP_BARS = int(SHARED["WARMUP_BARS"])
+    IMBALANCE_MIN_TICKS = int(SHARED["IMBALANCE_MIN_TICKS"])
+    IMBALANCE_EMA_SPAN = int(SHARED["IMBALANCE_EMA_SPAN"])
+    PRIMARY_BAR_SECONDS = int(SHARED["PRIMARY_BAR_SECONDS"])
+    BAR_DURATION_MS = PRIMARY_BAR_SECONDS * 1000
+    DEFAULT_FIXED_MOVE = float(SHARED["DEFAULT_FIXED_MOVE"])
+    LABEL_SL_MULTIPLIER = float(SHARED["LABEL_SL_MULTIPLIER"])
+    LABEL_TP_MULTIPLIER = float(SHARED["LABEL_TP_MULTIPLIER"])
+    EXECUTION_SL_MULTIPLIER = float(SHARED["DEFAULT_SL_MULTIPLIER"])
+    EXECUTION_TP_MULTIPLIER = float(SHARED["DEFAULT_TP_MULTIPLIER"])
+    USE_ALL_WINDOWS = bool(int(SHARED["USE_ALL_WINDOWS"]))
+    DEFAULT_EPOCHS = int(SHARED["DEFAULT_EPOCHS"])
+    DEFAULT_BATCH_SIZE = int(SHARED["DEFAULT_BATCH_SIZE"])
+    DEFAULT_MAX_TRAIN_WINDOWS = int(SHARED["DEFAULT_MAX_TRAIN_WINDOWS"])
+    DEFAULT_MAX_EVAL_WINDOWS = int(SHARED["DEFAULT_MAX_EVAL_WINDOWS"])
+    DEFAULT_PATIENCE = int(SHARED["DEFAULT_PATIENCE"])
+
+
+def resolve_symbol_training_config(requested_symbol: str) -> tuple[str, Path, dict[str, int | float | str]]:
+    requested = requested_symbol.strip()
+    if requested:
+        config_candidate = symbol_shared_config_path(requested)
+        if not config_candidate.exists():
+            raise FileNotFoundError(
+                f"Shared config not found for symbol '{requested}'. Expected {config_candidate}."
+            )
+        shared = load_define_file(config_candidate)
+        resolved_symbol = str(shared.get("SYMBOL", requested)).strip() or requested
+        return resolved_symbol, config_candidate, shared
+
+    active_shared = load_define_file(SHARED_CONFIG_PATH)
+    active_symbol = str(active_shared.get("SYMBOL", configured_symbol())).strip() or "XAUUSD"
+    symbol_config_candidate = symbol_shared_config_path(active_symbol)
+    if symbol_config_candidate.exists():
+        shared = load_define_file(symbol_config_candidate)
+        resolved_symbol = str(shared.get("SYMBOL", active_symbol)).strip() or active_symbol
+        return resolved_symbol, symbol_config_candidate, shared
+    return active_symbol, SHARED_CONFIG_PATH, active_shared
+
+
+apply_shared_settings(load_define_file(SHARED_CONFIG_PATH), SHARED_CONFIG_PATH)
 
 
 def feature_macro_name(feature_name: str) -> str:
@@ -213,9 +300,15 @@ def resolve_feature_profile(architecture: str, use_extended_features: bool) -> s
     return "sequence_extended"
 
 
-def parse_args() -> argparse.Namespace:
+def build_arg_parser(selected_symbol: str, shared: dict[str, int | float | str]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Train the shared model pipeline using shared_config.mqh as the source of truth."
+        description="Train the model pipeline using the selected symbol config as the source of truth."
+    )
+    parser.add_argument(
+        "--symbol",
+        type=str,
+        default=selected_symbol,
+        help="Symbol config to load from models/<SYMBOL>/config/shared_config.mqh.",
     )
     parser.add_argument("--data-file", type=str, default=DEFAULT_DATA_FILE, help="CSV with time_msc,bid,ask.")
     parser.add_argument("--output-file", type=str, default=DEFAULT_OUTPUT_FILE, help="ONNX output file.")
@@ -225,22 +318,22 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Optional model folder prefix. Archives become {name}-{date} and add -fail when the quality gate misses.",
     )
-    parser.add_argument("--epochs", type=int, default=DEFAULT_EPOCHS, help="Maximum training epochs.")
-    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="Training batch size.")
+    parser.add_argument("--epochs", type=int, default=int(shared["DEFAULT_EPOCHS"]), help="Maximum training epochs.")
+    parser.add_argument("--batch-size", type=int, default=int(shared["DEFAULT_BATCH_SIZE"]), help="Training batch size.")
     parser.add_argument(
         "--max-train-windows",
         type=int,
-        default=DEFAULT_MAX_TRAIN_WINDOWS,
+        default=int(shared["DEFAULT_MAX_TRAIN_WINDOWS"]),
         help="Training window cap.",
     )
     parser.add_argument(
         "--max-eval-windows",
         type=int,
-        default=DEFAULT_MAX_EVAL_WINDOWS,
+        default=int(shared["DEFAULT_MAX_EVAL_WINDOWS"]),
         help="Validation/test window cap.",
     )
-    parser.add_argument("--patience", type=int, default=DEFAULT_PATIENCE, help="Early stopping patience.")
-    parser.add_argument("--device", type=str, default="", help="Optional torch device override.")
+    parser.add_argument("--patience", type=int, default=int(shared["DEFAULT_PATIENCE"]), help="Early stopping patience.")
+    parser.add_argument("--device", type=str, default="cpu", help="Torch device to use. Defaults to cpu.")
     parser.add_argument(
         "--focal-gamma",
         type=float,
@@ -416,8 +509,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--metaeditor-path",
         type=str,
-        default=str(DEFAULT_METAEDITOR_PATH),
-        help="Path to MetaEditor used to compile live.mq5 after training.",
+        default="",
+        help="Optional explicit MetaEditor path. Leave blank to auto-detect on Windows or Linux/Wine.",
     )
     parser.add_argument(
         "--skip-live-compile",
@@ -478,7 +571,15 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_CONFIDENCE_SEARCH_STEPS,
         help="Number of threshold candidates to evaluate when selecting PRIMARY_CONFIDENCE.",
     )
-    return parser.parse_args()
+    return parser
+
+
+def parse_args() -> argparse.Namespace:
+    bootstrap = argparse.ArgumentParser(add_help=False)
+    bootstrap.add_argument("--symbol", type=str, default="")
+    bootstrap_args, _ = bootstrap.parse_known_args()
+    selected_symbol, _shared_config_path, shared = resolve_symbol_training_config(bootstrap_args.symbol)
+    return build_arg_parser(selected_symbol, shared).parse_args()
 
 
 def resolve_architecture(args: argparse.Namespace) -> str:
@@ -1315,7 +1416,7 @@ def write_diagnostics(
     val_confusion.to_csv(diagnostics_dir / "validation_confusion_matrix.csv")
     test_confusion.to_csv(diagnostics_dir / "holdout_confusion_matrix.csv")
     (diagnostics_dir / "shared_config_snapshot.mqh").write_text(
-        SHARED_CONFIG_PATH.read_text(encoding="utf-8"),
+        CURRENT_SHARED_CONFIG_PATH.read_text(encoding="utf-8"),
         encoding="utf-8",
     )
     (diagnostics_dir / "model_config_snapshot.mqh").write_text(model_config_text, encoding="utf-8")
@@ -1412,7 +1513,7 @@ def write_diagnostics(
         "",
         "## Note",
         *(
-            [f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in shared_config.mqh to retune them, for example to 27 or 9 seconds."]
+            [f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in {CURRENT_SHARED_CONFIG_PATH.name} to retune them, for example to 27 or 9 seconds."]
             if use_fixed_time_bars
             else ["- Imbalance bars are variable by design. Lowering imbalance_min_ticks makes them smaller on average, but it does not force a fixed tick count per bar."]
         ),
@@ -1493,6 +1594,9 @@ def resolve_loss_mode(_architecture: str, requested_mode: str) -> str:
 def main() -> None:
     t0 = time.time()
     args = parse_args()
+    selected_symbol, selected_shared_config_path, selected_shared = resolve_symbol_training_config(args.symbol)
+    apply_shared_settings(selected_shared, selected_shared_config_path)
+    args.symbol = selected_symbol
     torch.manual_seed(42)
     np.random.seed(42)
     architecture = resolve_architecture(args)
@@ -1531,19 +1635,25 @@ def main() -> None:
     data_path = resolve_local_path(args.data_file)
     output_path = resolve_local_path(args.output_file)
     active_output_path = ACTIVE_ONNX_PATH
-    config_path = ACTIVE_MODEL_CONFIG_PATH
+    active_model_config_path = ACTIVE_MODEL_CONFIG_PATH
+    selected_model_config_path = CURRENT_SYMBOL_MODEL_CONFIG_PATH
     active_output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    selected_model_config_path.parent.mkdir(parents=True, exist_ok=True)
     archive_only = bool(args.archive_only)
     if archive_only and not args.skip_live_compile:
         log.info("archive-only mode implies --skip-live-compile; active live files will not be updated.")
+    elif CURRENT_SHARED_CONFIG_PATH != SHARED_CONFIG_PATH:
+        shutil.copy2(CURRENT_SHARED_CONFIG_PATH, SHARED_CONFIG_PATH)
 
-    device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    requested_device = str(args.device).strip() or "cpu"
+    device = torch.device(requested_device)
     log.info("Using device: %s", device)
     log.info(
-        "Shared config | seq_len=%d horizon=%d atr_feature=%d atr_target=%d rv=%d ret=%d "
+        "Shared config | path=%s seq_len=%d horizon=%d atr_feature=%d atr_target=%d rv=%d ret=%d "
         "bar_mode=%s imbalance_min_ticks=%d imbalance_ema_span=%d bar_seconds=%d risk_mode=%s fixed_move_points=%.2f "
         "label_sl=%.2f label_tp=%.2f exec_sl=%.2f exec_tp=%.2f use_all_windows=%d",
+        CURRENT_SHARED_CONFIG_PATH,
         SEQ_LEN,
         TARGET_HORIZON,
         FEATURE_ATR_PERIOD,
@@ -2096,7 +2206,10 @@ def main() -> None:
         + "\n"
     )
     if not archive_only:
-        config_path.write_text(model_config_text, encoding="utf-8")
+        shutil.copy2(CURRENT_SHARED_CONFIG_PATH, SHARED_CONFIG_PATH)
+    selected_model_config_path.write_text(model_config_text, encoding="utf-8")
+    if not archive_only:
+        shutil.copy2(selected_model_config_path, active_model_config_path)
     write_diagnostics(
         diagnostics_dir=model_diagnostics_dir,
         bars=bars,
@@ -2162,8 +2275,9 @@ def main() -> None:
         log.info("Saved ONNX to %s", active_output_path)
     if should_copy_to_output:
         log.info("Copied ONNX to %s", output_path)
+    log.info("Saved symbol config to %s", selected_model_config_path)
     if not archive_only:
-        log.info("Saved config to %s", config_path)
+        log.info("Saved active config to %s", active_model_config_path)
     log.info("Saved diagnostics to %s", model_diagnostics_dir)
     log.info("Archived model artifacts to %s", model_dir)
     log.info("Total runtime: %.2fs", time.time() - t0)

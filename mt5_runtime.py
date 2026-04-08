@@ -12,11 +12,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_DIR_NAME = SCRIPT_DIR.name
 DEFAULT_WINDOWS_INSTALL_DIR = Path(r"C:\Program Files\MetaTrader 5")
 DEFAULT_WINDOWS_TERMINAL_PATH = DEFAULT_WINDOWS_INSTALL_DIR / "terminal64.exe"
-DEFAULT_WINDOWS_METAEDITOR_PATH = DEFAULT_WINDOWS_INSTALL_DIR / "metaeditor64.exe"
-DEFAULT_WINEPREFIX = Path(os.environ.get("WINEPREFIX", str(Path.home() / ".mt5"))).expanduser()
-DEFAULT_LINUX_INSTALL_DIR = DEFAULT_WINEPREFIX / "drive_c" / "Program Files" / "MetaTrader 5"
+DEFAULT_WINDOWS_METAEDITOR_PATH = DEFAULT_WINDOWS_INSTALL_DIR / "MetaEditor64.exe"
 TERMINAL_EXECUTABLE_NAMES = ("terminal64.exe", "Terminal64.exe")
 METAEDITOR_EXECUTABLE_NAMES = ("metaeditor64.exe", "MetaEditor64.exe")
+METATESTER_EXECUTABLE_NAMES = ("metatester64.exe", "MetaTester64.exe")
 
 
 @dataclass(frozen=True)
@@ -70,7 +69,36 @@ def host_platform_name() -> str:
         return "windows"
     if system_name == "linux":
         return "linux"
+    if system_name == "darwin":
+        raise EnvironmentError("MetaTrader automation is not supported on macOS. Use Windows or Linux with Wine.")
     raise EnvironmentError(f"Unsupported operating system: {platform.system()}")
+
+
+def _candidate_wineprefixes() -> list[Path]:
+    candidates: list[Path] = []
+    env_wineprefix = os.environ.get("WINEPREFIX", "").strip()
+    if env_wineprefix:
+        _append_unique(candidates, Path(env_wineprefix))
+
+    for candidate in SCRIPT_DIR.parents:
+        if candidate.name.startswith("drive_") and candidate.parent.name in {".wine", ".mt5"}:
+            _append_unique(candidates, candidate.parent)
+
+    _append_unique(candidates, Path.home() / ".wine")
+    _append_unique(candidates, Path.home() / ".mt5")
+    return [candidate for candidate in candidates if candidate.exists()]
+
+
+def default_linux_install_dirs() -> list[Path]:
+    install_dirs: list[Path] = []
+    for wineprefix in _candidate_wineprefixes():
+        _append_unique(install_dirs, wineprefix / "drive_c" / "Program Files" / "MetaTrader 5")
+    return install_dirs
+
+
+def default_linux_wineprefix() -> Path | None:
+    candidates = _candidate_wineprefixes()
+    return candidates[0] if candidates else None
 
 
 def is_instance_root(path: Path) -> bool:
@@ -145,7 +173,8 @@ def _candidate_instance_roots(instance_root_override: str) -> list[Path]:
 
     platform_name = host_platform_name()
     if platform_name == "linux":
-        _append_unique(candidates, DEFAULT_LINUX_INSTALL_DIR)
+        for install_dir in default_linux_install_dirs():
+            _append_unique(candidates, install_dir)
     else:
         appdata_value = os.environ.get("APPDATA", "").strip()
         if appdata_value:
@@ -202,10 +231,11 @@ def resolve_terminal_path(instance_root: Path, terminal_path_override: str = "")
             return install_path
 
     platform_name = host_platform_name()
-    fallback_dir = DEFAULT_LINUX_INSTALL_DIR if platform_name == "linux" else DEFAULT_WINDOWS_INSTALL_DIR
-    fallback = _first_existing(_existing_candidates(fallback_dir, TERMINAL_EXECUTABLE_NAMES))
-    if fallback is not None:
-        return fallback
+    fallback_dirs = default_linux_install_dirs() if platform_name == "linux" else [DEFAULT_WINDOWS_INSTALL_DIR]
+    for fallback_dir in fallback_dirs:
+        fallback = _first_existing(_existing_candidates(fallback_dir, TERMINAL_EXECUTABLE_NAMES))
+        if fallback is not None:
+            return fallback
 
     raise FileNotFoundError(
         "Could not locate terminal64.exe. Pass --terminal-path or set MT5_TERMINAL_PATH."
@@ -223,10 +253,11 @@ def resolve_metaeditor_path(instance_root: Path, terminal_path: Path, metaeditor
             return candidate
 
     platform_name = host_platform_name()
-    fallback_dir = DEFAULT_LINUX_INSTALL_DIR if platform_name == "linux" else DEFAULT_WINDOWS_INSTALL_DIR
-    fallback = _first_existing(_existing_candidates(fallback_dir, METAEDITOR_EXECUTABLE_NAMES))
-    if fallback is not None:
-        return fallback
+    fallback_dirs = default_linux_install_dirs() if platform_name == "linux" else [DEFAULT_WINDOWS_INSTALL_DIR]
+    for fallback_dir in fallback_dirs:
+        fallback = _first_existing(_existing_candidates(fallback_dir, METAEDITOR_EXECUTABLE_NAMES))
+        if fallback is not None:
+            return fallback
 
     raise FileNotFoundError(
         "Could not locate MetaEditor. Pass --metaeditor-path or set MQL5_COMPILER_PATH."
@@ -242,11 +273,12 @@ def resolve_mt5_runtime(
     instance_root = resolve_instance_root(instance_root_override)
     terminal_path = resolve_terminal_path(instance_root, terminal_path_override)
     metaeditor_path = resolve_metaeditor_path(instance_root, terminal_path, metaeditor_path_override)
+    wineprefix = default_linux_wineprefix() if platform_name == "linux" else None
 
     return Mt5RuntimePaths(
         host_platform=platform_name,
         use_wine=(platform_name == "linux"),
-        wineprefix=(DEFAULT_WINEPREFIX if platform_name == "linux" else None),
+        wineprefix=wineprefix,
         instance_root=instance_root,
         terminal_path=terminal_path,
         metaeditor_path=metaeditor_path,
