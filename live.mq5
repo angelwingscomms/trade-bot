@@ -1,10 +1,10 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "BTCUSD"
-#define ACTIVE_MODEL_VERSION "bench-tcn-a-07_04_2026-13_39__59"
-#include "models/BTCUSD/bench-tcn-a-07_04_2026-13_39__59-fail/diagnostics/shared_config_snapshot.mqh"
-#include "models/BTCUSD/bench-tcn-a-07_04_2026-13_39__59-fail/diagnostics/model_config_snapshot.mqh"
-#resource "models\\BTCUSD\\bench-tcn-a-07_04_2026-13_39__59-fail\\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_VERSION "tcn-smoke-07_04_2026-12_53__50-fail"
+#include "models/BTCUSD/tcn-smoke-07_04_2026-12_53__50-fail/diagnostics/shared_config_snapshot.mqh"
+#include "models/BTCUSD/tcn-smoke-07_04_2026-12_53__50-fail/diagnostics/model_config_snapshot.mqh"
+#resource "models\\BTCUSD\\tcn-smoke-07_04_2026-12_53__50-fail\\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
@@ -771,6 +771,13 @@ void Execute(int signal) {
    }
 
    double volume = CalculateTradeVolume(signal, price, sl);
+   DebugPrint(
+      StringFormat(
+         "risk_pct=%.3f lot_cap=%.2f",
+         RISK_PERCENT,
+         LOT_SIZE
+      )
+   );
    if(volume <= 0.0) {
       volume_skip_count++;
       DebugPrint(

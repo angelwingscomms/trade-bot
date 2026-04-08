@@ -26,8 +26,8 @@
 #define REQUIRED_HISTORY_INDEX (SEQ_LEN + MAX_FEATURE_LOOKBACK - 1)
 
 // Default primary bars are imbalance bars.
-#define IMBALANCE_MIN_TICKS 9
-#define IMBALANCE_EMA_SPAN 9
+#define IMBALANCE_MIN_TICKS 3
+#define IMBALANCE_EMA_SPAN 3
 
 // Fixed-time bars are optional and only used when nn.py runs with -i.
 #define PRIMARY_BAR_SECONDS 9
@@ -37,12 +37,12 @@
 #define DEFAULT_FIXED_MOVE 144
 
 // Training labels: ATR multipliers used in the default ATR-risk mode.
-#define LABEL_SL_MULTIPLIER 5.4
-#define LABEL_TP_MULTIPLIER 5.4
+#define LABEL_SL_MULTIPLIER 0.54
+#define LABEL_TP_MULTIPLIER 0.54
 
 // Live execution defaults used when live.mq5 input R is false / ATR-risk mode is enabled.
-#define DEFAULT_SL_MULTIPLIER 5.4
-#define DEFAULT_TP_MULTIPLIER 5.4
+#define DEFAULT_SL_MULTIPLIER 0.54
+#define DEFAULT_TP_MULTIPLIER 0.54
 #define DEFAULT_LOT_SIZE 0.54
 #define DEFAULT_RISK_PERCENT 0.00
 #define DEFAULT_LOT_MIN 0.54
