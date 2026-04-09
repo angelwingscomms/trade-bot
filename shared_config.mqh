@@ -37,12 +37,12 @@
 #define DEFAULT_FIXED_MOVE 144
 
 // Training labels: ATR multipliers used in the default ATR-risk mode.
-#define LABEL_SL_MULTIPLIER 0.54
-#define LABEL_TP_MULTIPLIER 0.54
+#define LABEL_SL_MULTIPLIER 5.4
+#define LABEL_TP_MULTIPLIER 5.4
 
 // Live execution defaults used when live.mq5 input R is false / ATR-risk mode is enabled.
-#define DEFAULT_SL_MULTIPLIER 0.54
-#define DEFAULT_TP_MULTIPLIER 0.54
+#define DEFAULT_SL_MULTIPLIER 5.4
+#define DEFAULT_TP_MULTIPLIER 5.4
 #define DEFAULT_LOT_SIZE 0.54
 #define DEFAULT_RISK_PERCENT 0.00
 #define DEFAULT_LOT_MIN 0.54

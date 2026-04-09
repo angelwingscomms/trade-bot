@@ -55,7 +55,12 @@ from model_archive import (
     sync_directory_contents,
 )
 from mt5_runtime import resolve_mt5_runtime
-from sequence_models import FusionLSTMClassifier, RecurrentSequenceClassifier, TCNClassifier
+from sequence_models import (
+    FusionLSTMClassifier,
+    RecurrentSequenceClassifier,
+    TCNClassifier,
+    TemporalLSTMAttentionClassifier,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -414,6 +419,13 @@ def build_arg_parser(selected_symbol: str, shared: dict[str, int | float | str])
         help="Use a dilated causal temporal convolutional network. Combine with -a to add the attention head.",
     )
     architecture_group.add_argument(
+        "-tla",
+        "--use-tla-encoder",
+        dest="use_tla_encoder",
+        action="store_true",
+        help="Use temporal convolutions + bidirectional LSTM + multihead attention encoder.",
+    )
+    architecture_group.add_argument(
         "--chronos-bolt",
         "--chronos",
         dest="use_chronos_bolt",
@@ -606,6 +618,8 @@ def resolve_architecture(args: argparse.Namespace) -> str:
         return "gru"
     if args.use_tcn_encoder:
         return "tcn"
+    if args.use_tla_encoder:
+        return "tla"
     if args.use_minirocket_encoder:
         return "minirocket"
     if args.use_castor_encoder:
@@ -1989,7 +2003,7 @@ def main() -> None:
                 shuffle=False,
             )
         else:
-            if architecture in {"ela", "fusion_lstm", "bilstm", "gru", "tcn"}:
+            if architecture in {"ela", "fusion_lstm", "bilstm", "gru", "tcn", "tla"}:
                 learning_rate = args.lr if args.lr > 0.0 else DEFAULT_SEQUENCE_LR
                 weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_SEQUENCE_WEIGHT_DECAY
                 if architecture == "fusion_lstm":
@@ -2008,6 +2022,19 @@ def main() -> None:
                         n_layers=args.tcn_levels,
                         kernel_size=args.tcn_kernel_size,
                         use_multihead_attention=use_multihead_attention,
+                        attention_heads=args.attention_heads,
+                        attention_layers=args.attention_layers,
+                        attention_dropout=args.attention_dropout,
+                    ).to(device)
+                elif architecture == "tla":
+                    training_model = TemporalLSTMAttentionClassifier(
+                        n_features=feature_count,
+                        conv_channels=128,
+                        lstm_hidden=args.sequence_hidden_size,
+                        hidden=max(args.sequence_hidden_size, feature_count * 4),
+                        dropout=args.sequence_dropout,
+                        conv_kernel_size=5,
+                        lstm_layers=args.sequence_layers,
                         attention_heads=args.attention_heads,
                         attention_layers=args.attention_layers,
                         attention_dropout=args.attention_dropout,
