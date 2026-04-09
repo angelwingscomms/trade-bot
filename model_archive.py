@@ -18,6 +18,7 @@ from mt5_runtime import (
     ensure_runtime_dirs,
     resolve_metaeditor_path,
     runtime_env,
+    to_windows_path,
 )
 
 
@@ -412,10 +413,7 @@ def _write_synthetic_compile_log(path: Path, message: str) -> None:
     )
 
 
-def _compile_via_metaeditor_ui(runtime: Mt5RuntimePaths) -> None:
-    if runtime.host_platform != "windows" or runtime.use_wine:
-        raise RuntimeError("MetaEditor UI fallback is only supported on native Windows.")
-
+def _compile_via_metaeditor_ui_windows(runtime: Mt5RuntimePaths) -> None:
     source_path = str(runtime.deployed_live_mq5).replace("'", "''")
     metaeditor_path = str(runtime.metaeditor_path).replace("'", "''")
     script = f"""
@@ -471,6 +469,159 @@ if (-not $compiled) {{
         )
 
 
+def _compile_via_metaeditor_ui_wine(runtime: Mt5RuntimePaths) -> None:
+    try:
+        from Xlib import X, XK, display, protocol
+        from Xlib.ext import xtest
+    except ImportError as exc:
+        raise RuntimeError(
+            "MetaEditor UI fallback on Linux/Wine requires python-xlib."
+        ) from exc
+
+    def keycode(dpy, keysym_name: str) -> int:
+        keysym = XK.string_to_keysym(keysym_name)
+        if not keysym:
+            raise RuntimeError(f"Unsupported X11 keysym for MetaEditor fallback: {keysym_name}")
+        code = dpy.keysym_to_keycode(keysym)
+        if code == 0:
+            raise RuntimeError(f"Could not resolve X11 keycode for MetaEditor fallback: {keysym_name}")
+        return code
+
+    def activate_window(dpy, win) -> None:
+        root = dpy.screen().root
+        try:
+            net_active_window = dpy.intern_atom("_NET_ACTIVE_WINDOW")
+            event = protocol.event.ClientMessage(
+                window=win,
+                client_type=net_active_window,
+                data=(32, [1, X.CurrentTime, 0, 0, 0]),
+            )
+            root.send_event(
+                event,
+                event_mask=X.SubstructureRedirectMask | X.SubstructureNotifyMask,
+            )
+        except Exception:
+            pass
+        try:
+            win.set_input_focus(X.RevertToParent, X.CurrentTime)
+        except Exception:
+            pass
+        dpy.sync()
+
+    def send_key(dpy, keysym_name: str, modifiers: tuple[str, ...] = ()) -> None:
+        modifier_codes = [keycode(dpy, modifier) for modifier in modifiers]
+        main_code = keycode(dpy, keysym_name)
+        for modifier_code in modifier_codes:
+            xtest.fake_input(dpy, X.KeyPress, modifier_code)
+        xtest.fake_input(dpy, X.KeyPress, main_code)
+        xtest.fake_input(dpy, X.KeyRelease, main_code)
+        for modifier_code in reversed(modifier_codes):
+            xtest.fake_input(dpy, X.KeyRelease, modifier_code)
+        dpy.sync()
+
+    def find_metaeditor_window(dpy):
+        root = dpy.screen().root
+        stack = [root]
+        seen: set[int] = set()
+        while stack:
+            win = stack.pop()
+            win_id = getattr(win, "id", None)
+            if win_id in seen:
+                continue
+            if win_id is not None:
+                seen.add(win_id)
+            try:
+                wm_class = win.get_wm_class() or ()
+            except Exception:
+                wm_class = ()
+            if any("metaeditor" in str(item).lower() for item in wm_class):
+                return win
+            try:
+                stack.extend(win.query_tree().children)
+            except Exception:
+                continue
+        return None
+
+    subprocess.run(
+        ["pkill", "-f", "MetaEditor64.exe"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=runtime_env(runtime),
+    )
+
+    source_value = to_windows_path(runtime, runtime.deployed_live_mq5)
+    previous_ex5_mtime = runtime.deployed_live_ex5.stat().st_mtime if runtime.deployed_live_ex5.exists() else 0.0
+    previous_ex5_size = runtime.deployed_live_ex5.stat().st_size if runtime.deployed_live_ex5.exists() else -1
+    process = subprocess.Popen(
+        ["wine", str(runtime.metaeditor_path), source_value],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        env=runtime_env(runtime),
+        start_new_session=True,
+    )
+
+    dpy = None
+    compiled = False
+    try:
+        dpy = display.Display()
+        deadline = time.time() + 30.0
+        window = None
+        while time.time() < deadline:
+            window = find_metaeditor_window(dpy)
+            if window is not None:
+                break
+            time.sleep(0.5)
+        if window is None:
+            raise RuntimeError("MetaEditor window did not appear on the X11 display.")
+
+        time.sleep(0.7)
+        activate_window(dpy, window)
+        time.sleep(0.3)
+        send_key(dpy, "F7")
+
+        compile_deadline = time.time() + 60.0
+        while time.time() < compile_deadline:
+            if runtime.deployed_live_ex5.exists():
+                ex5_stat = runtime.deployed_live_ex5.stat()
+                if ex5_stat.st_mtime > previous_ex5_mtime or ex5_stat.st_size != previous_ex5_size:
+                    compiled = True
+                    break
+            time.sleep(0.5)
+
+        activate_window(dpy, window)
+        time.sleep(0.3)
+        send_key(dpy, "F4", modifiers=("Alt_L",))
+        time.sleep(1.0)
+    finally:
+        if dpy is not None:
+            try:
+                dpy.close()
+            except Exception:
+                pass
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=5.0)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=5.0)
+
+    if not compiled:
+        raise RuntimeError("MetaEditor UI fallback did not update live.ex5.")
+
+
+def _compile_via_metaeditor_ui(runtime: Mt5RuntimePaths) -> None:
+    if runtime.use_wine:
+        _compile_via_metaeditor_ui_wine(runtime)
+        return
+    if runtime.host_platform == "windows":
+        _compile_via_metaeditor_ui_windows(runtime)
+        return
+    raise RuntimeError("MetaEditor UI fallback is only supported on Windows or Linux/Wine.")
+
+
 def compile_live_expert(runtime: Mt5RuntimePaths, skip_deployment: bool = False) -> Path:
     if not skip_deployment:
         deploy_active_model(runtime)
@@ -513,15 +664,24 @@ def compile_live_expert(runtime: Mt5RuntimePaths, skip_deployment: bool = False)
             return runtime.deployed_compile_log
         time.sleep(0.5)
 
+    fallback_message = None
     if completed.returncode != 0:
-        raise RuntimeError(
-            f"MetaEditor returned exit code {completed.returncode} while compiling {runtime.deployed_live_mq5}.\n"
-            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+        fallback_message = (
+            f"MetaEditor returned exit code {completed.returncode} without a usable compile log, "
+            "so a UI fallback compile was used successfully."
         )
-
-    _compile_via_metaeditor_ui(runtime)
+    try:
+        _compile_via_metaeditor_ui(runtime)
+    except RuntimeError as exc:
+        if completed.returncode != 0:
+            raise RuntimeError(
+                f"MetaEditor returned exit code {completed.returncode} while compiling {runtime.deployed_live_mq5}.\n"
+                f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}\n\n"
+                f"UI fallback error:\n{exc}"
+            ) from exc
+        raise
     _write_synthetic_compile_log(
         runtime.deployed_compile_log,
-        "MetaEditor CLI produced no usable compile status, so a UI fallback compile was used successfully.",
+        fallback_message or "MetaEditor CLI produced no usable compile status, so a UI fallback compile was used successfully.",
     )
     return runtime.deployed_compile_log

@@ -55,7 +55,7 @@ from model_archive import (
     sync_directory_contents,
 )
 from mt5_runtime import resolve_mt5_runtime
-from sequence_models import RecurrentSequenceClassifier, TCNClassifier
+from sequence_models import LegacyLSTMAttentionClassifier, RecurrentSequenceClassifier, TCNClassifier
 
 logging.basicConfig(
     level=logging.INFO,
@@ -403,6 +403,16 @@ def build_arg_parser(selected_symbol: str, shared: dict[str, int | float | str])
         help="Use a dilated causal temporal convolutional network. Combine with -a to add the attention head.",
     )
     architecture_group.add_argument(
+        "--legacy-lstm-attention",
+        "--old-lstm-attention",
+        dest="use_legacy_lstm_attention",
+        action="store_true",
+        help=(
+            "Use the older single-layer LSTM + self-attention + mean-pool + dense-20 classifier pattern. "
+            "It uses the current pipeline's active feature pack, so with -f on sequence models it will see 36 features on XAUUSD."
+        ),
+    )
+    architecture_group.add_argument(
         "--chronos-bolt",
         "--chronos",
         dest="use_chronos_bolt",
@@ -585,6 +595,8 @@ def parse_args() -> argparse.Namespace:
 def resolve_architecture(args: argparse.Namespace) -> str:
     if args.use_chronos_bolt:
         return "chronos_bolt"
+    if args.use_legacy_lstm_attention:
+        return "legacy_lstm_attention"
     if args.ela:
         return "ela"
     if args.use_bilstm_encoder:
@@ -1572,6 +1584,7 @@ def build_mql_config(
             f"#define MODEL_USE_BILSTM {1 if architecture == 'bilstm' else 0}",
             f"#define MODEL_USE_GRU {1 if architecture == 'gru' else 0}",
             f"#define MODEL_USE_TCN {1 if architecture == 'tcn' else 0}",
+            f"#define MODEL_USE_LEGACY_LSTM_ATTENTION {1 if architecture == 'legacy_lstm_attention' else 0}",
             f"#define MODEL_USE_CHRONOS {1 if architecture == 'chronos_bolt' else 0}",
             f"#define MODEL_USE_CHRONOS_BOLT {1 if architecture == 'chronos_bolt' else 0}",
             f"#define MODEL_USE_MULTIHEAD_ATTENTION {1 if use_multihead_attention else 0}",
@@ -1616,6 +1629,12 @@ def main() -> None:
     use_multihead_attention = bool(args.use_multihead_attention)
     use_atr_risk = not bool(args.use_fixed_risk)
     use_fixed_time_bars = bool(args.use_fixed_time_bars)
+    if architecture == "legacy_lstm_attention":
+        if use_multihead_attention:
+            log.info("Legacy LSTM attention architecture has built-in self-attention; the -a flag is redundant.")
+        else:
+            log.info("Legacy LSTM attention architecture includes self-attention by design.")
+        use_multihead_attention = True
     if architecture == "ela":
         if not use_multihead_attention:
             log.info("ELA uses the multihead attention head by design; enabling attention automatically.")
@@ -1954,10 +1973,16 @@ def main() -> None:
                 shuffle=False,
             )
         else:
-            if architecture in {"ela", "bilstm", "gru", "tcn"}:
+            if architecture in {"ela", "bilstm", "gru", "tcn", "legacy_lstm_attention"}:
                 learning_rate = args.lr if args.lr > 0.0 else DEFAULT_SEQUENCE_LR
                 weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_SEQUENCE_WEIGHT_DECAY
-                if architecture == "tcn":
+                if architecture == "legacy_lstm_attention":
+                    training_model = LegacyLSTMAttentionClassifier(
+                        n_features=feature_count,
+                        attention_heads=args.attention_heads,
+                        attention_dropout=args.attention_dropout,
+                    ).to(device)
+                elif architecture == "tcn":
                     training_model = TCNClassifier(
                         n_features=feature_count,
                         channels=args.sequence_hidden_size,

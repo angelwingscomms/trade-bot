@@ -1,5 +1,5 @@
 // Single source of truth for values shared by nn.py, live.mq5, data.mq5, and test.py.
-#define SYMBOL "BTCUSD"
+#define SYMBOL "XAUUSD"
 
 #define SEQ_LEN 54
 #define TARGET_HORIZON 27
@@ -26,8 +26,8 @@
 #define REQUIRED_HISTORY_INDEX (SEQ_LEN + MAX_FEATURE_LOOKBACK - 1)
 
 // Default primary bars are imbalance bars.
-#define IMBALANCE_MIN_TICKS 9
-#define IMBALANCE_EMA_SPAN 9
+#define IMBALANCE_MIN_TICKS 3
+#define IMBALANCE_EMA_SPAN 3
 
 // Fixed-time bars are optional and only used when nn.py runs with -i.
 #define PRIMARY_BAR_SECONDS 9

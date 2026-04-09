@@ -1,10 +1,10 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
-#define ACTIVE_MODEL_SYMBOL "BTCUSD"
-#define ACTIVE_MODEL_VERSION "bench-tcn-a-07_04_2026-13_39__59"
-#include "models/BTCUSD/bench-tcn-a-07_04_2026-13_39__59-fail/diagnostics/shared_config_snapshot.mqh"
-#include "models/BTCUSD/bench-tcn-a-07_04_2026-13_39__59-fail/diagnostics/model_config_snapshot.mqh"
-#resource "models\\BTCUSD\\bench-tcn-a-07_04_2026-13_39__59-fail\\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_SYMBOL "XAUUSD"
+#define ACTIVE_MODEL_VERSION "xau-bilstm-attn-fixed144-08_04_2026-17_26__12-fail"
+#include "models/XAUUSD/xau-bilstm-attn-fixed144-08_04_2026-17_26__12-fail/diagnostics/shared_config_snapshot.mqh"
+#include "models/XAUUSD/xau-bilstm-attn-fixed144-08_04_2026-17_26__12-fail/diagnostics/model_config_snapshot.mqh"
+#resource "models/XAUUSD/xau-bilstm-attn-fixed144-08_04_2026-17_26__12-fail\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK

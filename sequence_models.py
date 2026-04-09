@@ -118,6 +118,49 @@ class SequenceMultiAttentionHead(nn.Module):
         return self.classifier(torch.cat([pooled, summary], dim=1))
 
 
+class LegacySequenceSelfAttention(nn.Module):
+    def __init__(self, model_dim: int, num_heads: int = 4, dropout: float = 0.0):
+        super().__init__()
+        if model_dim <= 0:
+            raise ValueError("LegacySequenceSelfAttention requires model_dim > 0.")
+        if num_heads <= 0:
+            raise ValueError("LegacySequenceSelfAttention requires num_heads > 0.")
+
+        self.model_dim = int(model_dim)
+        self.num_heads = int(num_heads)
+        self.attention_dim = max(self.num_heads, self.model_dim)
+        if self.attention_dim % self.num_heads != 0:
+            self.attention_dim += self.num_heads - (self.attention_dim % self.num_heads)
+        self.head_dim = self.attention_dim // self.num_heads
+        self.scale = self.head_dim ** -0.5
+
+        self.input_projection = (
+            nn.Linear(self.model_dim, self.attention_dim) if self.attention_dim != self.model_dim else nn.Identity()
+        )
+        self.q_proj = nn.Linear(self.attention_dim, self.attention_dim)
+        self.k_proj = nn.Linear(self.attention_dim, self.attention_dim)
+        self.v_proj = nn.Linear(self.attention_dim, self.attention_dim)
+        self.dropout = nn.Dropout(dropout)
+        self.output_projection = (
+            nn.Linear(self.attention_dim, self.model_dim) if self.attention_dim != self.model_dim else nn.Identity()
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.ndim != 3:
+            raise ValueError("LegacySequenceSelfAttention expects [batch, seq_len, channels] input.")
+
+        x = self.input_projection(x)
+        batch_size, seq_len, _channels = x.shape
+        q = self.q_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = self.k_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        v = self.v_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        attention_scores = torch.matmul(q, k.transpose(-2, -1)) * self.scale
+        attention_probs = self.dropout(torch.softmax(attention_scores, dim=-1))
+        attended = torch.matmul(attention_probs, v)
+        attended = attended.transpose(1, 2).contiguous().view(batch_size, seq_len, self.attention_dim)
+        return self.output_projection(attended)
+
+
 class CausalConv1d(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int, dilation: int = 1, bias: bool = True):
         super().__init__()
@@ -271,6 +314,57 @@ class RecurrentSequenceClassifier(nn.Module):
         return self.head(last_hidden)
 
 
+class LegacyLSTMAttentionClassifier(nn.Module):
+    def __init__(
+        self,
+        n_features: int,
+        dense_hidden: int = 20,
+        n_classes: int = 3,
+        attention_heads: int = 4,
+        attention_dropout: float = 0.0,
+        backend_name: str = "legacy-lstm-attention",
+    ):
+        super().__init__()
+        if n_features <= 0:
+            raise ValueError("LegacyLSTMAttentionClassifier requires n_features > 0.")
+        if dense_hidden <= 0:
+            raise ValueError("LegacyLSTMAttentionClassifier requires dense_hidden > 0.")
+
+        self.hidden_size = int(n_features)
+        self.backend_name = backend_name
+        self.sequence_norm = SequenceInstanceNorm(n_features)
+        self.recurrent = nn.LSTM(
+            input_size=n_features,
+            hidden_size=self.hidden_size,
+            num_layers=1,
+            batch_first=True,
+        )
+        self.output_norm = nn.LayerNorm(self.hidden_size)
+        self.output_activation = nn.Mish()
+        self.self_attention = LegacySequenceSelfAttention(
+            model_dim=self.hidden_size,
+            num_heads=attention_heads,
+            dropout=attention_dropout,
+        )
+        self.classifier = nn.Sequential(
+            nn.LayerNorm(self.hidden_size),
+            nn.Linear(self.hidden_size, dense_hidden),
+            nn.Mish(),
+            nn.Linear(dense_hidden, n_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.ndim != 3:
+            raise ValueError("LegacyLSTMAttentionClassifier expects [batch, seq_len, channels] input.")
+
+        x = self.sequence_norm(x)
+        sequence_output, _state = self.recurrent(x)
+        sequence_output = self.output_activation(self.output_norm(sequence_output))
+        attention_output = self.self_attention(sequence_output)
+        pooled = (sequence_output + attention_output).mean(dim=1)
+        return self.classifier(pooled)
+
+
 class TCNClassifier(nn.Module):
     def __init__(
         self,
@@ -344,6 +438,8 @@ class TCNClassifier(nn.Module):
 
 __all__ = [
     "CausalConv1d",
+    "LegacyLSTMAttentionClassifier",
+    "LegacySequenceSelfAttention",
     "RecurrentSequenceClassifier",
     "SequenceAttentionBlock",
     "SequenceInstanceNorm",

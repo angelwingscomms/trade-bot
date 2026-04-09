@@ -48,7 +48,7 @@
 #define DEFAULT_LOT_MIN 0.54
 
 // Trainer window usage: 1 = use every eligible window in each split, 0 = obey the max_* caps below.
-#define USE_ALL_WINDOWS 1
+#define USE_ALL_WINDOWS 0
 
 #define DEFAULT_EPOCHS 144
 #define DEFAULT_BATCH_SIZE 54
