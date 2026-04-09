@@ -118,6 +118,118 @@ class SequenceMultiAttentionHead(nn.Module):
         return self.classifier(torch.cat([pooled, summary], dim=1))
 
 
+class ProjectedMultiHeadSelfAttention(nn.Module):
+    def __init__(self, input_dim: int, num_heads: int = 4, head_dim: int | None = None, dropout: float = 0.0):
+        super().__init__()
+        if input_dim <= 0:
+            raise ValueError("ProjectedMultiHeadSelfAttention requires input_dim > 0.")
+        if num_heads <= 0:
+            raise ValueError("ProjectedMultiHeadSelfAttention requires num_heads > 0.")
+
+        self.input_dim = int(input_dim)
+        self.num_heads = int(num_heads)
+        self.head_dim = int(head_dim if head_dim is not None else input_dim)
+        if self.head_dim <= 0:
+            raise ValueError("ProjectedMultiHeadSelfAttention requires head_dim > 0.")
+
+        inner_dim = self.num_heads * self.head_dim
+        self.scale = self.head_dim ** -0.5
+        self.q_proj = nn.Linear(self.input_dim, inner_dim)
+        self.k_proj = nn.Linear(self.input_dim, inner_dim)
+        self.v_proj = nn.Linear(self.input_dim, inner_dim)
+        self.out_proj = nn.Linear(inner_dim, self.input_dim)
+        self.attention_dropout = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.ndim != 3:
+            raise ValueError("ProjectedMultiHeadSelfAttention expects [batch, seq_len, channels] input.")
+
+        batch_size, seq_len, _channels = x.shape
+        q = self.q_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = self.k_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        v = self.v_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        attention_scores = torch.matmul(q, k.transpose(-2, -1)) * self.scale
+        attention_probs = self.attention_dropout(torch.softmax(attention_scores, dim=-1))
+        attended = torch.matmul(attention_probs, v)
+        attended = attended.transpose(1, 2).contiguous().view(batch_size, seq_len, self.num_heads * self.head_dim)
+        return self.out_proj(attended)
+
+
+class MishLSTMCell(nn.Module):
+    def __init__(self, input_size: int, hidden_size: int):
+        super().__init__()
+        if input_size <= 0:
+            raise ValueError("MishLSTMCell requires input_size > 0.")
+        if hidden_size <= 0:
+            raise ValueError("MishLSTMCell requires hidden_size > 0.")
+
+        self.input_size = int(input_size)
+        self.hidden_size = int(hidden_size)
+        self.input_projection = nn.Linear(self.input_size, self.hidden_size * 4)
+        self.hidden_projection = nn.Linear(self.hidden_size, self.hidden_size * 4)
+
+    def forward(self, x: torch.Tensor, state: tuple[torch.Tensor, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
+        hidden_state, cell_state = state
+        gates = self.input_projection(x) + self.hidden_projection(hidden_state)
+        input_gate, forget_gate, cell_gate, output_gate = gates.chunk(4, dim=-1)
+        input_gate = torch.sigmoid(input_gate)
+        forget_gate = torch.sigmoid(forget_gate)
+        output_gate = torch.sigmoid(output_gate)
+        cell_gate = F.mish(cell_gate)
+        cell_state = forget_gate * cell_state + input_gate * cell_gate
+        hidden_state = output_gate * F.mish(cell_state)
+        return hidden_state, cell_state
+
+
+class FusionLSTMClassifier(nn.Module):
+    def __init__(
+        self,
+        n_features: int,
+        hidden: int = 20,
+        n_classes: int = 3,
+        attention_heads: int = 4,
+        attention_dropout: float = 0.0,
+    ):
+        super().__init__()
+        if n_features <= 0:
+            raise ValueError("FusionLSTMClassifier requires n_features > 0.")
+        if hidden <= 0:
+            raise ValueError("FusionLSTMClassifier requires hidden > 0.")
+
+        self.n_features = int(n_features)
+        self.backend_name = "fusion-lstm-attention"
+        self.sequence_norm = SequenceInstanceNorm(self.n_features)
+        self.recurrent_cell = MishLSTMCell(input_size=self.n_features, hidden_size=self.n_features)
+        self.attention = ProjectedMultiHeadSelfAttention(
+            input_dim=self.n_features,
+            num_heads=attention_heads,
+            head_dim=self.n_features,
+            dropout=attention_dropout,
+        )
+        self.classifier = nn.Sequential(
+            nn.Linear(self.n_features, hidden),
+            nn.Mish(),
+            nn.Linear(hidden, n_classes),
+        )
+
+    def encode_sequence(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.sequence_norm(x)
+        batch_size, seq_len, _channels = x.shape
+        hidden_state = x.new_zeros(batch_size, self.n_features)
+        cell_state = x.new_zeros(batch_size, self.n_features)
+        outputs = []
+        for timestep in range(seq_len):
+            hidden_state, cell_state = self.recurrent_cell(x[:, timestep, :], (hidden_state, cell_state))
+            outputs.append(hidden_state)
+        return torch.stack(outputs, dim=1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        encoded = self.encode_sequence(x)
+        attended = self.attention(encoded)
+        pooled = (encoded + attended).mean(dim=1)
+        return self.classifier(pooled)
+
+
 class CausalConv1d(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, kernel_size: int, dilation: int = 1, bias: bool = True):
         super().__init__()
@@ -344,6 +456,9 @@ class TCNClassifier(nn.Module):
 
 __all__ = [
     "CausalConv1d",
+    "FusionLSTMClassifier",
+    "MishLSTMCell",
+    "ProjectedMultiHeadSelfAttention",
     "RecurrentSequenceClassifier",
     "SequenceAttentionBlock",
     "SequenceInstanceNorm",

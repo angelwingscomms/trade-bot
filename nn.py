@@ -53,7 +53,7 @@ from model_archive import (
     sync_directory_contents,
 )
 from mt5_runtime import resolve_mt5_runtime
-from sequence_models import RecurrentSequenceClassifier, TCNClassifier
+from sequence_models import FusionLSTMClassifier, RecurrentSequenceClassifier, TCNClassifier
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,7 +63,7 @@ logging.basicConfig(
 log = logging.getLogger("nn")
 
 EPS = 1e-10
-DEFAULT_DATA_FILE = "market_ticks.csv"
+DEFAULT_DATA_FILE = "gold.csv"
 DEFAULT_OUTPUT_FILE = ACTIVE_ONNX_PATH.name
 SHARED_CONFIG_PATH = ACTIVE_SHARED_CONFIG_PATH
 DEFAULT_MINIROCKET_FEATURES = 10_080
@@ -267,7 +267,8 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help=(
             "Enable 27 extra architecture-aware market features. MiniRocket gets a shape/microstructure-heavy "
-            "pack; the sequence encoders (Mamba, Castor, ELA, BiLSTM, GRU, TCN) get an indicator/regime-heavy pack."
+            "pack; the sequence encoders (Mamba, Castor, ELA, Fusion-LSTM, BiLSTM, GRU, TCN) get an "
+            "indicator/regime-heavy pack."
         ),
     )
     architecture_group = parser.add_mutually_exclusive_group()
@@ -287,6 +288,16 @@ def parse_args() -> argparse.Namespace:
         "--ela",
         action="store_true",
         help="Use the ELA encoder: an LSTM backbone with the repo's multihead attention head.",
+    )
+    architecture_group.add_argument(
+        "-fl",
+        "--fusion-lstm",
+        "--use-fusion-lstm-encoder",
+        dest="use_fusion_lstm_encoder",
+        action="store_true",
+        help=(
+            "Use a Mish-LSTM encoder with a built-in residual self-attention pooling block and Dense(20) classifier."
+        ),
     )
     architecture_group.add_argument(
         "--bilstm",
@@ -486,6 +497,8 @@ def resolve_architecture(args: argparse.Namespace) -> str:
         return "chronos_bolt"
     if args.ela:
         return "ela"
+    if args.use_fusion_lstm_encoder:
+        return "fusion_lstm"
     if args.use_bilstm_encoder:
         return "bilstm"
     if args.use_gru_encoder:
@@ -1468,6 +1481,7 @@ def build_mql_config(
             f"#define MODEL_USE_MINIROCKET {1 if architecture == 'minirocket' else 0}",
             f"#define MODEL_USE_CASTOR {1 if architecture == 'castor' else 0}",
             f"#define MODEL_USE_ELA {1 if architecture == 'ela' else 0}",
+            f"#define MODEL_USE_FUSION_LSTM {1 if architecture == 'fusion_lstm' else 0}",
             f"#define MODEL_USE_BILSTM {1 if architecture == 'bilstm' else 0}",
             f"#define MODEL_USE_GRU {1 if architecture == 'gru' else 0}",
             f"#define MODEL_USE_TCN {1 if architecture == 'tcn' else 0}",
@@ -1516,6 +1530,27 @@ def main() -> None:
         if not use_multihead_attention:
             log.info("ELA uses the multihead attention head by design; enabling attention automatically.")
         use_multihead_attention = True
+    if architecture == "fusion_lstm":
+        if not use_multihead_attention:
+            log.info("Fusion-LSTM includes its residual self-attention block by design; enabling attention automatically.")
+        use_multihead_attention = True
+        if args.sequence_hidden_size != DEFAULT_SEQUENCE_HIDDEN_SIZE:
+            log.warning(
+                "Fusion-LSTM fixes its recurrent width to the active feature count; ignoring --sequence-hidden-size=%d.",
+                args.sequence_hidden_size,
+            )
+        if args.sequence_layers != DEFAULT_SEQUENCE_LAYERS:
+            log.warning("Fusion-LSTM uses a single Mish-LSTM layer; ignoring --sequence-layers=%d.", args.sequence_layers)
+        if abs(args.sequence_dropout - DEFAULT_SEQUENCE_DROPOUT) > 1e-12:
+            log.warning(
+                "Fusion-LSTM does not use the recurrent dropout path; ignoring --sequence-dropout=%.3f.",
+                args.sequence_dropout,
+            )
+        if args.attention_layers != DEFAULT_ATTENTION_LAYERS:
+            log.warning(
+                "Fusion-LSTM uses a single self-attention block; ignoring --attention-layers=%d.",
+                args.attention_layers,
+            )
     if architecture == "chronos_bolt" and use_multihead_attention:
         log.warning("Chronos-Bolt backend ignores --use-multihead-attention.")
         use_multihead_attention = False
@@ -1844,10 +1879,17 @@ def main() -> None:
                 shuffle=False,
             )
         else:
-            if architecture in {"ela", "bilstm", "gru", "tcn"}:
+            if architecture in {"ela", "fusion_lstm", "bilstm", "gru", "tcn"}:
                 learning_rate = args.lr if args.lr > 0.0 else DEFAULT_SEQUENCE_LR
                 weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_SEQUENCE_WEIGHT_DECAY
-                if architecture == "tcn":
+                if architecture == "fusion_lstm":
+                    training_model = FusionLSTMClassifier(
+                        n_features=feature_count,
+                        hidden=20,
+                        attention_heads=args.attention_heads,
+                        attention_dropout=args.attention_dropout,
+                    ).to(device)
+                elif architecture == "tcn":
                     training_model = TCNClassifier(
                         n_features=feature_count,
                         channels=args.sequence_hidden_size,

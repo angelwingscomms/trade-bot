@@ -1,5 +1,5 @@
 // Single source of truth for values shared by nn.py, live.mq5, data.mq5, and test.py.
-#define SYMBOL "BTCUSD"
+#define SYMBOL "XAUUSD"
 
 #define SEQ_LEN 54
 #define TARGET_HORIZON 27
