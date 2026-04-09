@@ -1,10 +1,10 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "XAUUSD"
-#define ACTIVE_MODEL_VERSION "xau-fusion-lstm-fixed144-09_04_2026-15_10__19-fail"
-#include "models/XAUUSD/xau-fusion-lstm-fixed144-09_04_2026-15_10__19-fail/diagnostics/shared_config_snapshot.mqh"
-#include "models/XAUUSD/xau-fusion-lstm-fixed144-09_04_2026-15_10__19-fail/diagnostics/model_config_snapshot.mqh"
-#resource "models/XAUUSD/xau-fusion-lstm-fixed144-09_04_2026-15_10__19-fail\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_VERSION "09_04_2026-17_46__09-fail"
+#include "models/XAUUSD/09_04_2026-17_46__09-fail/diagnostics/shared_config_snapshot.mqh"
+#include "models/XAUUSD/09_04_2026-17_46__09-fail/diagnostics/model_config_snapshot.mqh"
+#resource "models/XAUUSD/09_04_2026-17_46__09-fail\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
