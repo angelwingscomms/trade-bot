@@ -2171,7 +2171,7 @@ def main() -> None:
         for epoch in tqdm(range(args.epochs), desc="Training"):
             training_model.train()
             train_losses = []
-            for xb, yb in train_loader:
+            for xb, yb in tqdm(train_loader, desc=f"Epoch {epoch+1}/{args.epochs}", leave=False):
                 logits = training_model(xb.to(device))
                 loss = criterion(logits, yb.to(device))
                 optimizer.zero_grad()
