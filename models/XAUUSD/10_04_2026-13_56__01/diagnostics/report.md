@@ -18,7 +18,7 @@
 - rv_period: 9
 - return_period: 9
 - warmup_bars: 22
-- label_risk_mode: FIXED
+- label_risk_mode: ATR
 - point_size: 0.00100000
 - fixed_move_points: 1440.00
 - fixed_move_price: 1.44000000
@@ -29,8 +29,8 @@
 - use_all_windows: 0
 - selected_primary_confidence: 0.4000
 - deployed_primary_confidence: 0.4000
-- quality_gate_passed: 0
-- quality_gate_reason: validation selected trades 5 < required 12
+- quality_gate_passed: 1
+- quality_gate_reason: -
 
 ## Bar Stats
 - bars: 344048
@@ -49,21 +49,21 @@
 
 ## Label Counts
 - full bars:
-  - HOLD: 37234
-  - BUY: 152362
-  - SELL: 154430
+  - HOLD: 75606
+  - BUY: 134739
+  - SELL: 133681
 - train windows:
-  - HOLD: 637
-  - BUY: 2358
-  - SELL: 2405
+  - HOLD: 1203
+  - BUY: 2112
+  - SELL: 2085
 - validation windows:
-  - HOLD: 34
-  - BUY: 245
-  - SELL: 261
+  - HOLD: 106
+  - BUY: 208
+  - SELL: 226
 - holdout windows:
-  - HOLD: 59
-  - BUY: 251
-  - SELL: 230
+  - HOLD: 138
+  - BUY: 213
+  - SELL: 189
 
 ## Window Usage
 - train_available: 240738
@@ -74,18 +74,18 @@
 - holdout_used: 540
 
 ## Validation
-- selected_trades: 5
-- trade_coverage: 0.0093
-- selected_trade_precision: 0.6000
-- selected_trade_mean_confidence: 0.4516
-- mean_confidence_all_predictions: 0.5716
+- selected_trades: 14
+- trade_coverage: 0.0259
+- selected_trade_precision: 0.5000
+- selected_trade_mean_confidence: 0.4421
+- mean_confidence_all_predictions: 0.3883
 
 ## Holdout
-- selected_trades: 2
-- trade_coverage: 0.0037
-- selected_trade_precision: 1.0000
-- selected_trade_mean_confidence: 0.4827
-- mean_confidence_all_predictions: 0.5805
+- selected_trades: 10
+- trade_coverage: 0.0185
+- selected_trade_precision: 0.2000
+- selected_trade_mean_confidence: 0.4666
+- mean_confidence_all_predictions: 0.4081
 
 ## Files
 - bars.csv

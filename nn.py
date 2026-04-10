@@ -1631,7 +1631,7 @@ def resolve_loss_mode(_architecture: str, requested_mode: str) -> str:
         return "zero-shot"
     if requested_mode != "auto":
         return requested_mode
-    return "focal"
+    return SHARED.get("DEFAULT_LOSS_MODE", "focal")
 
 
 def main() -> None:

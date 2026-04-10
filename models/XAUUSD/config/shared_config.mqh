@@ -26,8 +26,8 @@
 #define REQUIRED_HISTORY_INDEX (SEQ_LEN + MAX_FEATURE_LOOKBACK - 1)
 
 // Default primary bars are imbalance bars.
-#define IMBALANCE_MIN_TICKS 3
-#define IMBALANCE_EMA_SPAN 3
+#define IMBALANCE_MIN_TICKS 9
+#define IMBALANCE_EMA_SPAN 9
 
 // Fixed-time bars are optional and only used when nn.py runs with -i.
 #define PRIMARY_BAR_SECONDS 9
@@ -50,8 +50,9 @@
 // Trainer window usage: 1 = use every eligible window in each split, 0 = obey the max_* caps below.
 #define USE_ALL_WINDOWS 0
 
-#define DEFAULT_EPOCHS 144
+#define DEFAULT_EPOCHS 54
 #define DEFAULT_BATCH_SIZE 54
-#define DEFAULT_MAX_TRAIN_WINDOWS 14400
-#define DEFAULT_MAX_EVAL_WINDOWS 1440
-#define DEFAULT_PATIENCE 3
+#define DEFAULT_MAX_TRAIN_WINDOWS 5400
+#define DEFAULT_MAX_EVAL_WINDOWS 540
+#define DEFAULT_PATIENCE 9
+#define DEFAULT_LOSS_MODE "cross-entropy"
