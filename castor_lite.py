@@ -1,3 +1,5 @@
+"""Compact Castor-style classifier used by the training pipeline."""
+
 from __future__ import annotations
 
 import torch

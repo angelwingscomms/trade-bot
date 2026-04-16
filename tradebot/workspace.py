@@ -1,3 +1,10 @@
+"""Workspace layout and live-model deployment helpers.
+
+This module centralizes the repository structure so the trainer, tester,
+exporter, and MT5 compilation flow all agree on where configs, archived
+models, and live sources live.
+"""
+
 from __future__ import annotations
 
 import json
@@ -16,25 +23,22 @@ from mt5_runtime import (
     PROJECT_DIR_NAME,
     build_metaeditor_compile_command,
     ensure_runtime_dirs,
-    resolve_metaeditor_path,
     runtime_env,
     to_windows_path,
 )
+from tradebot.config_io import load_define_file, read_text_best_effort, sanitize_symbol
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-MODELS_DIR = SCRIPT_DIR / "models"
-ACTIVE_ONNX_PATH = SCRIPT_DIR / "model.onnx"
-ACTIVE_MODEL_CONFIG_PATH = SCRIPT_DIR / "model_config.mqh"
-ACTIVE_SHARED_CONFIG_PATH = SCRIPT_DIR / "shared_config.mqh"
-ACTIVE_DIAGNOSTICS_DIR = SCRIPT_DIR / "diagnostics"
-LIVE_MQ5_PATH = SCRIPT_DIR / "live.mq5"
-LIVE_EX5_PATH = SCRIPT_DIR / "live.ex5"
-LIVE_COMPILE_LOG_PATH = SCRIPT_DIR / "live.compile.log"
+ROOT_DIR = Path(__file__).resolve().parent.parent
+SYMBOLS_DIR = ROOT_DIR / "symbols"
+ACTIVE_CONFIG_PATH = ROOT_DIR / "config.mqh"
+ACTIVE_DIAGNOSTICS_DIR = ROOT_DIR / "diagnostics"
+LIVE_MQ5_PATH = ROOT_DIR / "live.mq5"
+LIVE_EX5_PATH = ROOT_DIR / "live.ex5"
+LIVE_COMPILE_LOG_PATH = ROOT_DIR / "live.compile.log"
+
 DEFAULT_METAEDITOR_PATH = DEFAULT_WINDOWS_METAEDITOR_PATH
 DEFAULT_MODEL_STAMP_FORMAT = "%d_%m_%Y-%H_%M__%S"
-MODEL_STAMP_PATTERN = re.compile(r"^\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2}$")
-MODEL_STAMP_SUFFIX_PATTERN = re.compile(r"(?P<stamp>\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2})(?:-fail)?$")
 MODEL_STAMP_FORMATS = (
     DEFAULT_MODEL_STAMP_FORMAT,
     "%d_%m_%Y-%H_%M_%S",
@@ -42,28 +46,32 @@ MODEL_STAMP_FORMATS = (
     "%d__%m__%Y-%H_%M_%S",
     "%Y%m%d_%H%M%S",
 )
+MODEL_STAMP_PREFIX_PATTERN = re.compile(r"^(?P<stamp>\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2})(?:-|$)")
+MODEL_STAMP_SUFFIX_PATTERN = re.compile(r"(?P<stamp>\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2})(?:-fail)?$")
 COMPILE_RESULT_PATTERN = re.compile(r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?")
-DEFINE_PATTERN = re.compile(r"^\s*#define\s+([A-Z0-9_]+)\s+(.+?)\s*$")
-SAFE_SYMBOL_PATTERN = re.compile(r"[^A-Za-z0-9_.-]+")
+
 MODEL_FILE_NAME = "model.onnx"
-MODEL_CONFIG_SNAPSHOT_NAME = "model_config_snapshot.mqh"
-SHARED_CONFIG_SNAPSHOT_NAME = "shared_config_snapshot.mqh"
+MODEL_CONFIG_NAME = "config.mqh"
 DEFAULT_TEST_CONFIG_NAME = "backtest_config.json"
-SYMBOL_CONFIG_DIR_NAME = "config"
 LIVE_MODEL_BLOCK_BEGIN = "// @active-model-reference begin"
 LIVE_MODEL_BLOCK_END = "// @active-model-reference end"
 LIVE_MODEL_BLOCK_PATTERN = re.compile(
     rf"{re.escape(LIVE_MODEL_BLOCK_BEGIN)}.*?{re.escape(LIVE_MODEL_BLOCK_END)}",
     re.DOTALL,
 )
+RESOURCE_PATH_MAX_CHARS = 63
 
 
 def format_model_stamp(value: datetime | None = None) -> str:
+    """Format a model timestamp using the repo's stable folder naming style."""
+
     return (value or datetime.now()).strftime(DEFAULT_MODEL_STAMP_FORMAT)
 
 
 def sanitize_model_name(name: str) -> str:
-    cleaned = SAFE_SYMBOL_PATTERN.sub("_", name.strip())
+    """Return a filesystem-safe model label."""
+
+    cleaned = re.sub(r"[^A-Za-z0-9_.-]+", "_", name.strip())
     return cleaned.strip("._-")
 
 
@@ -72,16 +80,28 @@ def format_model_dir_name(
     value: datetime | None = None,
     name: str = "",
     failed_quality_gate: bool = False,
+    symbol: str = "",
 ) -> str:
+    """Return a canonical, resource-safe `<stamp>-<name>` model folder name."""
+
     stamp = format_model_stamp(value)
-    prefix = sanitize_model_name(name)
-    folder_name = f"{prefix}-{stamp}" if prefix else stamp
-    if failed_quality_gate:
+    suffix = sanitize_model_name(name)
+    if symbol:
+        max_length = _max_model_dir_name_length(symbol)
+        max_suffix_length = max_length - len(stamp)
+        if suffix:
+            max_suffix_length -= 1
+        if max_suffix_length < len(suffix):
+            suffix = suffix[: max(0, max_suffix_length)].rstrip("._-")
+    folder_name = f"{stamp}-{suffix}" if suffix else stamp
+    if failed_quality_gate and (not symbol or len(folder_name) + len("-fail") <= _max_model_dir_name_length(symbol)):
         folder_name += "-fail"
     return folder_name
 
 
 def _try_parse_model_stamp_text(value: str) -> datetime | None:
+    """Parse one of the accepted timestamp shapes used by archived models."""
+
     for stamp_format in MODEL_STAMP_FORMATS:
         try:
             return datetime.strptime(value, stamp_format)
@@ -90,84 +110,71 @@ def _try_parse_model_stamp_text(value: str) -> datetime | None:
     return None
 
 
-def parse_model_stamp(value: str) -> datetime:
-    parsed = _try_parse_model_stamp_text(value)
-    if parsed is not None:
-        return parsed
+def parse_model_stamp(folder_name: str) -> datetime:
+    """Extract the timestamp from either new or legacy model folder names."""
 
-    match = MODEL_STAMP_SUFFIX_PATTERN.search(value)
+    match = MODEL_STAMP_PREFIX_PATTERN.match(folder_name)
     if match:
         parsed = _try_parse_model_stamp_text(match.group("stamp"))
         if parsed is not None:
             return parsed
 
+    match = MODEL_STAMP_SUFFIX_PATTERN.search(folder_name)
+    if match:
+        parsed = _try_parse_model_stamp_text(match.group("stamp"))
+        if parsed is not None:
+            return parsed
+
+    parsed = _try_parse_model_stamp_text(folder_name)
+    if parsed is not None:
+        return parsed
+
     raise ValueError(
-        "Model date must match the model folder name, for example 03_04_2026-06_45__00 or my_name-03_04_2026-06_45__00-fail."
+        "Model folders must contain a training stamp such as "
+        "`03_04_2026-06_45__00-my-model` or `my-model-03_04_2026-06_45__00-fail`."
     )
 
 
-def parse_define_value(raw_value: str, known_values: dict[str, int | float | str]) -> int | float | str:
-    value = raw_value.split("//", 1)[0].strip()
-    if value.endswith("f"):
-        value = value[:-1]
-    if value.startswith('"') and value.endswith('"'):
-        return value[1:-1]
+def configured_symbol(config_path: Path = ACTIVE_CONFIG_PATH) -> str:
+    """Read the active symbol from the user-editable root config."""
 
-    try:
-        return int(value)
-    except ValueError:
-        pass
-
-    try:
-        return float(value)
-    except ValueError:
-        pass
-
-    return eval(value, {"__builtins__": {}}, dict(known_values))
+    values = load_define_file(config_path)
+    return str(values.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD"
 
 
-def load_define_file(path: Path) -> dict[str, int | float | str]:
-    values: dict[str, int | float | str] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        match = DEFINE_PATTERN.match(line)
-        if not match:
-            continue
-        name, raw_value = match.groups()
-        values[name] = parse_define_value(raw_value, values)
-    return values
+def symbol_dir(symbol: str) -> Path:
+    """Return the per-symbol workspace directory."""
 
-
-def sanitize_symbol(symbol: str) -> str:
-    cleaned = SAFE_SYMBOL_PATTERN.sub("_", symbol.strip())
-    return cleaned or "UNKNOWN"
-
-
-def configured_symbol(config_path: Path = ACTIVE_SHARED_CONFIG_PATH) -> str:
-    shared = load_define_file(config_path)
-    return str(shared.get("SYMBOL", "")).strip() or "XAUUSD"
+    return SYMBOLS_DIR / sanitize_symbol(symbol)
 
 
 def symbol_models_dir(symbol: str) -> Path:
-    return MODELS_DIR / sanitize_symbol(symbol)
+    """Return the archived-model root for one symbol."""
+
+    return symbol_dir(symbol) / "models"
 
 
 def symbol_config_dir(symbol: str) -> Path:
-    return symbol_models_dir(symbol) / SYMBOL_CONFIG_DIR_NAME
+    """Return the preset-config root for one symbol."""
+
+    return symbol_dir(symbol) / "config"
 
 
-def symbol_shared_config_path(symbol: str) -> Path:
-    return symbol_config_dir(symbol) / ACTIVE_SHARED_CONFIG_PATH.name
+def symbol_default_config_path(symbol: str) -> Path:
+    """Return the symbol's default reusable config preset."""
 
-
-def symbol_model_config_path(symbol: str) -> Path:
-    return symbol_config_dir(symbol) / ACTIVE_MODEL_CONFIG_PATH.name
+    return symbol_config_dir(symbol) / "config.mqh"
 
 
 def symbol_backtest_config_path(symbol: str) -> Path:
+    """Return the symbol's default backtest JSON config."""
+
     return symbol_config_dir(symbol) / DEFAULT_TEST_CONFIG_NAME
 
 
 def iter_model_dirs(symbol: str) -> list[Path]:
+    """Return archived model folders ordered by training time."""
+
     root = symbol_models_dir(symbol)
     if not root.exists():
         return []
@@ -183,13 +190,63 @@ def iter_model_dirs(symbol: str) -> list[Path]:
     return [path for _, path in sorted(model_dirs, key=lambda item: item[0])]
 
 
+def model_onnx_path(model_dir: Path) -> Path:
+    """Return the ONNX path inside one archived model folder."""
+
+    return model_dir / MODEL_FILE_NAME
+
+
+def model_config_path(model_dir: Path) -> Path:
+    """Return the single combined config file stored beside a model."""
+
+    return model_dir / MODEL_CONFIG_NAME
+
+
+def model_diagnostics_dir(model_dir: Path) -> Path:
+    """Return the diagnostics directory for one archived model."""
+
+    return model_dir / "diagnostics"
+
+
+def model_tests_dir(model_dir: Path) -> Path:
+    """Return the backtest-results directory for one archived model."""
+
+    return model_dir / "tests"
+
+
+def _max_model_dir_name_length(symbol: str) -> int:
+    """Return the longest archive folder name allowed by the MQL5 resource limit."""
+
+    symbol_name = sanitize_symbol(symbol)
+    fixed_length = len(f"symbols\\\\{symbol_name}\\\\models\\\\\\\\{MODEL_FILE_NAME}")
+    max_length = RESOURCE_PATH_MAX_CHARS - fixed_length
+    if max_length <= 0:
+        raise ValueError(
+            f"Resource path budget is exhausted for symbol '{symbol_name}'. "
+            "Choose a shorter symbol folder name."
+        )
+    return max_length
+
+
+def _resource_literal_for_relative_model_dir(relative_model_dir: Path) -> str:
+    """Return a `#resource` path that obeys the MQL5 path rules."""
+
+    literal = "\\\\".join((*relative_model_dir.parts, MODEL_FILE_NAME))
+    if len(literal) > RESOURCE_PATH_MAX_CHARS:
+        raise ValueError(
+            "The ONNX resource path is too long for MQL5. "
+            "Use a shorter model name so the archive folder stays within the 63-character resource limit."
+        )
+    return literal
+
+
 def latest_model_dir(symbol: str) -> Path:
+    """Return the latest archived model that still has the required artifacts."""
+
     candidates = [
         candidate
         for candidate in iter_model_dirs(symbol)
-        if model_onnx_path(candidate).exists()
-        and model_config_snapshot_path(candidate).exists()
-        and shared_config_snapshot_path(candidate).exists()
+        if model_onnx_path(candidate).exists() and model_config_path(candidate).exists()
     ]
     if not candidates:
         raise FileNotFoundError(f"No archived models found for symbol '{symbol}'.")
@@ -197,15 +254,13 @@ def latest_model_dir(symbol: str) -> Path:
 
 
 def resolve_model_dir(symbol: str, value: str = "") -> Path:
+    """Resolve an explicit model folder name or fall back to the latest model."""
+
     if not value:
         return latest_model_dir(symbol)
 
     candidate = Path(value)
-    if candidate.is_absolute():
-        model_dir = candidate
-    else:
-        model_dir = symbol_models_dir(symbol) / value
-
+    model_dir = candidate if candidate.is_absolute() else symbol_models_dir(symbol) / value
     if not model_dir.exists():
         raise FileNotFoundError(f"Model folder not found: {model_dir}")
     if not model_dir.is_dir():
@@ -214,27 +269,9 @@ def resolve_model_dir(symbol: str, value: str = "") -> Path:
     return model_dir
 
 
-def model_onnx_path(model_dir: Path) -> Path:
-    return model_dir / MODEL_FILE_NAME
-
-
-def model_diagnostics_dir(model_dir: Path) -> Path:
-    return model_dir / "diagnostics"
-
-
-def model_tests_dir(model_dir: Path) -> Path:
-    return model_dir / "tests"
-
-
-def model_config_snapshot_path(model_dir: Path) -> Path:
-    return model_diagnostics_dir(model_dir) / MODEL_CONFIG_SNAPSHOT_NAME
-
-
-def shared_config_snapshot_path(model_dir: Path) -> Path:
-    return model_diagnostics_dir(model_dir) / SHARED_CONFIG_SNAPSHOT_NAME
-
-
 def default_test_config(symbol: str) -> dict[str, int | float | str]:
+    """Return the default tester settings used when no JSON exists yet."""
+
     return {
         "month": "",
         "from_date": "",
@@ -249,15 +286,21 @@ def default_test_config(symbol: str) -> dict[str, int | float | str]:
 
 
 def load_test_config(path: Path) -> dict[str, int | float | str]:
+    """Load a backtest JSON file."""
+
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def write_test_config(path: Path, data: dict[str, int | float | str]) -> None:
+    """Write a stable, prettified backtest JSON file."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def ensure_default_test_config(tests_dir: Path, symbol: str) -> Path:
+    """Ensure a model has a seed `backtest_config.json` file."""
+
     config_path = tests_dir / DEFAULT_TEST_CONFIG_NAME
     if not config_path.exists():
         symbol_default_path = symbol_backtest_config_path(symbol)
@@ -269,79 +312,45 @@ def ensure_default_test_config(tests_dir: Path, symbol: str) -> Path:
     return config_path
 
 
-def read_text_best_effort(path: Path) -> str:
-    raw = path.read_bytes()
-    for encoding in ("utf-16", "utf-8", "cp1252"):
-        try:
-            return raw.decode(encoding)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("utf-8", errors="ignore")
-
-
 def sync_directory_contents(source_dir: Path, destination_dir: Path) -> None:
+    """Replace one directory tree with another."""
+
     if destination_dir.exists():
         shutil.rmtree(destination_dir)
     shutil.copytree(source_dir, destination_dir)
 
 
-def activate_model(model_dir: Path) -> None:
-    onnx_path = model_onnx_path(model_dir)
-    diagnostics_dir = model_diagnostics_dir(model_dir)
-    model_config_path = model_config_snapshot_path(model_dir)
-    shared_config_path = shared_config_snapshot_path(model_dir)
-
-    if not onnx_path.exists():
-        raise FileNotFoundError(f"Archived ONNX file not found: {onnx_path}")
-    if not diagnostics_dir.exists():
-        raise FileNotFoundError(f"Archived diagnostics folder not found: {diagnostics_dir}")
-    if not model_config_path.exists():
-        raise FileNotFoundError(f"Archived model config snapshot not found: {model_config_path}")
-    if not shared_config_path.exists():
-        raise FileNotFoundError(f"Archived shared config snapshot not found: {shared_config_path}")
-
-    ACTIVE_ONNX_PATH.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(onnx_path, ACTIVE_ONNX_PATH)
-    shutil.copy2(model_config_path, ACTIVE_MODEL_CONFIG_PATH)
-    shutil.copy2(shared_config_path, ACTIVE_SHARED_CONFIG_PATH)
-    sync_directory_contents(diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
-    set_live_model_reference(model_dir)
-
-
 def build_live_model_reference_block(model_dir: Path) -> str:
-    try:
-        relative_model_dir = model_dir.relative_to(SCRIPT_DIR)
-    except ValueError as exc:
-        raise ValueError(f"Model directory must live under {SCRIPT_DIR}: {model_dir}") from exc
+    """Build the live.mq5 include/resource block for the active model."""
 
-    symbol = sanitize_symbol(model_dir.parent.name)
+    try:
+        relative_model_dir = model_dir.relative_to(ROOT_DIR)
+    except ValueError as exc:
+        raise ValueError(f"Model directory must live under {ROOT_DIR}: {model_dir}") from exc
+
+    symbol_value = sanitize_symbol(model_dir.parent.parent.name).upper()
     version = model_dir.name
     include_dir = relative_model_dir.as_posix()
-    resource_dir = str(relative_model_dir).replace("/", "\\")
+    resource_literal = _resource_literal_for_relative_model_dir(relative_model_dir)
     return "\n".join(
         [
             LIVE_MODEL_BLOCK_BEGIN,
-            f'#define ACTIVE_MODEL_SYMBOL "{symbol}"',
+            f'#define ACTIVE_MODEL_SYMBOL "{symbol_value}"',
             f'#define ACTIVE_MODEL_VERSION "{version}"',
-            f'#include "{include_dir}/diagnostics/{SHARED_CONFIG_SNAPSHOT_NAME}"',
-            f'#include "{include_dir}/diagnostics/{MODEL_CONFIG_SNAPSHOT_NAME}"',
-            f'#resource "{include_dir}\\\\{MODEL_FILE_NAME}" as uchar model_buffer[]',
+            f'#include "{include_dir}/{MODEL_CONFIG_NAME}"',
+            f'#resource "{resource_literal}" as uchar model_buffer[]',
             LIVE_MODEL_BLOCK_END,
         ]
     )
 
 
 def set_live_model_reference(model_dir: Path, live_path: Path = LIVE_MQ5_PATH) -> None:
+    """Point `live.mq5` at a specific archived model directory."""
+
     if not model_onnx_path(model_dir).exists():
         raise FileNotFoundError(f"Archived ONNX file not found: {model_onnx_path(model_dir)}")
-    if not model_config_snapshot_path(model_dir).exists():
-        raise FileNotFoundError(
-            f"Archived model config snapshot not found: {model_config_snapshot_path(model_dir)}"
-        )
-    if not shared_config_snapshot_path(model_dir).exists():
-        raise FileNotFoundError(
-            f"Archived shared config snapshot not found: {shared_config_snapshot_path(model_dir)}"
-        )
+    if not model_config_path(model_dir).exists():
+        raise FileNotFoundError(f"Archived config file not found: {model_config_path(model_dir)}")
 
     text = live_path.read_text(encoding="utf-8")
     updated_text, replacements = LIVE_MODEL_BLOCK_PATTERN.subn(
@@ -357,50 +366,75 @@ def set_live_model_reference(model_dir: Path, live_path: Path = LIVE_MQ5_PATH) -
     live_path.write_text(updated_text, encoding="utf-8")
 
 
-def deploy_active_model(runtime: Mt5RuntimePaths) -> None:
-    ensure_runtime_dirs(runtime)
-    copies = (
-        (LIVE_MQ5_PATH, runtime.deployed_live_mq5),
-        (ACTIVE_ONNX_PATH, runtime.deployed_model_path),
-        (ACTIVE_MODEL_CONFIG_PATH, runtime.deployed_model_config_path),
-        (ACTIVE_SHARED_CONFIG_PATH, runtime.deployed_shared_config_path),
-    )
+def activate_model(model_dir: Path) -> None:
+    """Update the local `live.mq5` source to reference an archived model."""
+
+    if not model_onnx_path(model_dir).exists():
+        raise FileNotFoundError(f"Archived ONNX file not found: {model_onnx_path(model_dir)}")
+    if not model_config_path(model_dir).exists():
+        raise FileNotFoundError(f"Archived config file not found: {model_config_path(model_dir)}")
+    set_live_model_reference(model_dir)
+    diagnostics_dir = model_diagnostics_dir(model_dir)
+    if diagnostics_dir.exists():
+        sync_directory_contents(diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
+
+
+def _copy_with_retries(source_path: Path, destination_path: Path, *, log: logging.Logger) -> None:
+    """Copy one file while tolerating temporary MetaTrader file locks."""
+
     max_retries = 3
     retry_delay = 1.0
-    log = logging.getLogger(__name__)
-    for source_path, destination_path in copies:
-        if not source_path.exists():
-            raise FileNotFoundError(f"Required runtime file not found: {source_path}")
-        destination_path.parent.mkdir(parents=True, exist_ok=True)
-        for attempt in range(max_retries):
-            try:
-                shutil.copy2(source_path, destination_path)
-                break
-            except PermissionError as e:
-                if attempt == max_retries - 1:
-                    error_msg = (
-                        f"Could not deploy {source_path.name} after {max_retries} attempts (file locked by MetaTrader). "
-                        "Close MetaTrader 5 and retry, or use --skip-live-compile to skip deployment."
-                    )
-                    log.error(error_msg)
-                    raise PermissionError(error_msg) from e
-                wait_time = retry_delay * (2 ** attempt)
-                log.warning(
-                    "Failed to copy %s (attempt %d/%d), retrying in %.1fs...",
-                    source_path.name,
-                    attempt + 1,
-                    max_retries,
-                    wait_time,
+    if source_path.resolve() == destination_path.resolve():
+        log.info("Skipping deployment copy because source and destination match: %s", source_path)
+        return
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    for attempt in range(max_retries):
+        try:
+            shutil.copy2(source_path, destination_path)
+            return
+        except PermissionError as exc:
+            if attempt == max_retries - 1:
+                error_msg = (
+                    f"Could not deploy {source_path.name} after {max_retries} attempts (file locked by MetaTrader). "
+                    "Close MetaTrader 5 and retry, or skip compilation."
                 )
-                time.sleep(wait_time)
+                log.error(error_msg)
+                raise PermissionError(error_msg) from exc
+            wait_time = retry_delay * (2**attempt)
+            log.warning(
+                "Failed to copy %s (attempt %d/%d), retrying in %.1fs...",
+                source_path.name,
+                attempt + 1,
+                max_retries,
+                wait_time,
+            )
+            time.sleep(wait_time)
+
+
+def deploy_active_model(runtime: Mt5RuntimePaths, model_dir: Path) -> None:
+    """Copy the live source and referenced archived model into the MT5 runtime."""
+
+    ensure_runtime_dirs(runtime)
+    log = logging.getLogger(__name__)
+    _copy_with_retries(LIVE_MQ5_PATH, runtime.deployed_live_mq5, log=log)
+
+    relative_model_dir = model_dir.relative_to(ROOT_DIR)
+    runtime_model_dir = runtime.expert_dir / relative_model_dir
+    runtime_model_dir.mkdir(parents=True, exist_ok=True)
+    _copy_with_retries(model_onnx_path(model_dir), runtime_model_dir / MODEL_FILE_NAME, log=log)
+    _copy_with_retries(model_config_path(model_dir), runtime_model_dir / MODEL_CONFIG_NAME, log=log)
 
 
 def _touch_file(path: Path) -> None:
+    """Update the timestamp on a file so MetaEditor notices a changed source."""
+
     now = time.time()
     os.utime(path, (now, now))
 
 
 def _write_synthetic_compile_log(path: Path, message: str) -> None:
+    """Write a small synthetic compile log when MetaEditor omits one."""
+
     path.write_text(
         "\n".join(
             [
@@ -414,6 +448,8 @@ def _write_synthetic_compile_log(path: Path, message: str) -> None:
 
 
 def _compile_via_metaeditor_ui_windows(runtime: Mt5RuntimePaths) -> None:
+    """Compile `live.mq5` via the MetaEditor UI on native Windows."""
+
     source_path = str(runtime.deployed_live_mq5).replace("'", "''")
     metaeditor_path = str(runtime.metaeditor_path).replace("'", "''")
     script = f"""
@@ -469,14 +505,99 @@ if (-not $compiled) {{
         )
 
 
+def _compile_via_metaeditor_ui_wine_xdotool(runtime: Mt5RuntimePaths) -> None:
+    """Compile `live.mq5` via `wine start /unix` and xdotool key automation."""
+
+    if shutil.which("xdotool") is None:
+        raise RuntimeError("MetaEditor UI fallback on Linux/Wine requires xdotool.")
+
+    subprocess.run(
+        ["pkill", "-f", "MetaEditor64.exe"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=runtime_env(runtime),
+    )
+
+    source_value = to_windows_path(runtime, runtime.deployed_live_mq5)
+    previous_ex5_mtime = runtime.deployed_live_ex5.stat().st_mtime if runtime.deployed_live_ex5.exists() else 0.0
+    previous_ex5_size = runtime.deployed_live_ex5.stat().st_size if runtime.deployed_live_ex5.exists() else -1
+    completed = subprocess.run(
+        ["wine", "start", "/unix", str(runtime.metaeditor_path), source_value],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=runtime_env(runtime),
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "MetaEditor UI fallback could not launch MetaEditor under Wine.\n"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+        )
+
+    deadline = time.time() + 30.0
+    window_found = False
+    while time.time() < deadline:
+        search = subprocess.run(
+            ["xdotool", "search", "--name", "MetaEditor", "getwindowname"],
+            capture_output=True,
+            text=True,
+            check=False,
+            env=runtime_env(runtime),
+        )
+        if search.returncode == 0 and search.stdout.strip():
+            window_found = True
+            break
+        time.sleep(0.5)
+    if not window_found:
+        raise RuntimeError("MetaEditor window did not appear on the X11 display.")
+
+    time.sleep(0.7)
+    subprocess.run(
+        ["xdotool", "search", "--name", "MetaEditor", "windowactivate", "--sync", "key", "--clearmodifiers", "F7"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=runtime_env(runtime),
+    )
+
+    compile_deadline = time.time() + 60.0
+    while time.time() < compile_deadline:
+        if runtime.deployed_live_ex5.exists():
+            ex5_stat = runtime.deployed_live_ex5.stat()
+            if ex5_stat.st_mtime > previous_ex5_mtime or ex5_stat.st_size != previous_ex5_size:
+                subprocess.run(
+                    ["pkill", "-f", "MetaEditor64.exe"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    env=runtime_env(runtime),
+                )
+                return
+        time.sleep(0.5)
+
+    subprocess.run(
+        ["pkill", "-f", "MetaEditor64.exe"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=runtime_env(runtime),
+    )
+    raise RuntimeError("MetaEditor UI fallback did not update live.ex5.")
+
+
 def _compile_via_metaeditor_ui_wine(runtime: Mt5RuntimePaths) -> None:
+    """Compile `live.mq5` via MetaEditor UI automation under Wine/X11."""
+
+    if shutil.which("xdotool") is not None:
+        _compile_via_metaeditor_ui_wine_xdotool(runtime)
+        return
+
     try:
         from Xlib import X, XK, display, protocol
         from Xlib.ext import xtest
     except ImportError as exc:
-        raise RuntimeError(
-            "MetaEditor UI fallback on Linux/Wine requires python-xlib."
-        ) from exc
+        raise RuntimeError("MetaEditor UI fallback on Linux/Wine requires python-xlib.") from exc
 
     def keycode(dpy, keysym_name: str) -> int:
         keysym = XK.string_to_keysym(keysym_name)
@@ -604,6 +725,8 @@ def _compile_via_metaeditor_ui_wine(runtime: Mt5RuntimePaths) -> None:
 
 
 def _compile_via_metaeditor_ui(runtime: Mt5RuntimePaths) -> None:
+    """Use the UI fallback that matches the current host platform."""
+
     if runtime.use_wine:
         _compile_via_metaeditor_ui_wine(runtime)
         return
@@ -613,16 +736,19 @@ def _compile_via_metaeditor_ui(runtime: Mt5RuntimePaths) -> None:
     raise RuntimeError("MetaEditor UI fallback is only supported on Windows or Linux/Wine.")
 
 
-def compile_live_expert(runtime: Mt5RuntimePaths, skip_deployment: bool = False) -> Path:
+def compile_live_expert(runtime: Mt5RuntimePaths, model_dir: Path, skip_deployment: bool = False) -> Path:
+    """Compile the live EA after deploying the selected archived model tree."""
+
     if not skip_deployment:
-        deploy_active_model(runtime)
+        deploy_active_model(runtime, model_dir=model_dir)
     runtime.deployed_compile_log.unlink(missing_ok=True)
+    source_log_path = runtime.deployed_live_mq5.with_suffix(".log")
+    source_log_path.unlink(missing_ok=True)
     previous_ex5_mtime = runtime.deployed_live_ex5.stat().st_mtime if runtime.deployed_live_ex5.exists() else 0.0
     _touch_file(runtime.deployed_live_mq5)
     command = build_metaeditor_compile_command(
         runtime=runtime,
         source_path=runtime.deployed_live_mq5,
-        log_path=runtime.deployed_compile_log,
     )
     completed = subprocess.run(
         command,
@@ -631,6 +757,8 @@ def compile_live_expert(runtime: Mt5RuntimePaths, skip_deployment: bool = False)
         check=False,
         env=runtime_env(runtime),
     )
+    if source_log_path.exists():
+        shutil.copy2(source_log_path, runtime.deployed_compile_log)
     log_text = read_text_best_effort(runtime.deployed_compile_log) if runtime.deployed_compile_log.exists() else ""
     if not log_text and completed.stdout:
         log_text = completed.stdout

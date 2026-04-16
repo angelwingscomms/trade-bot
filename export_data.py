@@ -1,9 +1,4 @@
-"""
-Compile and execute a data export script via MT5, then move output to ./data/SYMBOL/ticks.csv.
-Profiles:
-- default: data.mq5 (time_msc,bid,ask)
-- gold: data_gold.mq5 (time_msc,bid,ask,usdx_bid,usdjpy_bid)
-"""
+"""Compile and run the MT5 data-export scripts, then collect the resulting CSV."""
 from __future__ import annotations
 
 import argparse
@@ -13,15 +8,17 @@ import tempfile
 import time
 from pathlib import Path
 
-from model_archive import ACTIVE_SHARED_CONFIG_PATH, configured_symbol, load_define_file, symbol_shared_config_path
 from mt5_runtime import (
     PROJECT_DIR_NAME,
     build_metaeditor_compile_command,
     build_terminal_command,
+    read_text_best_effort,
     resolve_mt5_runtime,
     runtime_env,
     stop_terminal_best_effort,
 )
+from tradebot.config_io import load_define_file
+from tradebot.workspace import ACTIVE_CONFIG_PATH, configured_symbol, symbol_default_config_path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -47,7 +44,7 @@ def deploy_script_files(runtime, shared_config_path: Path, profile: str) -> tupl
     script_dir = runtime_script_dir(runtime)
     script_dir.mkdir(parents=True, exist_ok=True)
     deployed_source = script_dir / f"{profile_script_name(profile)}.mq5"
-    deployed_shared_config = script_dir / "shared_config.mqh"
+    deployed_shared_config = script_dir / "config.mqh"
     source_path = DATA_PROFILE_SCRIPTS.get(profile, SCRIPT_DIR / "data.mq5")
     shutil.copy2(source_path, deployed_source)
     shutil.copy2(shared_config_path, deployed_shared_config)
@@ -57,25 +54,25 @@ def deploy_script_files(runtime, shared_config_path: Path, profile: str) -> tupl
 def resolve_symbol_config(requested_symbol: str) -> tuple[str, Path]:
     requested = requested_symbol.strip()
     if requested:
-        config_path = symbol_shared_config_path(requested)
+        config_path = symbol_default_config_path(requested)
         if not config_path.exists():
-            raise FileNotFoundError(f"Shared config not found for symbol '{requested}': {config_path}")
+            raise FileNotFoundError(f"Config not found for symbol '{requested}': {config_path}")
         shared = load_define_file(config_path)
         symbol = str(shared.get("SYMBOL", requested)).strip() or requested
         return symbol, config_path
 
     active_symbol = configured_symbol()
-    config_path = symbol_shared_config_path(active_symbol)
+    config_path = symbol_default_config_path(active_symbol)
     if config_path.exists():
         shared = load_define_file(config_path)
         symbol = str(shared.get("SYMBOL", active_symbol)).strip() or active_symbol
         return symbol, config_path
-    return active_symbol, ACTIVE_SHARED_CONFIG_PATH
+    return active_symbol, ACTIVE_CONFIG_PATH
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export MT5 tick data into ./data/<SYMBOL>/ticks.csv.")
-    parser.add_argument("--symbol", type=str, default="", help="Optional symbol config to load from models/<SYMBOL>/config.")
+    parser.add_argument("--symbol", type=str, default="", help="Optional symbol preset to load from symbols/<symbol>/config.")
     parser.add_argument(
         "--profile",
         type=str,
@@ -104,7 +101,9 @@ def parse_args() -> argparse.Namespace:
 def compile_data_script(runtime, shared_config_path: Path, profile: str) -> Path:
     source_path, deployed_shared_config = deploy_script_files(runtime, shared_config_path, profile=profile)
     target_path = source_path.with_suffix(".ex5")
+    source_log_path = source_path.with_suffix(".log")
     COMPILE_LOG_PATH.unlink(missing_ok=True)
+    source_log_path.unlink(missing_ok=True)
 
     newest_input_mtime = max(source_path.stat().st_mtime, deployed_shared_config.stat().st_mtime)
     if target_path.exists() and target_path.stat().st_mtime >= newest_input_mtime:
@@ -113,7 +112,6 @@ def compile_data_script(runtime, shared_config_path: Path, profile: str) -> Path
     command = build_metaeditor_compile_command(
         runtime=runtime,
         source_path=source_path,
-        log_path=COMPILE_LOG_PATH,
     )
     completed = subprocess.run(
         command,
@@ -122,19 +120,28 @@ def compile_data_script(runtime, shared_config_path: Path, profile: str) -> Path
         check=False,
         env=runtime_env(runtime),
     )
+    if source_log_path.exists():
+        shutil.copy2(source_log_path, COMPILE_LOG_PATH)
 
     if completed.returncode != 0 and not target_path.exists():
+        log_text = read_text_best_effort(source_log_path) if source_log_path.exists() else ""
         raise RuntimeError(
             "MetaEditor failed to compile data.mq5.\n"
-            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}\n\nlog:\n{log_text}"
         )
     deadline = time.time() + (60.0 if runtime.use_wine else 10.0)
     while time.time() < deadline:
         if target_path.exists() and target_path.stat().st_mtime >= newest_input_mtime:
+            if source_log_path.exists() and not COMPILE_LOG_PATH.exists():
+                shutil.copy2(source_log_path, COMPILE_LOG_PATH)
             return target_path
         time.sleep(0.5)
+    log_text = read_text_best_effort(source_log_path) if source_log_path.exists() else ""
     if not target_path.exists():
-        raise FileNotFoundError(f"Compiled script not found after MetaEditor run: {target_path}")
+        raise FileNotFoundError(
+            f"Compiled script not found after MetaEditor run: {target_path}\n\n"
+            f"stdout:\n{completed.stdout}\n\nstderr:\n{completed.stderr}\n\nlog:\n{log_text}"
+        )
     return target_path
 
 
@@ -231,8 +238,8 @@ def main() -> bool:
         print(f"[STEP 2] SUCCESS - MetaEditor: {runtime.metaeditor_path}")
         print()
 
-        if config_path != ACTIVE_SHARED_CONFIG_PATH:
-            shutil.copy2(config_path, ACTIVE_SHARED_CONFIG_PATH)
+        if config_path != ACTIVE_CONFIG_PATH:
+            shutil.copy2(config_path, ACTIVE_CONFIG_PATH)
 
         print("[STEP 3] Compiling data.mq5...")
         compiled_path = compile_data_script(runtime, config_path, profile=args.profile)

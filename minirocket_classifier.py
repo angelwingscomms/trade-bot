@@ -1,3 +1,5 @@
+"""MiniRocket feature transforms plus lightweight classifier/export wrappers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

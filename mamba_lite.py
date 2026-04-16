@@ -1,3 +1,5 @@
+"""Compact Mamba-inspired classifier used by the training pipeline."""
+
 from __future__ import annotations
 
 import math

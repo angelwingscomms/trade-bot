@@ -1,3 +1,5 @@
+"""Train, export, archive, and activate the MT5 model from `config.mqh`."""
+
 from __future__ import annotations
 
 import argparse
@@ -36,24 +38,6 @@ from minirocket_classifier import (
     transform_sequences,
     transform_sequence_tokens,
 )
-from model_archive import (
-    ACTIVE_DIAGNOSTICS_DIR,
-    ACTIVE_MODEL_CONFIG_PATH,
-    ACTIVE_ONNX_PATH,
-    ACTIVE_SHARED_CONFIG_PATH,
-    compile_live_expert,
-    configured_symbol,
-    ensure_default_test_config,
-    format_model_dir_name,
-    load_define_file,
-    read_text_best_effort,
-    sanitize_model_name,
-    set_live_model_reference,
-    symbol_model_config_path,
-    symbol_shared_config_path,
-    symbol_models_dir,
-    sync_directory_contents,
-)
 from mt5_runtime import resolve_mt5_runtime
 from sequence_models import (
     FusionLSTMClassifier,
@@ -64,6 +48,27 @@ from sequence_models import (
     TCNClassifier,
     TemporalLSTMAttentionClassifier,
 )
+from tradebot.config_io import load_define_file, read_text_best_effort, render_define_value
+from tradebot.project_config import (
+    EXTRA_FEATURE_COLUMNS,
+    GOLD_CONTEXT_FEATURE_COLUMNS,
+    MINIMAL_FEATURE_COLUMNS,
+    ResolvedProjectConfig,
+    feature_macro_name as project_feature_macro_name,
+    max_feature_lookback,
+    resolve_active_project_config,
+)
+from tradebot.workspace import (
+    ACTIVE_CONFIG_PATH,
+    ACTIVE_DIAGNOSTICS_DIR,
+    compile_live_expert,
+    ensure_default_test_config,
+    format_model_dir_name,
+    model_diagnostics_dir,
+    sanitize_model_name,
+    set_live_model_reference,
+    symbol_models_dir,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -73,9 +78,9 @@ logging.basicConfig(
 log = logging.getLogger("nn")
 
 EPS = 1e-10
-DEFAULT_DATA_FILE = "gold.csv"
-DEFAULT_OUTPUT_FILE = ACTIVE_ONNX_PATH.name
-SHARED_CONFIG_PATH = ACTIVE_SHARED_CONFIG_PATH
+DEFAULT_DATA_FILE = ""
+DEFAULT_OUTPUT_FILE = "model.onnx"
+SHARED_CONFIG_PATH = ACTIVE_CONFIG_PATH
 DEFAULT_MINIROCKET_FEATURES = 10_080
 DEFAULT_FOCAL_GAMMA = 2.0
 DEFAULT_MIN_SELECTED_TRADES = 12
@@ -116,85 +121,37 @@ GOLD_LEGACY_OLD_RAW_BARS = 15_000
 GOLD_LEGACY_OLD_CANDLES = 72000
 GOLD_LEGACY_OLD_WINDOWS = 72000
 GOLD_LEGACY_EQUIVALENT_27_TICK_BARS = 79_856
-BASE_FEATURE_COLUMNS = (
-    "ret1",
-    "high_rel_prev",
-    "low_rel_prev",
-    "spread_rel",
-    "close_in_range",
-    "atr_rel",
-    "rv",
-    "ret_n",
-    "tick_imbalance",
-)
-MINIROCKET_EXTRA_FEATURES = (
-    "ret_2",
-    "ret_3",
-    "ret_6",
-    "ret_12",
-    "open_rel_prev",
-    "range_rel",
-    "body_rel",
-    "upper_wick_rel",
-    "lower_wick_rel",
-    "close_rel_sma_3",
-    "close_rel_sma_9",
-    "close_rel_sma_20",
-    "sma_3_9_gap",
-    "sma_9_20_gap",
-    "rv_3",
-    "rv_6",
-    "rv_18",
-    "donchian_pos_9",
-    "donchian_width_9",
-    "donchian_pos_20",
-    "donchian_width_20",
-    "tick_count_rel_9",
-    "tick_count_z_9",
-    "tick_count_chg",
-    "tick_imbalance_sma_5",
-    "tick_imbalance_sma_9",
-    "spread_z_9",
-)
-SEQUENCE_EXTRA_FEATURES = (
-    "ret_2",
-    "ret_6",
-    "ret_12",
-    "ret_20",
-    "range_rel",
-    "body_rel",
-    "upper_wick_rel",
-    "lower_wick_rel",
-    "close_rel_sma_9",
-    "close_rel_sma_20",
-    "sma_5_20_gap",
-    "sma_9_20_gap",
-    "sma_slope_9",
-    "sma_slope_20",
-    "rsi_6",
-    "rsi_14",
-    "stoch_k_9",
-    "stoch_d_3",
-    "stoch_gap",
-    "bollinger_pos_20",
-    "bollinger_width_20",
-    "atr_ratio_20",
-    "rv_18",
-    "donchian_pos_20",
-    "tick_count_z_9",
-    "tick_imbalance_sma_9",
-    "spread_z_9",
-)
-ALL_FEATURE_COLUMNS = tuple(dict.fromkeys(BASE_FEATURE_COLUMNS + MINIROCKET_EXTRA_FEATURES + SEQUENCE_EXTRA_FEATURES))
 
-
-CURRENT_SHARED_CONFIG_PATH = SHARED_CONFIG_PATH
-CURRENT_SYMBOL_MODEL_CONFIG_PATH = ACTIVE_MODEL_CONFIG_PATH
-SHARED: dict[str, int | float | str] = {}
+CURRENT_CONFIG_PATH = ACTIVE_CONFIG_PATH
+ACTIVE_PROJECT: ResolvedProjectConfig | None = None
+SHARED: dict[str, bool | int | float | str] = {}
 SYMBOL = "XAUUSD"
 SEQ_LEN = 0
 TARGET_HORIZON = 0
 FEATURE_ATR_PERIOD = 0
+FEATURE_ATR_RATIO_PERIOD = 0
+FEATURE_BOLLINGER_PERIOD = 0
+FEATURE_DONCHIAN_FAST_PERIOD = 0
+FEATURE_DONCHIAN_SLOW_PERIOD = 0
+FEATURE_RET_2_PERIOD = 0
+FEATURE_RET_3_PERIOD = 0
+FEATURE_RET_6_PERIOD = 0
+FEATURE_RET_12_PERIOD = 0
+FEATURE_RET_20_PERIOD = 0
+FEATURE_RSI_FAST_PERIOD = 0
+FEATURE_RSI_SLOW_PERIOD = 0
+FEATURE_RV_LONG_PERIOD = 0
+FEATURE_SMA_FAST_PERIOD = 0
+FEATURE_SMA_MID_PERIOD = 0
+FEATURE_SMA_SLOW_PERIOD = 0
+FEATURE_SMA_SLOPE_SHIFT = 0
+FEATURE_SMA_TREND_FAST_PERIOD = 0
+FEATURE_SPREAD_Z_PERIOD = 0
+FEATURE_STOCH_PERIOD = 0
+FEATURE_STOCH_SMOOTH_PERIOD = 0
+FEATURE_TICK_COUNT_PERIOD = 0
+FEATURE_TICK_IMBALANCE_FAST_PERIOD = 0
+FEATURE_TICK_IMBALANCE_SLOW_PERIOD = 0
 TARGET_ATR_PERIOD = 0
 RV_PERIOD = 0
 RETURN_PERIOD = 0
@@ -202,6 +159,8 @@ MAX_FEATURE_LOOKBACK = 0
 WARMUP_BARS = 0
 IMBALANCE_MIN_TICKS = 0
 IMBALANCE_EMA_SPAN = 0
+USE_IMBALANCE_EMA_THRESHOLD = False
+USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD = False
 PRIMARY_BAR_SECONDS = 0
 PRIMARY_TICK_DENSITY = 0
 BAR_DURATION_MS = 0
@@ -221,15 +180,42 @@ USE_NO_HOLD = False
 LABEL_NAMES = ("HOLD", "BUY", "SELL")
 LABEL_NAMES_BINARY = ("BUY", "SELL")
 
-
-def apply_shared_settings(shared: dict[str, int | float | str], shared_config_path: Path | None = None) -> None:
+def apply_shared_settings(
+    shared: dict[str, bool | int | float | str],
+    *,
+    project: ResolvedProjectConfig | None = None,
+    shared_config_path: Path | None = None,
+) -> None:
     global SHARED
-    global CURRENT_SHARED_CONFIG_PATH
-    global CURRENT_SYMBOL_MODEL_CONFIG_PATH
+    global ACTIVE_PROJECT
+    global CURRENT_CONFIG_PATH
     global SYMBOL
     global SEQ_LEN
     global TARGET_HORIZON
     global FEATURE_ATR_PERIOD
+    global FEATURE_ATR_RATIO_PERIOD
+    global FEATURE_BOLLINGER_PERIOD
+    global FEATURE_DONCHIAN_FAST_PERIOD
+    global FEATURE_DONCHIAN_SLOW_PERIOD
+    global FEATURE_RET_2_PERIOD
+    global FEATURE_RET_3_PERIOD
+    global FEATURE_RET_6_PERIOD
+    global FEATURE_RET_12_PERIOD
+    global FEATURE_RET_20_PERIOD
+    global FEATURE_RSI_FAST_PERIOD
+    global FEATURE_RSI_SLOW_PERIOD
+    global FEATURE_RV_LONG_PERIOD
+    global FEATURE_SMA_FAST_PERIOD
+    global FEATURE_SMA_MID_PERIOD
+    global FEATURE_SMA_SLOW_PERIOD
+    global FEATURE_SMA_SLOPE_SHIFT
+    global FEATURE_SMA_TREND_FAST_PERIOD
+    global FEATURE_SPREAD_Z_PERIOD
+    global FEATURE_STOCH_PERIOD
+    global FEATURE_STOCH_SMOOTH_PERIOD
+    global FEATURE_TICK_COUNT_PERIOD
+    global FEATURE_TICK_IMBALANCE_FAST_PERIOD
+    global FEATURE_TICK_IMBALANCE_SLOW_PERIOD
     global TARGET_ATR_PERIOD
     global RV_PERIOD
     global RETURN_PERIOD
@@ -237,6 +223,8 @@ def apply_shared_settings(shared: dict[str, int | float | str], shared_config_pa
     global WARMUP_BARS
     global IMBALANCE_MIN_TICKS
     global IMBALANCE_EMA_SPAN
+    global USE_IMBALANCE_EMA_THRESHOLD
+    global USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD
     global PRIMARY_BAR_SECONDS
     global PRIMARY_TICK_DENSITY
     global BAR_DURATION_MS
@@ -254,21 +242,47 @@ def apply_shared_settings(shared: dict[str, int | float | str], shared_config_pa
     global DEFAULT_LOSS_MODE
 
     SHARED = dict(shared)
+    ACTIVE_PROJECT = project
     if shared_config_path is not None:
-        CURRENT_SHARED_CONFIG_PATH = shared_config_path
+        CURRENT_CONFIG_PATH = shared_config_path
 
     SYMBOL = str(SHARED.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD"
-    CURRENT_SYMBOL_MODEL_CONFIG_PATH = symbol_model_config_path(SYMBOL)
     SEQ_LEN = int(SHARED["SEQ_LEN"])
     TARGET_HORIZON = int(SHARED["TARGET_HORIZON"])
     FEATURE_ATR_PERIOD = int(SHARED["FEATURE_ATR_PERIOD"])
+    FEATURE_ATR_RATIO_PERIOD = int(SHARED["FEATURE_ATR_RATIO_PERIOD"])
+    FEATURE_BOLLINGER_PERIOD = int(SHARED["FEATURE_BOLLINGER_PERIOD"])
+    FEATURE_DONCHIAN_FAST_PERIOD = int(SHARED["FEATURE_DONCHIAN_FAST_PERIOD"])
+    FEATURE_DONCHIAN_SLOW_PERIOD = int(SHARED["FEATURE_DONCHIAN_SLOW_PERIOD"])
+    FEATURE_RET_2_PERIOD = int(SHARED["FEATURE_RET_2_PERIOD"])
+    FEATURE_RET_3_PERIOD = int(SHARED["FEATURE_RET_3_PERIOD"])
+    FEATURE_RET_6_PERIOD = int(SHARED["FEATURE_RET_6_PERIOD"])
+    FEATURE_RET_12_PERIOD = int(SHARED["FEATURE_RET_12_PERIOD"])
+    FEATURE_RET_20_PERIOD = int(SHARED["FEATURE_RET_20_PERIOD"])
+    FEATURE_RSI_FAST_PERIOD = int(SHARED["FEATURE_RSI_FAST_PERIOD"])
+    FEATURE_RSI_SLOW_PERIOD = int(SHARED["FEATURE_RSI_SLOW_PERIOD"])
+    FEATURE_RV_LONG_PERIOD = int(SHARED["FEATURE_RV_LONG_PERIOD"])
+    FEATURE_SMA_FAST_PERIOD = int(SHARED["FEATURE_SMA_FAST_PERIOD"])
+    FEATURE_SMA_MID_PERIOD = int(SHARED["FEATURE_SMA_MID_PERIOD"])
+    FEATURE_SMA_SLOW_PERIOD = int(SHARED["FEATURE_SMA_SLOW_PERIOD"])
+    FEATURE_SMA_SLOPE_SHIFT = int(SHARED["FEATURE_SMA_SLOPE_SHIFT"])
+    FEATURE_SMA_TREND_FAST_PERIOD = int(SHARED["FEATURE_SMA_TREND_FAST_PERIOD"])
+    FEATURE_SPREAD_Z_PERIOD = int(SHARED["FEATURE_SPREAD_Z_PERIOD"])
+    FEATURE_STOCH_PERIOD = int(SHARED["FEATURE_STOCH_PERIOD"])
+    FEATURE_STOCH_SMOOTH_PERIOD = int(SHARED["FEATURE_STOCH_SMOOTH_PERIOD"])
+    FEATURE_TICK_COUNT_PERIOD = int(SHARED["FEATURE_TICK_COUNT_PERIOD"])
+    FEATURE_TICK_IMBALANCE_FAST_PERIOD = int(SHARED["FEATURE_TICK_IMBALANCE_FAST_PERIOD"])
+    FEATURE_TICK_IMBALANCE_SLOW_PERIOD = int(SHARED["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"])
     TARGET_ATR_PERIOD = int(SHARED["TARGET_ATR_PERIOD"])
     RV_PERIOD = int(SHARED["RV_PERIOD"])
     RETURN_PERIOD = int(SHARED["RETURN_PERIOD"])
-    MAX_FEATURE_LOOKBACK = int(SHARED["MAX_FEATURE_LOOKBACK"])
-    WARMUP_BARS = int(SHARED["WARMUP_BARS"])
+    active_features = project.feature_columns if project is not None else MINIMAL_FEATURE_COLUMNS
+    MAX_FEATURE_LOOKBACK = max_feature_lookback(SHARED, active_features)
+    WARMUP_BARS = MAX_FEATURE_LOOKBACK
     IMBALANCE_MIN_TICKS = int(SHARED["IMBALANCE_MIN_TICKS"])
     IMBALANCE_EMA_SPAN = int(SHARED["IMBALANCE_EMA_SPAN"])
+    USE_IMBALANCE_EMA_THRESHOLD = bool(SHARED["USE_IMBALANCE_EMA_THRESHOLD"])
+    USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD = bool(SHARED["USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD"])
     PRIMARY_BAR_SECONDS = int(SHARED["PRIMARY_BAR_SECONDS"])
     PRIMARY_TICK_DENSITY = int(SHARED.get("PRIMARY_TICK_DENSITY", DEFAULT_PRIMARY_TICK_DENSITY))
     BAR_DURATION_MS = PRIMARY_BAR_SECONDS * 1000
@@ -286,62 +300,7 @@ def apply_shared_settings(shared: dict[str, int | float | str], shared_config_pa
     DEFAULT_LOSS_MODE = str(SHARED.get("DEFAULT_LOSS_MODE", "cross-entropy"))
 
 
-def resolve_symbol_training_config(requested_symbol: str) -> tuple[str, Path, dict[str, int | float | str]]:
-    requested = requested_symbol.strip()
-    if requested:
-        config_candidate = symbol_shared_config_path(requested)
-        if not config_candidate.exists():
-            raise FileNotFoundError(
-                f"Shared config not found for symbol '{requested}'. Expected {config_candidate}."
-            )
-        shared = load_define_file(config_candidate)
-        resolved_symbol = str(shared.get("SYMBOL", requested)).strip() or requested
-        return resolved_symbol, config_candidate, shared
-
-    active_shared = load_define_file(SHARED_CONFIG_PATH)
-    active_symbol = str(active_shared.get("SYMBOL", configured_symbol())).strip() or "XAUUSD"
-    symbol_config_candidate = symbol_shared_config_path(active_symbol)
-    if symbol_config_candidate.exists():
-        shared = load_define_file(symbol_config_candidate)
-        resolved_symbol = str(shared.get("SYMBOL", active_symbol)).strip() or active_symbol
-        return resolved_symbol, symbol_config_candidate, shared
-    return active_symbol, SHARED_CONFIG_PATH, active_shared
-
-
-apply_shared_settings(load_define_file(SHARED_CONFIG_PATH), SHARED_CONFIG_PATH)
-
-
-def override_shared_config_text(base_text: str, overrides: dict[str, int | float | str]) -> str:
-    lines = base_text.splitlines()
-    output_lines = []
-    define_pattern = re.compile(r"^\s*#define\s+([A-Z0-9_]+)\s+(.+?)\s*$")
-    for line in lines:
-        match = define_pattern.match(line)
-        if not match:
-            output_lines.append(line)
-            continue
-        name, _raw = match.groups()
-        if name in overrides:
-            value = overrides[name]
-            if isinstance(value, str):
-                rendered = f"\"{value}\"" if not value.startswith('"') else value
-            else:
-                rendered = f"{value}"
-            output_lines.append(f"#define {name} {rendered}")
-        else:
-            output_lines.append(line)
-    return "\n".join(output_lines) + "\n"
-
-
-def materialize_profile_shared_config(
-    shared_config_path: Path,
-    overrides: dict[str, int | float | str],
-    suffix: str,
-) -> Path:
-    target_path = shared_config_path.with_name(f"shared_config_{suffix}.mqh")
-    base_text = shared_config_path.read_text(encoding="utf-8")
-    target_path.write_text(override_shared_config_text(base_text, overrides), encoding="utf-8")
-    return target_path
+apply_shared_settings(load_define_file(ACTIVE_CONFIG_PATH), shared_config_path=ACTIVE_CONFIG_PATH)
 
 
 def symbol_ticks_path(symbol: str) -> Path:
@@ -349,422 +308,84 @@ def symbol_ticks_path(symbol: str) -> Path:
 
 
 def feature_macro_name(feature_name: str) -> str:
-    if feature_name == "ret_n":
-        return "FEATURE_IDX_RETURN_N"
-    return f"FEATURE_IDX_{feature_name.upper()}"
-
-
-def resolve_feature_columns(
-    architecture: str,
-    use_extended_features: bool,
-    use_gold_context: bool,
-) -> tuple[str, ...]:
-    if architecture == "chronos_bolt":
-        return BASE_FEATURE_COLUMNS
-    if architecture in {"gold_legacy", "gold_new"} or use_gold_context:
-        if use_extended_features:
-            return BASE_FEATURE_COLUMNS + GOLD_CONTEXT_FEATURE_COLUMNS + SEQUENCE_EXTRA_FEATURES
-        return BASE_FEATURE_COLUMNS + GOLD_CONTEXT_FEATURE_COLUMNS
-    if not use_extended_features:
-        return BASE_FEATURE_COLUMNS
-    if architecture == "minirocket":
-        return BASE_FEATURE_COLUMNS + MINIROCKET_EXTRA_FEATURES
-    return BASE_FEATURE_COLUMNS + SEQUENCE_EXTRA_FEATURES
-
-
-def resolve_feature_profile(
-    architecture: str,
-    use_extended_features: bool,
-    use_gold_context: bool,
-) -> str:
-    if architecture == "chronos_bolt":
-        return "chronos_bolt_ret1_core"
-    if not use_extended_features and not use_gold_context and architecture not in {"gold_legacy", "gold_new"}:
-        return "core"
-    if architecture == "minirocket":
-        return "minirocket_extended"
-    if architecture in {"gold_legacy", "gold_new"} or use_gold_context:
-        return "gold_context_extended"
-    return "sequence_extended"
-
-
-def build_arg_parser(selected_symbol: str, shared: dict[str, int | float | str]) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Train the model pipeline using the selected symbol config as the source of truth."
-    )
-    parser.add_argument(
-        "--symbol",
-        type=str,
-        default=selected_symbol,
-        help="Symbol config to load from models/<SYMBOL>/config/shared_config.mqh.",
-    )
-    parser.add_argument(
-        "-gold",
-        "--gold",
-        dest="gold",
-        action="store_true",
-        help=(
-            "Gold legacy profile: uses the old LSTM+MHA+GAP classifier on 27-tick bars with XAUUSD + USDX/USDJPY."
-        ),
-    )
-    parser.add_argument(
-        "-gold-new",
-        "--gold-new",
-        dest="gold_new",
-        action="store_true",
-        help="Gold upgraded profile: CNN+GRU+attention pooling on 27-tick bars with XAUUSD + USDX/USDJPY.",
-    )
-    parser.add_argument(
-        "--primary-tick-density",
-        type=int,
-        default=DEFAULT_PRIMARY_TICK_DENSITY,
-        help="Ticks per bar when --use-fixed-tick-bars is enabled.",
-    )
-    parser.add_argument(
-        "--use-fixed-tick-bars",
-        action="store_true",
-        help="Build fixed tick-density bars instead of imbalance/fixed-time bars.",
-    )
-    parser.add_argument(
-        "--gold-context",
-        action="store_true",
-        help="Expect USDX/USDJPY columns in the input CSV and add return features from them.",
-    )
-    parser.add_argument("--data-file", type=str, default=DEFAULT_DATA_FILE, help="CSV with time_msc,bid,ask.")
-    parser.add_argument("--output-file", type=str, default=DEFAULT_OUTPUT_FILE, help="ONNX output file.")
-    parser.add_argument(
-        "--name",
-        type=str,
-        default="",
-        help="Optional model folder prefix. Archives become {name}-{date} and add -fail when the quality gate misses.",
-    )
-    parser.add_argument("--epochs", type=int, default=int(shared["DEFAULT_EPOCHS"]), help="Maximum training epochs.")
-    parser.add_argument("--batch-size", type=int, default=int(shared["DEFAULT_BATCH_SIZE"]), help="Training batch size.")
-    parser.add_argument(
-        "--max-train-windows",
-        type=int,
-        default=int(shared["DEFAULT_MAX_TRAIN_WINDOWS"]),
-        help="Training window cap.",
-    )
-    parser.add_argument(
-        "--max-eval-windows",
-        type=int,
-        default=int(shared["DEFAULT_MAX_EVAL_WINDOWS"]),
-        help="Validation/test window cap.",
-    )
-    parser.add_argument(
-        "--max-bars",
-        type=int,
-        default=0,
-        help="Optional cap on the number of bars used for training (0 = no cap).",
-    )
-    parser.add_argument("--patience", type=int, default=int(shared["DEFAULT_PATIENCE"]), help="Early stopping patience.")
-    parser.add_argument("--device", type=str, default="cpu", help="Torch device to use. Defaults to cpu.")
-    parser.add_argument(
-        "--focal-gamma",
-        type=float,
-        default=DEFAULT_FOCAL_GAMMA,
-        help="Focal-loss gamma used for training.",
-    )
-    parser.add_argument(
-        "-r",
-        "--use-fixed-risk",
-        "--use-fixed-stops",
-        dest="use_fixed_risk",
-        action="store_true",
-        help="Use fixed label stops/targets. Without this flag, training labels use ATR-based barriers.",
-    )
-    parser.add_argument(
-        "-i",
-        "--use-fixed-time-bars",
-        action="store_true",
-        help="Build, train, and compile using fixed-time bars instead of the default imbalance bars.",
-    )
-    parser.add_argument(
-        "-f",
-        "--use-extended-features",
-        action="store_true",
-        help=(
-            "Enable 27 extra architecture-aware market features. MiniRocket gets a shape/microstructure-heavy "
-            "pack; the sequence encoders (Mamba, Castor, ELA, Fusion-LSTM, BiLSTM, GRU, TCN) get an "
-            "indicator/regime-heavy pack."
-        ),
-    )
-    parser.add_argument(
-        "-nh",
-        "--no-hold",
-        dest="no_hold",
-        action="store_true",
-        help="Train a binary classifier that predicts only BUY or SELL (removes HOLD class).",
-    )
-    architecture_group = parser.add_mutually_exclusive_group()
-    architecture_group.add_argument(
-        "-m",
-        "--use-minirocket-encoder",
-        action="store_true",
-        help="Use the MiniRocket multivariate encoder instead of the default Mamba-lite model.",
-    )
-    architecture_group.add_argument(
-        "-c",
-        "--use-castor-encoder",
-        action="store_true",
-        help="Use the Castor temporal encoder instead of the default Mamba-lite model.",
-    )
-    architecture_group.add_argument(
-        "--ela",
-        action="store_true",
-        help="Use the ELA encoder: an LSTM backbone with the repo's multihead attention head.",
-    )
-    architecture_group.add_argument(
-        "-fl",
-        "--fusion-lstm",
-        "--use-fusion-lstm-encoder",
-        dest="use_fusion_lstm_encoder",
-        action="store_true",
-        help=(
-            "Use a Mish-LSTM encoder with a built-in residual self-attention pooling block and Dense(20) classifier."
-        ),
-    )
-    architecture_group.add_argument(
-        "--bilstm",
-        "--use-bilstm-encoder",
-        dest="use_bilstm_encoder",
-        action="store_true",
-        help="Use a bidirectional LSTM encoder. Combine with -a to add the attention head.",
-    )
-    architecture_group.add_argument(
-        "--gru",
-        "--use-gru-encoder",
-        dest="use_gru_encoder",
-        action="store_true",
-        help="Use a GRU encoder. Combine with -a to add the attention head.",
-    )
-    architecture_group.add_argument(
-        "--tcn",
-        "--use-tcn-encoder",
-        dest="use_tcn_encoder",
-        action="store_true",
-        help="Use a dilated causal temporal convolutional network. Combine with -a to add the attention head.",
-    )
-    architecture_group.add_argument(
-        "--legacy-lstm-attention",
-        "--old-lstm-attention",
-        dest="use_legacy_lstm_attention",
-        action="store_true",
-        help=(
-            "Use the older single-layer LSTM + self-attention + mean-pool + dense-20 classifier pattern. "
-            "It uses the current pipeline's active feature pack, so with -f on sequence models it will see 36 features on XAUUSD."
-        ),
-    )
-    architecture_group.add_argument(
-        "-tla",
-        "--use-tla-encoder",
-        dest="use_tla_encoder",
-        action="store_true",
-        help="Use temporal convolutions + bidirectional LSTM + multihead attention encoder.",
-    )
-    architecture_group.add_argument(
-        "--chronos-bolt",
-        "--chronos",
-        dest="use_chronos_bolt",
-        action="store_true",
-        help="Use an official Chronos-Bolt checkpoint as a zero-shot univariate forecasting backend.",
-    )
-    parser.add_argument(
-        "--chronos-bolt-model",
-        type=str,
-        default=DEFAULT_CHRONOS_BOLT_MODEL_ID,
-        choices=CHRONOS_BOLT_MODEL_IDS,
-        help="Chronos-Bolt checkpoint to use. Defaults to the tiny variant for low-memory machines.",
-    )
-    chronos_context_group = parser.add_mutually_exclusive_group()
-    chronos_context_group.add_argument(
-        "--chronos-patch-aligned-context",
-        action="store_true",
-        help="Trim the live context to the largest tail that exactly fits Chronos-Bolt's patch size.",
-    )
-    chronos_context_group.add_argument(
-        "--chronos-auto-context",
-        action="store_true",
-        help="Try a few low-cost Chronos context tails on validation and keep the best one before export.",
-    )
-    chronos_context_group.add_argument(
-        "--chronos-ensemble-contexts",
-        action="store_true",
-        help="Average Chronos probabilities from the full context and the patch-aligned tail.",
-    )
-    parser.add_argument(
-        "-a",
-        "--use-multihead-attention",
-        action="store_true",
-        help="Add a lightweight multihead-attention head to the selected encoder.",
-    )
-    parser.add_argument(
-        "--minirocket-features",
-        type=int,
-        default=DEFAULT_MINIROCKET_FEATURES,
-        help="Approximate number of MiniRocket PPV features to use when -m is enabled.",
-    )
-    parser.add_argument(
-        "--attention-dim",
-        "--minirocket-attention-dim",
-        dest="attention_dim",
-        type=int,
-        default=DEFAULT_MINIROCKET_ATTENTION_DIM,
-        help="Projection size for MiniRocket's attention head when -m -a is enabled.",
-    )
-    parser.add_argument(
-        "--attention-heads",
-        "--minirocket-attention-heads",
-        dest="attention_heads",
-        type=int,
-        default=DEFAULT_ATTENTION_HEADS,
-        help="Number of attention heads used when -a is enabled.",
-    )
-    parser.add_argument(
-        "--attention-layers",
-        "--minirocket-attention-layers",
-        dest="attention_layers",
-        type=int,
-        default=DEFAULT_ATTENTION_LAYERS,
-        help="Number of stacked residual attention blocks used when -a is enabled.",
-    )
-    parser.add_argument(
-        "--attention-dropout",
-        "--minirocket-attention-dropout",
-        dest="attention_dropout",
-        type=float,
-        default=DEFAULT_ATTENTION_DROPOUT,
-        help="Dropout used inside the attention head when -a is enabled.",
-    )
-    parser.add_argument(
-        "--sequence-hidden-size",
-        type=int,
-        default=DEFAULT_SEQUENCE_HIDDEN_SIZE,
-        help="Hidden size / channel width used by ELA, BiLSTM, GRU, and TCN encoders.",
-    )
-    parser.add_argument(
-        "--sequence-layers",
-        type=int,
-        default=DEFAULT_SEQUENCE_LAYERS,
-        help="Number of stacked recurrent layers used by ELA, BiLSTM, and GRU.",
-    )
-    parser.add_argument(
-        "--sequence-dropout",
-        type=float,
-        default=DEFAULT_SEQUENCE_DROPOUT,
-        help="Dropout used inside the recurrent and TCN classifier heads.",
-    )
-    parser.add_argument(
-        "--tcn-levels",
-        type=int,
-        default=DEFAULT_TCN_LEVELS,
-        help="Number of dilated residual blocks used by --tcn.",
-    )
-    parser.add_argument(
-        "--tcn-kernel-size",
-        type=int,
-        default=DEFAULT_TCN_KERNEL_SIZE,
-        help="Kernel size used by the dilated causal convolutions when --tcn is enabled.",
-    )
-    parser.add_argument(
-        "--metaeditor-path",
-        type=str,
-        default="",
-        help="Optional explicit MetaEditor path. Leave blank to auto-detect on Windows or Linux/Wine.",
-    )
-    parser.add_argument(
-        "--skip-live-compile",
-        action="store_true",
-        help="Skip automatic live.mq5 compile after exporting ONNX and config.",
-    )
-    parser.add_argument(
-        "--archive-only",
-        action="store_true",
-        help="Archive diagnostics and model artifacts without updating the active live model files.",
-    )
-    parser.add_argument(
-        "--loss-mode",
-        type=str,
-        default="auto",
-        choices=("auto", "focal", "cross-entropy"),
-        help="Loss for classifier training. 'auto' uses focal for every architecture.",
-    )
-    parser.add_argument(
-        "--lr",
-        type=float,
-        default=0.0,
-        help="Optional learning rate override. Defaults depend on the selected encoder.",
-    )
-    parser.add_argument(
-        "--weight-decay",
-        type=float,
-        default=-1.0,
-        help="Optional weight decay override. Defaults depend on the selected encoder.",
-    )
-    parser.add_argument(
-        "--min-selected-trades",
-        type=int,
-        default=DEFAULT_MIN_SELECTED_TRADES,
-        help="Minimum selected BUY/SELL validation trades required to approve a model for live deployment.",
-    )
-    parser.add_argument(
-        "--min-trade-precision",
-        type=float,
-        default=DEFAULT_MIN_TRADE_PRECISION,
-        help="Minimum BUY/SELL validation precision required to approve a model for live deployment.",
-    )
-    parser.add_argument(
-        "--confidence-search-min",
-        type=float,
-        default=DEFAULT_CONFIDENCE_SEARCH_MIN,
-        help="Minimum confidence threshold to consider when selecting PRIMARY_CONFIDENCE.",
-    )
-    parser.add_argument(
-        "--confidence-search-max",
-        type=float,
-        default=DEFAULT_CONFIDENCE_SEARCH_MAX,
-        help="Maximum confidence threshold to consider when selecting PRIMARY_CONFIDENCE.",
-    )
-    parser.add_argument(
-        "--confidence-search-steps",
-        type=int,
-        default=DEFAULT_CONFIDENCE_SEARCH_STEPS,
-        help="Number of threshold candidates to evaluate when selecting PRIMARY_CONFIDENCE.",
-    )
-    return parser
+    return f"FEATURE_IDX_{project_feature_macro_name(feature_name)}"
 
 
 def parse_args() -> argparse.Namespace:
-    bootstrap = argparse.ArgumentParser(add_help=False)
-    bootstrap.add_argument("--symbol", type=str, default="")
-    bootstrap.add_argument("-gold", "--gold", dest="gold", action="store_true")
-    bootstrap.add_argument("-gold-new", "--gold-new", dest="gold_new", action="store_true")
-    bootstrap_args, _ = bootstrap.parse_known_args()
-    selected_symbol, _shared_config_path, shared = resolve_symbol_training_config(bootstrap_args.symbol)
-    parser = build_arg_parser(selected_symbol, shared)
-    args = parser.parse_args()
-    if args.gold or args.gold_new:
-        args.use_extended_features = True
-        args.use_fixed_tick_bars = True
-        args.primary_tick_density = GOLD_PROFILE_TICK_DENSITY
-        args.gold_context = True
-        if args.gold:
-            args.max_bars = GOLD_LEGACY_OLD_CANDLES
-        if args.gold:
-            args.use_legacy_lstm_attention = False
-            args.use_minirocket_encoder = False
-            args.use_castor_encoder = False
-            args.use_fusion_lstm_encoder = False
-            args.use_bilstm_encoder = False
-            args.use_gru_encoder = False
-            args.use_tcn_encoder = False
-            args.use_tla_encoder = False
-            args.use_chronos_bolt = False
-    return args
+    project = resolve_active_project_config(ACTIVE_CONFIG_PATH)
+    apply_shared_settings(project.values, project=project, shared_config_path=project.config_path)
+    values = project.values
+    use_custom_lr = bool(values.get("USE_CUSTOM_LEARNING_RATE", False))
+    use_custom_weight_decay = bool(values.get("USE_CUSTOM_WEIGHT_DECAY", False))
+    use_max_bars = bool(values.get("USE_MAX_BARS", False))
+    return argparse.Namespace(
+        config_path=str(project.config_path),
+        config_project=project,
+        symbol=str(values.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD",
+        data_file=str(values.get("DATA_FILE", DEFAULT_DATA_FILE)),
+        output_file=DEFAULT_OUTPUT_FILE,
+        name=str(values.get("MODEL_NAME", "")).strip(),
+        epochs=int(values.get("DEFAULT_EPOCHS", DEFAULT_EPOCHS)),
+        batch_size=int(values.get("DEFAULT_BATCH_SIZE", DEFAULT_BATCH_SIZE)),
+        max_train_windows=int(values.get("DEFAULT_MAX_TRAIN_WINDOWS", DEFAULT_MAX_TRAIN_WINDOWS)),
+        max_eval_windows=int(values.get("DEFAULT_MAX_EVAL_WINDOWS", DEFAULT_MAX_EVAL_WINDOWS)),
+        max_bars=int(values.get("MAX_BARS", 0)) if use_max_bars else 0,
+        patience=int(values.get("DEFAULT_PATIENCE", DEFAULT_PATIENCE)),
+        device=str(values.get("DEVICE", "cpu")).strip() or "cpu",
+        focal_gamma=float(values.get("FOCAL_GAMMA", DEFAULT_FOCAL_GAMMA)),
+        use_fixed_risk=bool(values.get("USE_FIXED_TARGETS", False)),
+        use_fixed_time_bars=bool(values.get("USE_SECOND_BARS", False)),
+        use_fixed_tick_bars=bool(values.get("USE_FIXED_TICK_BARS", False)),
+        primary_tick_density=int(values.get("PRIMARY_TICK_DENSITY", DEFAULT_PRIMARY_TICK_DENSITY)),
+        use_extended_features=not bool(values.get("USE_MINIMAL_FEATURE_SET", False)),
+        no_hold=bool(values.get("USE_NO_HOLD", False)),
+        config_architecture=project.architecture,
+        gold=False,
+        gold_new=False,
+        gold_context=bool(values.get("USE_GOLD_CONTEXT", False)),
+        use_minirocket_encoder=False,
+        use_castor_encoder=False,
+        ela=False,
+        use_fusion_lstm_encoder=False,
+        use_bilstm_encoder=False,
+        use_gru_encoder=False,
+        use_tcn_encoder=False,
+        use_legacy_lstm_attention=False,
+        use_tla_encoder=False,
+        use_chronos_bolt=False,
+        chronos_bolt_model=str(values.get("CHRONOS_BOLT_MODEL", DEFAULT_CHRONOS_BOLT_MODEL_ID)),
+        chronos_patch_aligned_context=bool(values.get("USE_CHRONOS_PATCH_ALIGNED_CONTEXT", False)),
+        chronos_auto_context=bool(values.get("USE_CHRONOS_AUTO_CONTEXT", False)),
+        chronos_ensemble_contexts=bool(values.get("USE_CHRONOS_ENSEMBLE_CONTEXTS", False)),
+        use_multihead_attention=bool(values.get("USE_MULTIHEAD_ATTENTION", False)),
+        minirocket_features=int(values.get("MINIROCKET_FEATURES", DEFAULT_MINIROCKET_FEATURES)),
+        attention_dim=int(values.get("ATTENTION_DIM", DEFAULT_MINIROCKET_ATTENTION_DIM)),
+        attention_heads=int(values.get("ATTENTION_HEADS", DEFAULT_ATTENTION_HEADS)),
+        attention_layers=int(values.get("ATTENTION_LAYERS", DEFAULT_ATTENTION_LAYERS)),
+        attention_dropout=float(values.get("ATTENTION_DROPOUT", DEFAULT_ATTENTION_DROPOUT)),
+        sequence_hidden_size=int(values.get("SEQUENCE_HIDDEN_SIZE", DEFAULT_SEQUENCE_HIDDEN_SIZE)),
+        sequence_layers=int(values.get("SEQUENCE_LAYERS", DEFAULT_SEQUENCE_LAYERS)),
+        sequence_dropout=float(values.get("SEQUENCE_DROPOUT", DEFAULT_SEQUENCE_DROPOUT)),
+        tcn_levels=int(values.get("TCN_LEVELS", DEFAULT_TCN_LEVELS)),
+        tcn_kernel_size=int(values.get("TCN_KERNEL_SIZE", DEFAULT_TCN_KERNEL_SIZE)),
+        metaeditor_path=str(values.get("METAEDITOR_PATH", "")).strip(),
+        skip_live_compile=bool(values.get("SKIP_LIVE_COMPILE", False)),
+        archive_only=False,
+        loss_mode=str(values.get("LOSS_MODE", "auto")).strip() or "auto",
+        lr=float(values.get("LEARNING_RATE", 0.0)) if use_custom_lr else 0.0,
+        weight_decay=float(values.get("WEIGHT_DECAY", 0.0)) if use_custom_weight_decay else -1.0,
+        min_selected_trades=int(values.get("MIN_SELECTED_TRADES", DEFAULT_MIN_SELECTED_TRADES)),
+        min_trade_precision=float(values.get("MIN_TRADE_PRECISION", DEFAULT_MIN_TRADE_PRECISION)),
+        confidence_search_min=float(values.get("CONFIDENCE_SEARCH_MIN", DEFAULT_CONFIDENCE_SEARCH_MIN)),
+        confidence_search_max=float(values.get("CONFIDENCE_SEARCH_MAX", DEFAULT_CONFIDENCE_SEARCH_MAX)),
+        confidence_search_steps=int(values.get("CONFIDENCE_SEARCH_STEPS", DEFAULT_CONFIDENCE_SEARCH_STEPS)),
+    )
 
 
 def resolve_architecture(args: argparse.Namespace) -> str:
+    configured_architecture = str(getattr(args, "config_architecture", "")).strip()
+    if configured_architecture:
+        return configured_architecture
     if args.use_chronos_bolt:
         return "chronos_bolt"
     if args.gold:
@@ -934,7 +555,11 @@ def build_primary_bar_ids(df_ticks: pd.DataFrame) -> np.ndarray:
     prices = df_ticks["bid"].to_numpy(dtype=np.float64, copy=False)
     tick_signs = compute_tick_signs(prices)
     alpha = 2.0 / (max(1, IMBALANCE_EMA_SPAN) + 1.0)
-    expected_abs_theta = max(2.0, float(max(2, IMBALANCE_MIN_TICKS // 3)))
+    if USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD:
+        base_threshold = max(2.0, float(max(2, IMBALANCE_MIN_TICKS // 3)))
+    else:
+        base_threshold = max(2.0, float(IMBALANCE_MIN_TICKS))
+    expected_abs_theta = base_threshold
     bar_ids = np.empty(len(prices), dtype=np.int64)
     current_bar = 0
     ticks_in_bar = 0
@@ -944,9 +569,11 @@ def build_primary_bar_ids(df_ticks: pd.DataFrame) -> np.ndarray:
         bar_ids[i] = current_bar
         ticks_in_bar += 1
         theta += float(sign)
-        if ticks_in_bar >= IMBALANCE_MIN_TICKS and abs(theta) >= expected_abs_theta:
-            observed = max(2.0, abs(theta))
-            expected_abs_theta = (1.0 - alpha) * expected_abs_theta + alpha * observed
+        threshold = expected_abs_theta if USE_IMBALANCE_EMA_THRESHOLD else base_threshold
+        if ticks_in_bar >= IMBALANCE_MIN_TICKS and abs(theta) >= threshold:
+            if USE_IMBALANCE_EMA_THRESHOLD:
+                observed = max(2.0, abs(theta))
+                expected_abs_theta = (1.0 - alpha) * expected_abs_theta + alpha * observed
             current_bar += 1
             ticks_in_bar = 0
             theta = 0.0
@@ -1239,20 +866,22 @@ def compute_features(df: pd.DataFrame, feature_columns: tuple[str, ...]) -> np.n
     atr_feature = wilder_atr(df["high"], df["low"], close, period=FEATURE_ATR_PERIOD)
     spread_rel = df["spread"] / (close + EPS)
 
-    sma_3 = close.rolling(3, min_periods=3).mean()
-    sma_5 = close.rolling(5, min_periods=5).mean()
-    sma_9 = close.rolling(9, min_periods=9).mean()
-    sma_20 = close.rolling(20, min_periods=20).mean()
-    rv_3 = rolling_population_std(ret1, 3)
-    rv_6 = rolling_population_std(ret1, 6)
-    rv_18 = rolling_population_std(ret1, 18)
-    high_9 = high.rolling(9, min_periods=9).max()
-    low_9 = low.rolling(9, min_periods=9).min()
-    high_20 = high.rolling(20, min_periods=20).max()
-    low_20 = low.rolling(20, min_periods=20).min()
-    stoch_k_9 = (close - low_9) / (high_9 - low_9 + EPS)
-    stoch_d_3 = stoch_k_9.rolling(3, min_periods=3).mean()
-    bollinger_std_20 = rolling_population_std(close, 20)
+    sma_fast = close.rolling(FEATURE_SMA_FAST_PERIOD, min_periods=FEATURE_SMA_FAST_PERIOD).mean()
+    sma_trend_fast = close.rolling(FEATURE_SMA_TREND_FAST_PERIOD, min_periods=FEATURE_SMA_TREND_FAST_PERIOD).mean()
+    sma_mid = close.rolling(FEATURE_SMA_MID_PERIOD, min_periods=FEATURE_SMA_MID_PERIOD).mean()
+    sma_slow = close.rolling(FEATURE_SMA_SLOW_PERIOD, min_periods=FEATURE_SMA_SLOW_PERIOD).mean()
+    rv_3 = rolling_population_std(ret1, FEATURE_RET_3_PERIOD)
+    rv_6 = rolling_population_std(ret1, FEATURE_RET_6_PERIOD)
+    rv_18 = rolling_population_std(ret1, FEATURE_RV_LONG_PERIOD)
+    high_fast = high.rolling(FEATURE_DONCHIAN_FAST_PERIOD, min_periods=FEATURE_DONCHIAN_FAST_PERIOD).max()
+    low_fast = low.rolling(FEATURE_DONCHIAN_FAST_PERIOD, min_periods=FEATURE_DONCHIAN_FAST_PERIOD).min()
+    high_slow = high.rolling(FEATURE_DONCHIAN_SLOW_PERIOD, min_periods=FEATURE_DONCHIAN_SLOW_PERIOD).max()
+    low_slow = low.rolling(FEATURE_DONCHIAN_SLOW_PERIOD, min_periods=FEATURE_DONCHIAN_SLOW_PERIOD).min()
+    high_stoch = high.rolling(FEATURE_STOCH_PERIOD, min_periods=FEATURE_STOCH_PERIOD).max()
+    low_stoch = low.rolling(FEATURE_STOCH_PERIOD, min_periods=FEATURE_STOCH_PERIOD).min()
+    stoch_k_9 = (close - low_stoch) / (high_stoch - low_stoch + EPS)
+    stoch_d_3 = stoch_k_9.rolling(FEATURE_STOCH_SMOOTH_PERIOD, min_periods=FEATURE_STOCH_SMOOTH_PERIOD).mean()
+    bollinger_std_20 = rolling_population_std(close, FEATURE_BOLLINGER_PERIOD)
 
     feat = pd.DataFrame(index=df.index)
     feat["ret1"] = ret1
@@ -1287,46 +916,57 @@ def compute_features(df: pd.DataFrame, feature_columns: tuple[str, ...]) -> np.n
     feat["usdx_ret1"] = np.log(usdx_bid / (usdx_bid.shift(1) + EPS))
     feat["usdjpy_ret1"] = np.log(usdjpy_bid / (usdjpy_bid.shift(1) + EPS))
 
-    feat["ret_2"] = np.log(close / (close.shift(2) + EPS))
-    feat["ret_3"] = np.log(close / (close.shift(3) + EPS))
-    feat["ret_6"] = np.log(close / (close.shift(6) + EPS))
-    feat["ret_12"] = np.log(close / (close.shift(12) + EPS))
-    feat["ret_20"] = np.log(close / (close.shift(20) + EPS))
+    feat["ret_2"] = np.log(close / (close.shift(FEATURE_RET_2_PERIOD) + EPS))
+    feat["ret_3"] = np.log(close / (close.shift(FEATURE_RET_3_PERIOD) + EPS))
+    feat["ret_6"] = np.log(close / (close.shift(FEATURE_RET_6_PERIOD) + EPS))
+    feat["ret_12"] = np.log(close / (close.shift(FEATURE_RET_12_PERIOD) + EPS))
+    feat["ret_20"] = np.log(close / (close.shift(FEATURE_RET_20_PERIOD) + EPS))
     feat["open_rel_prev"] = np.log(open_price / (prev_close + EPS))
     feat["range_rel"] = (high - low) / (close + EPS)
     feat["body_rel"] = (close - open_price) / (close + EPS)
     feat["upper_wick_rel"] = (high - np.maximum(open_price, close)) / (close + EPS)
     feat["lower_wick_rel"] = (np.minimum(open_price, close) - low) / (close + EPS)
-    feat["close_rel_sma_3"] = np.log(close / (sma_3 + EPS))
-    feat["close_rel_sma_9"] = np.log(close / (sma_9 + EPS))
-    feat["close_rel_sma_20"] = np.log(close / (sma_20 + EPS))
-    feat["sma_3_9_gap"] = np.log(sma_3 / (sma_9 + EPS))
-    feat["sma_5_20_gap"] = np.log(sma_5 / (sma_20 + EPS))
-    feat["sma_9_20_gap"] = np.log(sma_9 / (sma_20 + EPS))
-    feat["sma_slope_9"] = np.log(sma_9 / (sma_9.shift(3) + EPS))
-    feat["sma_slope_20"] = np.log(sma_20 / (sma_20.shift(3) + EPS))
+    feat["close_rel_sma_3"] = np.log(close / (sma_fast + EPS))
+    feat["close_rel_sma_9"] = np.log(close / (sma_mid + EPS))
+    feat["close_rel_sma_20"] = np.log(close / (sma_slow + EPS))
+    feat["sma_3_9_gap"] = np.log(sma_fast / (sma_mid + EPS))
+    feat["sma_5_20_gap"] = np.log(sma_trend_fast / (sma_slow + EPS))
+    feat["sma_9_20_gap"] = np.log(sma_mid / (sma_slow + EPS))
+    feat["sma_slope_9"] = np.log(sma_mid / (sma_mid.shift(FEATURE_SMA_SLOPE_SHIFT) + EPS))
+    feat["sma_slope_20"] = np.log(sma_slow / (sma_slow.shift(FEATURE_SMA_SLOPE_SHIFT) + EPS))
     feat["rv_3"] = rv_3
     feat["rv_6"] = rv_6
     feat["rv_18"] = rv_18
-    feat["donchian_pos_9"] = (close - low_9) / (high_9 - low_9 + EPS)
-    feat["donchian_width_9"] = (high_9 - low_9) / (close + EPS)
-    feat["donchian_pos_20"] = (close - low_20) / (high_20 - low_20 + EPS)
-    feat["donchian_width_20"] = (high_20 - low_20) / (close + EPS)
-    tick_count_sma_9 = tick_count.rolling(9, min_periods=9).mean()
+    feat["donchian_pos_9"] = (close - low_fast) / (high_fast - low_fast + EPS)
+    feat["donchian_width_9"] = (high_fast - low_fast) / (close + EPS)
+    feat["donchian_pos_20"] = (close - low_slow) / (high_slow - low_slow + EPS)
+    feat["donchian_width_20"] = (high_slow - low_slow) / (close + EPS)
+    tick_count_sma_9 = tick_count.rolling(FEATURE_TICK_COUNT_PERIOD, min_periods=FEATURE_TICK_COUNT_PERIOD).mean()
     feat["tick_count_rel_9"] = tick_count / (tick_count_sma_9 + EPS) - 1.0
-    feat["tick_count_z_9"] = rolling_zscore(tick_count, 9)
+    feat["tick_count_z_9"] = rolling_zscore(tick_count, FEATURE_TICK_COUNT_PERIOD)
     feat["tick_count_chg"] = np.log((tick_count + 1.0) / (tick_count.shift(1) + 1.0))
-    feat["tick_imbalance_sma_5"] = tick_imbalance.rolling(5, min_periods=5).mean()
-    feat["tick_imbalance_sma_9"] = tick_imbalance.rolling(9, min_periods=9).mean()
-    feat["spread_z_9"] = rolling_zscore(spread_rel, 9)
-    feat["rsi_6"] = simple_rsi(close, 6)
-    feat["rsi_14"] = simple_rsi(close, 14)
+    feat["tick_imbalance_sma_5"] = tick_imbalance.rolling(
+        FEATURE_TICK_IMBALANCE_FAST_PERIOD,
+        min_periods=FEATURE_TICK_IMBALANCE_FAST_PERIOD,
+    ).mean()
+    feat["tick_imbalance_sma_9"] = tick_imbalance.rolling(
+        FEATURE_TICK_IMBALANCE_SLOW_PERIOD,
+        min_periods=FEATURE_TICK_IMBALANCE_SLOW_PERIOD,
+    ).mean()
+    feat["spread_z_9"] = rolling_zscore(spread_rel, FEATURE_SPREAD_Z_PERIOD)
+    feat["rsi_6"] = simple_rsi(close, FEATURE_RSI_FAST_PERIOD)
+    feat["rsi_14"] = simple_rsi(close, FEATURE_RSI_SLOW_PERIOD)
     feat["stoch_k_9"] = stoch_k_9
     feat["stoch_d_3"] = stoch_d_3
     feat["stoch_gap"] = stoch_k_9 - stoch_d_3
-    feat["bollinger_pos_20"] = (close - sma_20) / (2.0 * bollinger_std_20 + EPS)
-    feat["bollinger_width_20"] = (4.0 * bollinger_std_20) / (sma_20 + EPS)
-    feat["atr_ratio_20"] = np.log(atr_feature / (atr_feature.rolling(20, min_periods=20).mean() + EPS))
+    feat["bollinger_pos_20"] = (close - sma_slow) / (2.0 * bollinger_std_20 + EPS)
+    feat["bollinger_width_20"] = (4.0 * bollinger_std_20) / (sma_slow + EPS)
+    feat["atr_ratio_20"] = np.log(
+        atr_feature
+        / (
+            atr_feature.rolling(FEATURE_ATR_RATIO_PERIOD, min_periods=FEATURE_ATR_RATIO_PERIOD).mean() + EPS
+        )
+    )
 
     missing_features = [name for name in feature_columns if name not in feat.columns]
     if missing_features:
@@ -1787,23 +1427,7 @@ def write_diagnostics(
     test_predictions.to_csv(diagnostics_dir / "holdout_predictions.csv", index=False)
     val_confusion.to_csv(diagnostics_dir / "validation_confusion_matrix.csv")
     test_confusion.to_csv(diagnostics_dir / "holdout_confusion_matrix.csv")
-    config_text = CURRENT_SHARED_CONFIG_PATH.read_text(encoding="utf-8")
-    lines = config_text.splitlines()
-    header_lines = []
-    variable_lines = []
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("#define"):
-            variable_lines.append(line)
-        else:
-            header_lines.append(line)
-    variable_lines.sort(key=lambda l: l.split()[1] if len(l.split()) > 1 else "")
-    all_lines = header_lines + variable_lines
-    (diagnostics_dir / "shared_config_snapshot.mqh").write_text(
-        "\n".join(all_lines) + "\n",
-        encoding="utf-8",
-    )
-    (diagnostics_dir / "model_config_snapshot.mqh").write_text(model_config_text, encoding="utf-8")
+    (diagnostics_dir / "config.mqh").write_text(model_config_text, encoding="utf-8")
     (diagnostics_dir / "active_features.txt").write_text("\n".join(feature_columns) + "\n", encoding="utf-8")
 
     report_lines = [
@@ -1896,15 +1520,14 @@ def write_diagnostics(
         "- validation_confusion_matrix.csv",
         "- holdout_confusion_matrix.csv",
         "- active_features.txt",
-        "- shared_config_snapshot.mqh",
-        "- model_config_snapshot.mqh",
+        "- config.mqh",
         "",
         "## Note",
         *(
-            [f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in {CURRENT_SHARED_CONFIG_PATH.name} to retune them, for example to 27 or 9 seconds."]
+            [f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in {CURRENT_CONFIG_PATH.name} to retune them, for example to 27 or 9 seconds."]
             if use_fixed_time_bars
             else (
-                [f"- Fixed-tick bars use PRIMARY_TICK_DENSITY in {CURRENT_SHARED_CONFIG_PATH.name} to set ticks per bar."]
+                [f"- Fixed-tick bars use PRIMARY_TICK_DENSITY in {CURRENT_CONFIG_PATH.name} to set ticks per bar."]
                 if use_fixed_tick_bars
                 else ["- Imbalance bars are variable by design. Lowering imbalance_min_ticks makes them smaller on average, but it does not force a fixed tick count per bar."]
             )
@@ -1921,6 +1544,7 @@ def format_float_array(values: np.ndarray) -> str:
 
 
 def build_mql_config(
+    project: ResolvedProjectConfig,
     median: np.ndarray,
     iqr: np.ndarray,
     primary_confidence: float,
@@ -1933,6 +1557,57 @@ def build_mql_config(
     use_extended_features: bool,
     use_fixed_tick_bars: bool,
 ) -> str:
+    base_text = project.config_path.read_text(encoding="utf-8").rstrip()
+    def override_define(name: str, value: bool | int | float | str) -> list[str]:
+        return [
+            f"#ifdef {name}",
+            f"#undef {name}",
+            "#endif",
+            f"#define {name} {render_define_value(value)}",
+        ]
+
+    override_lines: list[str] = [
+        "",
+        "// --- Resolved Model Overrides ---",
+    ]
+    for name, value in (
+        ("MAX_FEATURE_LOOKBACK", MAX_FEATURE_LOOKBACK),
+        ("WARMUP_BARS", WARMUP_BARS),
+        ("MODEL_ARCHITECTURE", architecture),
+        ("MODEL_FEATURE_PROFILE", feature_profile),
+        ("MODEL_USE_ATR_RISK", 1 if use_atr_risk else 0),
+        ("MODEL_USE_FIXED_TICK_BARS", 1 if use_fixed_tick_bars else 0),
+        ("MODEL_USE_FIXED_TIME_BARS", 1 if use_fixed_time_bars else 0),
+        ("MODEL_USE_MULTIHEAD_ATTENTION", 1 if use_multihead_attention else 0),
+        ("MODEL_USE_EXTENDED_FEATURES", 1 if use_extended_features else 0),
+        ("MODEL_USE_MINIROCKET", 1 if architecture == "minirocket" else 0),
+        ("MODEL_USE_CASTOR", 1 if architecture == "castor" else 0),
+        ("MODEL_USE_ELA", 1 if architecture == "ela" else 0),
+        ("MODEL_USE_FUSION_LSTM", 1 if architecture == "fusion_lstm" else 0),
+        ("MODEL_USE_BILSTM", 1 if architecture == "bilstm" else 0),
+        ("MODEL_USE_GRU", 1 if architecture == "gru" else 0),
+        ("MODEL_USE_TCN", 1 if architecture == "tcn" else 0),
+        ("MODEL_USE_TLA", 1 if architecture == "tla" else 0),
+        ("MODEL_USE_LEGACY_LSTM_ATTENTION", 1 if architecture == "legacy_lstm_attention" else 0),
+        ("MODEL_USE_CHRONOS", 1 if architecture == "chronos_bolt" else 0),
+        ("MODEL_USE_CHRONOS_BOLT", 1 if architecture == "chronos_bolt" else 0),
+    ):
+        override_lines.extend(override_define(name, value))
+    override_lines.extend(
+        [
+            "#ifdef REQUIRED_HISTORY_INDEX",
+            "#undef REQUIRED_HISTORY_INDEX",
+            "#endif",
+            "#define REQUIRED_HISTORY_INDEX (SEQ_LEN + MAX_FEATURE_LOOKBACK - 1)",
+        ]
+    )
+    if project.architecture_config_path is not None:
+        override_lines.extend(
+            override_define(
+                "MODEL_ARCHITECTURE_CONFIG",
+                str(project.architecture_config_path.relative_to(ACTIVE_CONFIG_PATH.parent)),
+            )
+        )
     feature_macro_lines = [
         "#ifdef MODEL_FEATURE_COUNT",
         "#undef MODEL_FEATURE_COUNT",
@@ -1953,25 +1628,8 @@ def build_mql_config(
     return "\n".join(
         [
             "// Auto-generated by nn.py. Re-run training to refresh these values.",
-            "// Shared static values live in shared_config.mqh.",
-            f"#define MODEL_USE_FIXED_TICK_BARS {1 if use_fixed_tick_bars else 0}",
-            f"#define MODEL_USE_ATR_RISK {1 if use_atr_risk else 0}",
-            f"#define MODEL_USE_FIXED_TIME_BARS {1 if use_fixed_time_bars else 0}",
-            f'#define MODEL_ARCHITECTURE "{architecture}"',
-            f'#define MODEL_FEATURE_PROFILE "{feature_profile}"',
-            f"#define MODEL_USE_EXTENDED_FEATURES {1 if use_extended_features else 0}",
-            f"#define MODEL_USE_MINIROCKET {1 if architecture == 'minirocket' else 0}",
-            f"#define MODEL_USE_CASTOR {1 if architecture == 'castor' else 0}",
-            f"#define MODEL_USE_ELA {1 if architecture == 'ela' else 0}",
-            f"#define MODEL_USE_FUSION_LSTM {1 if architecture == 'fusion_lstm' else 0}",
-            f"#define MODEL_USE_BILSTM {1 if architecture == 'bilstm' else 0}",
-            f"#define MODEL_USE_GRU {1 if architecture == 'gru' else 0}",
-            f"#define MODEL_USE_TCN {1 if architecture == 'tcn' else 0}",
-            f"#define MODEL_USE_TLA {1 if architecture == 'tla' else 0}",
-            f"#define MODEL_USE_LEGACY_LSTM_ATTENTION {1 if architecture == 'legacy_lstm_attention' else 0}",
-            f"#define MODEL_USE_CHRONOS {1 if architecture == 'chronos_bolt' else 0}",
-            f"#define MODEL_USE_CHRONOS_BOLT {1 if architecture == 'chronos_bolt' else 0}",
-            f"#define MODEL_USE_MULTIHEAD_ATTENTION {1 if use_multihead_attention else 0}",
+            base_text,
+            *override_lines,
             (
                 "// Gold legacy reference: old/nn.py trained on 2,160,000 ticks (tick_density=144) -> "
                 "14,856 bars -> 14,707 windows (seq_len=120, horizon=30)."
@@ -1997,26 +1655,8 @@ def resolve_loss_mode(_architecture: str, requested_mode: str) -> str:
 def main() -> None:
     t0 = time.time()
     args = parse_args()
-    selected_symbol, selected_shared_config_path, selected_shared = resolve_symbol_training_config(args.symbol)
-    if (args.gold or args.gold_new) and args.data_file == DEFAULT_DATA_FILE:
-        args.data_file = str(symbol_ticks_path(selected_symbol))
-    if args.gold or args.gold_new:
-        overrides = {
-            "SEQ_LEN": GOLD_PROFILE_SEQ_LEN,
-            "PRIMARY_TICK_DENSITY": GOLD_PROFILE_TICK_DENSITY,
-            "USE_ALL_WINDOWS": 1,
-            "DEFAULT_BATCH_SIZE": 64,
-            "DEFAULT_EPOCHS": 54,
-        }
-        profile_suffix = "gold" if args.gold else "gold_new"
-        selected_shared_config_path = materialize_profile_shared_config(
-            selected_shared_config_path,
-            overrides,
-            suffix=profile_suffix,
-        )
-        selected_shared = load_define_file(selected_shared_config_path)
-    apply_shared_settings(selected_shared, selected_shared_config_path)
-    args.symbol = selected_symbol
+    project = args.config_project
+    apply_shared_settings(project.values, project=project, shared_config_path=project.config_path)
     torch.manual_seed(42)
     np.random.seed(42)
     architecture = resolve_architecture(args)
@@ -2032,43 +1672,13 @@ def main() -> None:
     use_fixed_tick_bars = bool(args.use_fixed_tick_bars)
     use_no_hold = bool(args.no_hold)
     active_label_names = LABEL_NAMES_BINARY if use_no_hold else LABEL_NAMES
-    if args.gold or args.gold_new:
-        if args.symbol.strip().upper() != GOLD_WARNING_SYMBOL:
-            log.warning(
-                "Gold profile is tuned for %s; you requested %s.",
-                GOLD_WARNING_SYMBOL,
-                args.symbol,
-            )
-        if SEQ_LEN != GOLD_PROFILE_SEQ_LEN:
-            log.warning(
-                "Gold profile expects seq_len=%d; current shared_config uses %d.",
-                GOLD_PROFILE_SEQ_LEN,
-                SEQ_LEN,
-            )
-        use_fixed_tick_bars = True
-        use_fixed_time_bars = False
-    if args.gold and int(args.max_bars) == GOLD_LEGACY_OLD_CANDLES and args.primary_tick_density != GOLD_LEGACY_OLD_TICK_DENSITY:
-        log.warning(
-            "Gold legacy is matching the old bar count (%d) but not the old tick span: %d bars x %d ticks = %d ticks, "
-            "vs old %d ticks at %d ticks/bar. Matching the old tick span at %d ticks/bar would require about %d bars.",
-            GOLD_LEGACY_OLD_CANDLES,
-            GOLD_LEGACY_OLD_CANDLES,
-            args.primary_tick_density,
-            GOLD_LEGACY_OLD_CANDLES * args.primary_tick_density,
-            GOLD_LEGACY_OLD_TICKS,
-            GOLD_LEGACY_OLD_TICK_DENSITY,
-            args.primary_tick_density,
-            GOLD_LEGACY_EQUIVALENT_27_TICK_BARS,
-        )
     if architecture == "chronos_bolt" and use_extended_features:
-        log.warning("Chronos-Bolt backend uses the base live feature pack; ignoring --use-extended-features.")
+        log.warning("Chronos-Bolt backend uses the minimal live feature pack; ignoring extra feature switches.")
         use_extended_features = False
-    feature_columns = resolve_feature_columns(architecture, use_extended_features, use_gold_context=bool(args.gold_context))
-    feature_profile = resolve_feature_profile(architecture, use_extended_features, use_gold_context=bool(args.gold_context))
+    feature_columns = project.feature_columns
+    feature_profile = project.feature_profile
     feature_count = len(feature_columns)
     use_multihead_attention = bool(args.use_multihead_attention)
-    if args.gold:
-        use_multihead_attention = True
     if use_fixed_tick_bars and use_fixed_time_bars:
         raise ValueError("Choose only one bar mode: fixed-time or fixed-tick.")
     if architecture == "legacy_lstm_attention":
@@ -2123,12 +1733,12 @@ def main() -> None:
                 args.attention_layers,
             )
     if architecture == "chronos_bolt" and use_multihead_attention:
-        log.warning("Chronos-Bolt backend ignores --use-multihead-attention.")
+        log.warning("Chronos-Bolt backend ignores multihead-attention settings.")
         use_multihead_attention = False
     if architecture != "chronos_bolt" and (
         args.chronos_patch_aligned_context or args.chronos_auto_context or args.chronos_ensemble_contexts
     ):
-        log.warning("Chronos context flags are ignored unless --chronos-bolt is enabled.")
+        log.warning("Chronos context switches are ignored unless MODEL_ARCHITECTURE is chronos_bolt.")
     if use_fixed_time_bars and PRIMARY_BAR_SECONDS <= 0:
         raise ValueError("PRIMARY_BAR_SECONDS must be positive.")
     if use_fixed_tick_bars and args.primary_tick_density <= 0:
@@ -2137,18 +1747,9 @@ def main() -> None:
         raise ValueError("DEFAULT_FIXED_MOVE must be positive in points.")
 
     data_path = resolve_local_path(args.data_file)
-    output_path = resolve_local_path(args.output_file)
-    active_output_path = ACTIVE_ONNX_PATH
-    active_model_config_path = ACTIVE_MODEL_CONFIG_PATH
-    selected_model_config_path = CURRENT_SYMBOL_MODEL_CONFIG_PATH
-    active_output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    selected_model_config_path.parent.mkdir(parents=True, exist_ok=True)
     archive_only = bool(args.archive_only)
     if archive_only and not args.skip_live_compile:
-        log.info("archive-only mode implies --skip-live-compile; active live files will not be updated.")
-    elif CURRENT_SHARED_CONFIG_PATH != SHARED_CONFIG_PATH:
-        shutil.copy2(CURRENT_SHARED_CONFIG_PATH, SHARED_CONFIG_PATH)
+        log.info("archive-only mode implies skip-live-compile; local live references will still be updated.")
 
     requested_device = str(args.device).strip() or "cpu"
     device = torch.device(requested_device)
@@ -2157,7 +1758,7 @@ def main() -> None:
         "Shared config | path=%s seq_len=%d horizon=%d atr_feature=%d atr_target=%d rv=%d ret=%d "
         "bar_mode=%s imbalance_min_ticks=%d imbalance_ema_span=%d bar_seconds=%d tick_density=%d risk_mode=%s fixed_move_points=%.2f "
         "label_sl=%.2f label_tp=%.2f exec_sl=%.2f exec_tp=%.2f use_all_windows=%d",
-        CURRENT_SHARED_CONFIG_PATH,
+        CURRENT_CONFIG_PATH,
         SEQ_LEN,
         TARGET_HORIZON,
         FEATURE_ATR_PERIOD,
@@ -2193,7 +1794,7 @@ def main() -> None:
         use_fixed_tick_bars=use_fixed_tick_bars,
         tick_density=args.primary_tick_density,
         max_bars=int(args.max_bars),
-        require_gold_context=bool(args.gold_context),
+        require_gold_context=bool(args.gold_context) and not bool(SHARED.get("USE_MINIMAL_FEATURE_SET", False)),
     )
     fixed_move_price = fixed_move_price_distance(DEFAULT_FIXED_MOVE, point_size)
     log.info(
@@ -2739,7 +2340,7 @@ def main() -> None:
     deployed_primary_confidence = selected_primary_confidence
     if not quality_gate_passed:
         log.warning(
-            "Model failed the live quality gate (%s). Keeping PRIMARY_CONFIDENCE=%.2f and marking the archive folder with -fail.",
+            "Model failed the live quality gate (%s). Keeping PRIMARY_CONFIDENCE=%.2f.",
             quality_gate_reason,
             deployed_primary_confidence,
         )
@@ -2752,27 +2353,24 @@ def main() -> None:
         value=completed_at,
         name=model_name,
         failed_quality_gate=not quality_gate_passed,
+        symbol=SYMBOL,
     )
     model_dir = symbol_models_dir(SYMBOL) / model_dir_name
     model_dir.mkdir(parents=True, exist_ok=False)
-    model_diagnostics_dir = model_dir / "diagnostics"
+    diagnostics_dir = model_diagnostics_dir(model_dir)
     model_test_dir = model_dir / "tests"
     model_test_dir.mkdir(parents=True, exist_ok=True)
     archive_output_path = model_dir / "model.onnx"
+    combined_model_config_path = model_dir / "config.mqh"
 
     export_model.eval()
     export_model.to("cpu")
     dummy = torch.randn(1, SEQ_LEN, feature_count)
     export_onnx_model(export_model, dummy, archive_output_path)
-    if not archive_only:
-        shutil.copy2(archive_output_path, active_output_path)
-    primary_output_path = archive_output_path if archive_only else active_output_path
-    should_copy_to_output = output_path not in {archive_output_path, active_output_path}
-    if should_copy_to_output:
-        shutil.copy2(primary_output_path, output_path)
 
     model_config_text = (
         build_mql_config(
+            project=project,
             median=median,
             iqr=iqr,
             primary_confidence=deployed_primary_confidence,
@@ -2787,13 +2385,9 @@ def main() -> None:
         )
         + "\n"
     )
-    if not archive_only:
-        shutil.copy2(CURRENT_SHARED_CONFIG_PATH, SHARED_CONFIG_PATH)
-    selected_model_config_path.write_text(model_config_text, encoding="utf-8")
-    if not archive_only:
-        shutil.copy2(selected_model_config_path, active_model_config_path)
+    combined_model_config_path.write_text(model_config_text, encoding="utf-8")
     write_diagnostics(
-        diagnostics_dir=model_diagnostics_dir,
+        diagnostics_dir=diagnostics_dir,
         bars=bars,
         y_full=y,
         y_train=y_train,
@@ -2832,15 +2426,15 @@ def main() -> None:
         tick_density=args.primary_tick_density,
     )
     if not archive_only:
-        sync_directory_contents(model_diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
+        shutil.rmtree(ACTIVE_DIAGNOSTICS_DIR, ignore_errors=True)
+        shutil.copytree(diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
     ensure_default_test_config(model_test_dir, symbol=SYMBOL)
 
-    if not archive_only:
-        set_live_model_reference(model_dir)
+    set_live_model_reference(model_dir)
 
     if not archive_only and not args.skip_live_compile:
         runtime_paths = resolve_mt5_runtime(metaeditor_path_override=args.metaeditor_path)
-        compile_log_path = compile_live_expert(runtime_paths, skip_deployment=True)
+        compile_log_path = compile_live_expert(runtime_paths, model_dir=model_dir)
         warnings_match = re.search(
             r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?",
             read_text_best_effort(compile_log_path),
@@ -2851,20 +2445,14 @@ def main() -> None:
             warnings,
             compile_log_path,
         )
-        shutil.copy2(compile_log_path, model_diagnostics_dir / compile_log_path.name)
+        shutil.copy2(compile_log_path, diagnostics_dir / compile_log_path.name)
         log.info("Saved live compile log to %s", compile_log_path)
-    if archive_only:
-        log.info("Archived ONNX to %s", archive_output_path)
-    else:
-        log.info("Saved ONNX to %s", active_output_path)
-    if should_copy_to_output:
-        log.info("Copied ONNX to %s", output_path)
-    log.info("Saved symbol config to %s", selected_model_config_path)
-    if not archive_only:
-        log.info("Saved active config to %s", active_model_config_path)
-    log.info("Saved diagnostics to %s", model_diagnostics_dir)
+    log.info("Archived ONNX to %s", archive_output_path)
+    log.info("Saved combined model config to %s", combined_model_config_path)
+    log.info("Saved diagnostics to %s", diagnostics_dir)
     log.info("Archived model artifacts to %s", model_dir)
     log.info("Total runtime: %.2fs", time.time() - t0)
+    print(model_dir.name)
 
 
 if __name__ == "__main__":

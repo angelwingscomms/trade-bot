@@ -1,3 +1,5 @@
+"""MT5 runtime discovery and command-building helpers."""
+
 from __future__ import annotations
 
 import os
@@ -49,14 +51,6 @@ class Mt5RuntimePaths:
     @property
     def deployed_model_path(self) -> Path:
         return self.expert_dir / "model.onnx"
-
-    @property
-    def deployed_model_config_path(self) -> Path:
-        return self.expert_dir / "model_config.mqh"
-
-    @property
-    def deployed_shared_config_path(self) -> Path:
-        return self.expert_dir / "shared_config.mqh"
 
     @property
     def expert_resource_name(self) -> str:
@@ -370,22 +364,18 @@ def build_terminal_command(runtime: Mt5RuntimePaths, config_path: Path) -> list[
 def build_metaeditor_compile_command(
     runtime: Mt5RuntimePaths,
     source_path: Path,
-    log_path: Path,
 ) -> list[str]:
     source_value = to_windows_path(runtime, source_path) if runtime.use_wine else str(source_path)
-    log_value = to_windows_path(runtime, log_path) if runtime.use_wine else str(log_path)
-    if runtime.use_wine:
-        return [
-            "wine",
-            str(runtime.metaeditor_path),
-            f'/compile:"{source_value}"',
-            f'/log:"{log_value}"',
-        ]
-    return [
+    command = [
         str(runtime.metaeditor_path),
         f'/compile:"{source_value}"',
-        f'/log:"{log_value}"',
+        "/log",
     ]
+    if runtime.portable_mode:
+        command.append("/portable")
+    if runtime.use_wine:
+        return ["wine", *command]
+    return command
 
 
 def stop_terminal_best_effort(runtime: Mt5RuntimePaths) -> None:
