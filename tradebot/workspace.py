@@ -32,6 +32,7 @@ from tradebot.config_io import load_define_file, read_text_best_effort, sanitize
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SYMBOLS_DIR = ROOT_DIR / "symbols"
 ACTIVE_CONFIG_PATH = ROOT_DIR / "config.mqh"
+ACTIVE_CONFIG_POINTER = ROOT_DIR / ".active_config"
 ACTIVE_DIAGNOSTICS_DIR = ROOT_DIR / "diagnostics"
 LIVE_MQ5_PATH = ROOT_DIR / "live.mq5"
 LIVE_EX5_PATH = ROOT_DIR / "live.ex5"
@@ -140,6 +141,25 @@ def configured_symbol(config_path: Path = ACTIVE_CONFIG_PATH) -> str:
 
     values = load_define_file(config_path)
     return str(values.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD"
+
+
+def resolve_active_config_path() -> Path:
+    """Return the config file pointed to by the pointer file, or the default config.
+
+    If `.active_config` exists in ROOT_DIR, its first line is read as the path
+    to the active config (absolute or relative to ROOT_DIR). Otherwise, falls
+    back to `config.mqh`.
+    """
+    if ACTIVE_CONFIG_POINTER.exists():
+        raw = ACTIVE_CONFIG_POINTER.read_text(encoding="utf-8").strip()
+        if raw:
+            path = Path(raw.strip())
+            if path.is_absolute():
+                return path
+            resolved = (ROOT_DIR / path).resolve()
+            if resolved.exists():
+                return resolved
+    return ACTIVE_CONFIG_PATH
 
 
 def symbol_dir(symbol: str) -> Path:

@@ -25,6 +25,7 @@ This repo is a self-contained MT5 + Python pipeline.
 - Prefer explicit booleans over magic zero values for enable/disable behavior.
 - Full feature mode must always include the minimal feature set.
 - Never add `.onnx` files to `.gitignore`.
+- Config selection: edit `.active_config` (single line: path to config file, absolute or relative to repo root), then run `python nn.py`. Example: `symbols/xauusd/config/gold.config` or `symbols/xauusd/config/gold-new.config`.
 
 ## Maintenance Rules
 

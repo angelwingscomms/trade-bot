@@ -65,6 +65,7 @@ from tradebot.workspace import (
     ensure_default_test_config,
     format_model_dir_name,
     model_diagnostics_dir,
+    resolve_active_config_path,
     sanitize_model_name,
     set_live_model_reference,
     symbol_models_dir,
@@ -300,7 +301,7 @@ def apply_shared_settings(
     DEFAULT_LOSS_MODE = str(SHARED.get("DEFAULT_LOSS_MODE", "cross-entropy"))
 
 
-apply_shared_settings(load_define_file(ACTIVE_CONFIG_PATH), shared_config_path=ACTIVE_CONFIG_PATH)
+apply_shared_settings(load_define_file(resolve_active_config_path()), shared_config_path=resolve_active_config_path())
 
 
 def symbol_ticks_path(symbol: str) -> Path:
@@ -312,7 +313,7 @@ def feature_macro_name(feature_name: str) -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    project = resolve_active_project_config(ACTIVE_CONFIG_PATH)
+    project = resolve_active_project_config(resolve_active_config_path())
     apply_shared_settings(project.values, project=project, shared_config_path=project.config_path)
     values = project.values
     use_custom_lr = bool(values.get("USE_CUSTOM_LEARNING_RATE", False))
