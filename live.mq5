@@ -1,9 +1,9 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "XAUUSD"
-#define ACTIVE_MODEL_VERSION "16_04_2026-17_53__42-au"
-#include "symbols/xauusd/models/16_04_2026-17_53__42-au/config.mqh"
-#resource "symbols\\xauusd\\models\\16_04_2026-17_53__42-au\\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_VERSION "17_04_2026-09_54__09-submi"
+#include "symbols/xauusd/models/17_04_2026-09_54__09-submi/config.mqh"
+#resource "symbols\\xauusd\\models\\17_04_2026-09_54__09-submi\\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
