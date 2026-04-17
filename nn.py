@@ -40,6 +40,7 @@ from minirocket_classifier import (
 )
 from mt5_runtime import resolve_mt5_runtime
 from sequence_models import (
+    AuLSTMMultiheadAttentionClassifier,
     FusionLSTMClassifier,
     GoldLegacyLSTMAttentionClassifier,
     GoldNewTemporalClassifier,
@@ -49,6 +50,26 @@ from sequence_models import (
     TemporalLSTMAttentionClassifier,
 )
 from tradebot.config_io import load_define_file, read_text_best_effort, render_define_value
+from tradebot.pipeline.diagnostics import DiagnosticsConfig, write_diagnostics as write_diagnostics_report
+from tradebot.pipeline.feature_builder import FeatureEngineeringConfig, compute_features as build_feature_array
+from tradebot.pipeline.market_data import (
+    build_market_bars as build_market_bars_frame,
+    fixed_move_price_distance as fixed_move_distance,
+    get_triple_barrier_labels as build_triple_barrier_labels,
+)
+from tradebot.pipeline.mql_config import build_mql_config as render_mql_config
+from tradebot.pipeline.training_utils import (
+    FocalLoss as PipelineFocalLoss,
+    choose_confidence_threshold as select_confidence_threshold,
+    evaluate_model as run_model_evaluation,
+    gate_metrics as compute_gate_metrics,
+    make_class_weights as build_class_weights,
+    make_loader as build_loader,
+    make_sample_weights as build_sample_weights,
+    softmax as compute_softmax,
+    summarize_gate as log_gate_summary,
+)
+from tradebot.pipeline.windowing import build_segment_end_indices, build_windows, maybe_cap_windows
 from tradebot.project_config import (
     EXTRA_FEATURE_COLUMNS,
     GOLD_CONTEXT_FEATURE_COLUMNS,
@@ -70,6 +91,7 @@ from tradebot.workspace import (
     set_live_model_reference,
     symbol_models_dir,
 )
+from common.bars import resolve_imbalance_base_threshold
 
 logging.basicConfig(
     level=logging.INFO,
@@ -556,10 +578,11 @@ def build_primary_bar_ids(df_ticks: pd.DataFrame) -> np.ndarray:
     prices = df_ticks["bid"].to_numpy(dtype=np.float64, copy=False)
     tick_signs = compute_tick_signs(prices)
     alpha = 2.0 / (max(1, IMBALANCE_EMA_SPAN) + 1.0)
-    if USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD:
-        base_threshold = max(2.0, float(max(2, IMBALANCE_MIN_TICKS // 3)))
-    else:
-        base_threshold = max(2.0, float(IMBALANCE_MIN_TICKS))
+    base_threshold = resolve_imbalance_base_threshold(
+        IMBALANCE_MIN_TICKS,
+        use_imbalance_ema_threshold=USE_IMBALANCE_EMA_THRESHOLD,
+        use_imbalance_min_ticks_div3_threshold=USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD,
+    )
     expected_abs_theta = base_threshold
     bar_ids = np.empty(len(prices), dtype=np.int64)
     current_bar = 0
@@ -1733,6 +1756,25 @@ def main() -> None:
                 "Fusion-LSTM uses a single self-attention block; ignoring --attention-layers=%d.",
                 args.attention_layers,
             )
+    if architecture == "au":
+        if not use_multihead_attention:
+            log.info("AU includes its attention block by design; enabling attention automatically.")
+        use_multihead_attention = True
+        if args.sequence_hidden_size != DEFAULT_SEQUENCE_HIDDEN_SIZE:
+            log.warning(
+                "AU fixes its LSTM width to 64; ignoring --sequence-hidden-size=%d.",
+                args.sequence_hidden_size,
+            )
+        if args.sequence_layers != DEFAULT_SEQUENCE_LAYERS:
+            log.warning("AU uses a single LSTM layer; ignoring --sequence-layers=%d.", args.sequence_layers)
+        if abs(args.sequence_dropout - DEFAULT_SEQUENCE_DROPOUT) > 1e-12:
+            log.warning("AU does not use recurrent dropout; ignoring --sequence-dropout=%.3f.", args.sequence_dropout)
+        if args.attention_heads != DEFAULT_ATTENTION_HEADS:
+            log.warning("AU fixes its attention heads to 4; ignoring --attention-heads=%d.", args.attention_heads)
+        if args.attention_layers != DEFAULT_ATTENTION_LAYERS:
+            log.warning("AU uses one attention block; ignoring --attention-layers=%d.", args.attention_layers)
+        if abs(args.attention_dropout - DEFAULT_ATTENTION_DROPOUT) > 1e-12:
+            log.warning("AU uses zero attention dropout; ignoring --attention-dropout=%.3f.", args.attention_dropout)
     if architecture == "chronos_bolt" and use_multihead_attention:
         log.warning("Chronos-Bolt backend ignores multihead-attention settings.")
         use_multihead_attention = False
@@ -1789,23 +1831,40 @@ def main() -> None:
         feature_count,
     )
 
-    bars, point_size = build_market_bars(
+    bars, point_size = build_market_bars_frame(
         data_path,
         use_fixed_time_bars=use_fixed_time_bars,
         use_fixed_tick_bars=use_fixed_tick_bars,
         tick_density=args.primary_tick_density,
         max_bars=int(args.max_bars),
+        bar_duration_ms=BAR_DURATION_MS,
+        imbalance_min_ticks=IMBALANCE_MIN_TICKS,
+        imbalance_ema_span=IMBALANCE_EMA_SPAN,
+        use_imbalance_ema_threshold=USE_IMBALANCE_EMA_THRESHOLD,
+        use_imbalance_min_ticks_div3_threshold=USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD,
         require_gold_context=bool(args.gold_context) and not bool(SHARED.get("USE_MINIMAL_FEATURE_SET", False)),
     )
-    fixed_move_price = fixed_move_price_distance(DEFAULT_FIXED_MOVE, point_size)
+    fixed_move_price = fixed_move_distance(DEFAULT_FIXED_MOVE, point_size)
     log.info(
         "Fixed risk config | fixed_move_points=%.2f point_size=%.8f fixed_move_price=%.8f",
         DEFAULT_FIXED_MOVE,
         point_size,
         fixed_move_price,
     )
-    x_all = compute_features(bars, feature_columns=feature_columns)
-    y_all = get_triple_barrier_labels(bars, use_atr_risk=use_atr_risk, fixed_move_price=fixed_move_price)
+    x_all = build_feature_array(
+        bars,
+        feature_columns=feature_columns,
+        config=FeatureEngineeringConfig.from_values(SHARED),
+    )
+    y_all = build_triple_barrier_labels(
+        bars,
+        use_atr_risk=use_atr_risk,
+        fixed_move_price=fixed_move_price,
+        target_horizon=TARGET_HORIZON,
+        target_atr_period=TARGET_ATR_PERIOD,
+        label_tp_multiplier=LABEL_TP_MULTIPLIER,
+        label_sl_multiplier=LABEL_SL_MULTIPLIER,
+    )
 
     x = x_all[WARMUP_BARS:]
     y = y_all[WARMUP_BARS:]
@@ -1900,13 +1959,13 @@ def main() -> None:
             label_sl_multiplier=LABEL_SL_MULTIPLIER,
             context_tail_lengths=(0,),
         ).to(device)
-        val_loader = make_loader(
+        val_loader = build_loader(
             x_val,
             y_val,
             chronos_bolt_batch_size,
             shuffle=False,
         )
-        test_loader = make_loader(
+        test_loader = build_loader(
             x_test,
             y_test,
             chronos_bolt_batch_size,
@@ -1926,9 +1985,9 @@ def main() -> None:
 
             for candidate_context_variant in context_variants:
                 export_model.set_context_tail_lengths(candidate_context_variant)
-                candidate_val_logits, candidate_val_labels = evaluate_model(export_model, val_loader, device)
-                candidate_val_probs = softmax(candidate_val_logits)
-                candidate_threshold = choose_confidence_threshold(
+                candidate_val_logits, candidate_val_labels = run_model_evaluation(export_model, val_loader, device)
+                candidate_val_probs = compute_softmax(candidate_val_logits)
+                candidate_threshold = select_confidence_threshold(
                     candidate_val_probs,
                     candidate_val_labels,
                     min_selected=max(1, args.min_selected_trades),
@@ -1936,7 +1995,11 @@ def main() -> None:
                     threshold_max=args.confidence_search_max,
                     threshold_steps=args.confidence_search_steps,
                 )
-                candidate_validation_gate = gate_metrics(candidate_val_labels, candidate_val_probs, candidate_threshold)
+                candidate_validation_gate = compute_gate_metrics(
+                    candidate_val_labels,
+                    candidate_val_probs,
+                    candidate_threshold,
+                )
                 candidate_score = chronos_context_score(
                     candidate_validation_gate,
                     min_selected=max(1, args.min_selected_trades),
@@ -1970,10 +2033,10 @@ def main() -> None:
                     "Chronos context mode | selected=%s",
                     chronos_context_label(selected_context_variant),
                 )
-            val_logits, val_labels = evaluate_model(export_model, val_loader, device)
+            val_logits, val_labels = run_model_evaluation(export_model, val_loader, device)
 
         model_backend = getattr(export_model, "backend_name", "chronos-bolt-zero-shot-close-barrier")
-        test_logits, test_labels = evaluate_model(export_model, test_loader, device)
+        test_logits, test_labels = run_model_evaluation(export_model, test_loader, device)
     else:
         scheduler = None
         feature_mean: np.ndarray | None = None
@@ -1981,7 +2044,7 @@ def main() -> None:
         token_mean: np.ndarray | None = None
         token_std: np.ndarray | None = None
         minirocket_parameters = None
-        train_sample_weights = make_sample_weights(y_train)
+        train_sample_weights = build_sample_weights(y_train, class_count=len(active_label_names))
 
         if architecture == "minirocket":
             transform_batch_size = max(args.batch_size, DEFAULT_BATCH_SIZE)
@@ -2065,20 +2128,20 @@ def main() -> None:
                 min_lr=1e-8,
                 patience=max(1, args.patience // 2),
             )
-            train_loader = make_loader(
+            train_loader = build_loader(
                 train_inputs,
                 y_train,
                 args.batch_size,
                 shuffle=True,
                 sample_weights=train_sample_weights,
             )
-            val_loader = make_loader(
+            val_loader = build_loader(
                 val_inputs,
                 y_val,
                 max(args.batch_size, DEFAULT_BATCH_SIZE),
                 shuffle=False,
             )
-            test_loader = make_loader(
+            test_loader = build_loader(
                 test_inputs,
                 y_test,
                 max(args.batch_size, DEFAULT_BATCH_SIZE),
@@ -2092,6 +2155,7 @@ def main() -> None:
                 "gru",
                 "tcn",
                 "tla",
+                "au",
                 "legacy_lstm_attention",
                 "gold_legacy",
                 "gold_new",
@@ -2119,6 +2183,11 @@ def main() -> None:
                         attention_heads=args.attention_heads,
                         attention_dropout=args.attention_dropout,
                         dropout=args.sequence_dropout,
+                    ).to(device)
+                elif architecture == "au":
+                    training_model = AuLSTMMultiheadAttentionClassifier(
+                        n_features=feature_count,
+                        n_classes=len(active_label_names),
                     ).to(device)
                 elif architecture == "fusion_lstm":
                     training_model = FusionLSTMClassifier(
@@ -2195,20 +2264,20 @@ def main() -> None:
                         attention_dropout=args.attention_dropout,
                     ).to(device)
             optimizer = torch.optim.AdamW(training_model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-            train_loader = make_loader(
+            train_loader = build_loader(
                 x_train,
                 y_train,
                 args.batch_size,
                 shuffle=True,
                 sample_weights=train_sample_weights,
             )
-            val_loader = make_loader(
+            val_loader = build_loader(
                 x_val,
                 y_val,
                 max(args.batch_size, DEFAULT_BATCH_SIZE),
                 shuffle=False,
             )
-            test_loader = make_loader(
+            test_loader = build_loader(
                 x_test,
                 y_test,
                 max(args.batch_size, DEFAULT_BATCH_SIZE),
@@ -2216,11 +2285,11 @@ def main() -> None:
             )
             model_backend = getattr(training_model, "backend_name", "portable-mamba-lite")
 
-        class_weights = make_class_weights(y_train).to(device)
+        class_weights = build_class_weights(y_train, class_count=len(active_label_names)).to(device)
         if loss_mode == "cross-entropy":
             criterion: nn.Module = nn.CrossEntropyLoss(weight=class_weights).to(device)
         else:
-            criterion = FocalLoss(alpha=class_weights, gamma=args.focal_gamma).to(device)
+            criterion = PipelineFocalLoss(alpha=class_weights, gamma=args.focal_gamma).to(device)
         log.info(
             "Optimization | loss=%s lr=%.6g weight_decay=%.6g balanced_sampling=1 confidence_search=[%.2f, %.2f]x%d",
             loss_mode,
@@ -2247,7 +2316,7 @@ def main() -> None:
                 optimizer.step()
                 train_losses.append(float(loss.item()))
 
-            val_logits, val_labels = evaluate_model(training_model, val_loader, device)
+            val_logits, val_labels = run_model_evaluation(training_model, val_loader, device)
             val_loss = float(
                 criterion(
                     torch.tensor(val_logits, dtype=torch.float32, device=device),
@@ -2280,8 +2349,8 @@ def main() -> None:
         training_model.load_state_dict(best_state)
         training_model.to(device)
 
-        val_logits, val_labels = evaluate_model(training_model, val_loader, device)
-        test_logits, test_labels = evaluate_model(training_model, test_loader, device)
+        val_logits, val_labels = run_model_evaluation(training_model, val_loader, device)
+        test_logits, test_labels = run_model_evaluation(training_model, test_loader, device)
 
         if architecture == "minirocket":
             if minirocket_parameters is None:
@@ -2309,8 +2378,8 @@ def main() -> None:
             export_model.head.load_state_dict(training_model.state_dict())
         else:
             export_model = training_model
-    val_probs = softmax(val_logits)
-    selected_primary_confidence = choose_confidence_threshold(
+    val_probs = compute_softmax(val_logits)
+    selected_primary_confidence = select_confidence_threshold(
         val_probs,
         val_labels,
         min_selected=max(1, args.min_selected_trades),
@@ -2318,10 +2387,10 @@ def main() -> None:
         threshold_max=args.confidence_search_max,
         threshold_steps=args.confidence_search_steps,
     )
-    validation_gate = summarize_gate("validation", val_probs, val_labels, selected_primary_confidence)
+    validation_gate = log_gate_summary("validation", val_probs, val_labels, selected_primary_confidence)
 
-    test_probs = softmax(test_logits)
-    holdout_gate = summarize_gate("holdout", test_probs, test_labels, selected_primary_confidence)
+    test_probs = compute_softmax(test_logits)
+    holdout_gate = log_gate_summary("holdout", test_probs, test_labels, selected_primary_confidence)
 
     quality_gate_reasons: list[str] = []
     if int(validation_gate["selected_trades"]) < args.min_selected_trades:
@@ -2370,8 +2439,9 @@ def main() -> None:
     export_onnx_model(export_model, dummy, archive_output_path)
 
     model_config_text = (
-        build_mql_config(
+        render_mql_config(
             project=project,
+            active_config_path=CURRENT_CONFIG_PATH,
             median=median,
             iqr=iqr,
             primary_confidence=deployed_primary_confidence,
@@ -2383,12 +2453,33 @@ def main() -> None:
             feature_profile=feature_profile,
             use_extended_features=use_extended_features,
             use_fixed_tick_bars=use_fixed_tick_bars,
+            max_feature_lookback=MAX_FEATURE_LOOKBACK,
+            warmup_bars=WARMUP_BARS,
         )
         + "\n"
     )
     combined_model_config_path.write_text(model_config_text, encoding="utf-8")
-    write_diagnostics(
+    write_diagnostics_report(
         diagnostics_dir=diagnostics_dir,
+        config=DiagnosticsConfig(
+            current_config_name=CURRENT_CONFIG_PATH.name,
+            seq_len=SEQ_LEN,
+            target_horizon=TARGET_HORIZON,
+            primary_bar_seconds=PRIMARY_BAR_SECONDS,
+            imbalance_min_ticks=IMBALANCE_MIN_TICKS,
+            imbalance_ema_span=IMBALANCE_EMA_SPAN,
+            feature_atr_period=FEATURE_ATR_PERIOD,
+            target_atr_period=TARGET_ATR_PERIOD,
+            rv_period=RV_PERIOD,
+            return_period=RETURN_PERIOD,
+            warmup_bars=WARMUP_BARS,
+            default_fixed_move=DEFAULT_FIXED_MOVE,
+            label_sl_multiplier=LABEL_SL_MULTIPLIER,
+            label_tp_multiplier=LABEL_TP_MULTIPLIER,
+            execution_sl_multiplier=EXECUTION_SL_MULTIPLIER,
+            execution_tp_multiplier=EXECUTION_TP_MULTIPLIER,
+            use_all_windows=USE_ALL_WINDOWS,
+        ),
         bars=bars,
         y_full=y,
         y_train=y_train,
@@ -2396,6 +2487,7 @@ def main() -> None:
         y_test=y_test,
         val_probs=val_probs,
         test_probs=test_probs,
+        label_names=active_label_names,
         selected_primary_confidence=selected_primary_confidence,
         deployed_primary_confidence=deployed_primary_confidence,
         validation_gate=validation_gate,

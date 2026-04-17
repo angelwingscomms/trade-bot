@@ -1,4 +1,4 @@
-"""Feature definitions, column sets, lookback requirements, and naming."""
+"""Feature definitions, feature packs, lookbacks, and macro naming."""
 
 from __future__ import annotations
 
@@ -60,8 +60,59 @@ EXTRA_FEATURE_COLUMNS: Final[tuple[str, ...]] = (
     "bollinger_width_20",
     "atr_ratio_20",
 )
-ALL_FEATURE_COLUMNS: Final[tuple[str, ...]] = (
-    MINIMAL_FEATURE_COLUMNS + GOLD_CONTEXT_FEATURE_COLUMNS + EXTRA_FEATURE_COLUMNS
+MAIN_FEATURE_COLUMNS: Final[tuple[str, ...]] = (
+    "ret1",
+    "spread_abs",
+    "bar_duration_ms",
+    "upper_wick_rel",
+    "lower_wick_rel",
+    "range_rel",
+    "close_in_range",
+    "rsi_9",
+    "rsi_18",
+    "rsi_27",
+    "atr_9",
+    "atr_18",
+    "atr_27",
+    "macd_line",
+    "macd_signal",
+    "macd_hist",
+    "ema_gap_9",
+    "ema_gap_18",
+    "ema_gap_27",
+    "ema_gap_54",
+    "ema_gap_144",
+    "cci_9",
+    "cci_18",
+    "cci_27",
+    "willr_9",
+    "willr_18",
+    "willr_27",
+    "mom_9",
+    "mom_18",
+    "mom_27",
+    "usdx_pct_change",
+    "usdjpy_pct_change",
+    "bollinger_width_9",
+    "bollinger_width_18",
+    "bollinger_width_27",
+    "hour_sin",
+    "hour_cos",
+    "minute_sin",
+    "minute_cos",
+    "day_of_week_scaled",
+)
+MAIN_GOLD_CONTEXT_FEATURE_COLUMNS: Final[tuple[str, ...]] = (
+    "usdx_pct_change",
+    "usdjpy_pct_change",
+)
+ALL_FEATURE_COLUMNS: Final[tuple[str, ...]] = tuple(
+    dict.fromkeys(
+        MINIMAL_FEATURE_COLUMNS
+        + GOLD_CONTEXT_FEATURE_COLUMNS
+        + EXTRA_FEATURE_COLUMNS
+        + MAIN_FEATURE_COLUMNS
+    )
 )
 
 
@@ -77,6 +128,16 @@ def feature_switch_name(feature_name: str) -> str:
 
 def minimal_feature_switch_name(feature_name: str) -> str:
     return f"MINIMAL_FEATURE_{feature_macro_name(feature_name)}"
+
+
+def _main_periods(values: dict) -> tuple[int, int, int, int, int]:
+    return (
+        int(values.get("FEATURE_MAIN_SHORT_PERIOD", 9)),
+        int(values.get("FEATURE_MAIN_MEDIUM_PERIOD", 18)),
+        int(values.get("FEATURE_MAIN_LONG_PERIOD", 27)),
+        int(values.get("FEATURE_MAIN_XLONG_PERIOD", 54)),
+        int(values.get("FEATURE_MAIN_XXLONG_PERIOD", 144)),
+    )
 
 
 def lookback_requirement(values: dict, feature_name: str) -> int:
@@ -105,6 +166,10 @@ def lookback_requirement(values: dict, feature_name: str) -> int:
     feature_tick_imbalance_slow_period = int(values["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"])
     return_period = int(values["RETURN_PERIOD"])
     rv_period = int(values["RV_PERIOD"])
+    main_short_period, main_medium_period, main_long_period, main_xlong_period, main_xxlong_period = _main_periods(values)
+    macd_fast_period = int(values.get("FEATURE_MACD_FAST_PERIOD", 12))
+    macd_slow_period = int(values.get("FEATURE_MACD_SLOW_PERIOD", 26))
+    macd_signal_period = int(values.get("FEATURE_MACD_SIGNAL_PERIOD", 9))
 
     requirements = {
         "ret1": 1,
@@ -157,9 +222,44 @@ def lookback_requirement(values: dict, feature_name: str) -> int:
         "bollinger_pos_20": feature_bollinger_period,
         "bollinger_width_20": feature_bollinger_period,
         "atr_ratio_20": feature_atr_period + feature_atr_ratio_period - 1,
+        "spread_abs": 0,
+        "bar_duration_ms": 0,
+        "rsi_9": main_short_period,
+        "rsi_18": main_medium_period,
+        "rsi_27": main_long_period,
+        "atr_9": main_short_period,
+        "atr_18": main_medium_period,
+        "atr_27": main_long_period,
+        "macd_line": macd_slow_period + macd_signal_period - 1,
+        "macd_signal": macd_slow_period + macd_signal_period - 1,
+        "macd_hist": macd_slow_period + macd_signal_period - 1,
+        "ema_gap_9": main_short_period,
+        "ema_gap_18": main_medium_period,
+        "ema_gap_27": main_long_period,
+        "ema_gap_54": main_xlong_period,
+        "ema_gap_144": main_xxlong_period,
+        "cci_9": main_short_period,
+        "cci_18": main_medium_period,
+        "cci_27": main_long_period,
+        "willr_9": main_short_period,
+        "willr_18": main_medium_period,
+        "willr_27": main_long_period,
+        "mom_9": main_short_period,
+        "mom_18": main_medium_period,
+        "mom_27": main_long_period,
+        "usdx_pct_change": 1,
+        "usdjpy_pct_change": 1,
+        "bollinger_width_9": main_short_period,
+        "bollinger_width_18": main_medium_period,
+        "bollinger_width_27": main_long_period,
+        "hour_sin": 0,
+        "hour_cos": 0,
+        "minute_sin": 0,
+        "minute_cos": 0,
+        "day_of_week_scaled": 0,
     }
     return requirements[feature_name]
 
 
 def max_feature_lookback(values: dict, feature_columns: tuple[str, ...]) -> int:
-    return max(lookback_requirement(values, fn) for fn in feature_columns)
+    return max(lookback_requirement(values, feature_name) for feature_name in feature_columns)

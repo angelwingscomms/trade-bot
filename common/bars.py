@@ -5,6 +5,17 @@ from __future__ import annotations
 import numpy as np
 
 
+def resolve_imbalance_base_threshold(
+    imbalance_min_ticks: int,
+    *,
+    use_imbalance_ema_threshold: bool,
+    use_imbalance_min_ticks_div3_threshold: bool,
+) -> float:
+    if use_imbalance_ema_threshold or not use_imbalance_min_ticks_div3_threshold:
+        return max(2.0, float(imbalance_min_ticks))
+    return max(2.0, float(max(2, imbalance_min_ticks // 3)))
+
+
 def compute_tick_signs(prices: np.ndarray) -> np.ndarray:
     signs = np.empty(len(prices), dtype=np.int8)
     last_sign = 1
@@ -28,10 +39,11 @@ def build_primary_bar_ids(
     use_imbalance_ema_threshold: bool,
     use_imbalance_min_ticks_div3_threshold: bool,
 ) -> np.ndarray:
-    if use_imbalance_min_ticks_div3_threshold:
-        base_threshold = max(2.0, float(max(2, imbalance_min_ticks // 3)))
-    else:
-        base_threshold = max(2.0, float(imbalance_min_ticks))
+    base_threshold = resolve_imbalance_base_threshold(
+        imbalance_min_ticks,
+        use_imbalance_ema_threshold=use_imbalance_ema_threshold,
+        use_imbalance_min_ticks_div3_threshold=use_imbalance_min_ticks_div3_threshold,
+    )
     expected_abs_theta = base_threshold
     bar_ids = np.empty(len(tick_signs), dtype=np.int64)
     current_bar = 0

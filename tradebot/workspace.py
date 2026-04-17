@@ -251,10 +251,10 @@ def _max_model_dir_name_length(symbol: str) -> int:
 def _resource_literal_for_relative_model_dir(relative_model_dir: Path) -> str:
     """Return a `#resource` path that obeys the MQL5 path rules."""
 
-    literal = relative_model_dir.parts[0]
-    for part in relative_model_dir.parts[1:]:
-        literal += "\\\\" + part
+    literal = relative_model_dir.as_posix().replace("/", "\\\\")
     literal += "\\\\" + MODEL_FILE_NAME
+    if "\\" in literal.replace("\\\\", ""):
+        raise ValueError(f"Resource literal was not fully escaped for MQL5: {literal!r}")
     if len(literal) > RESOURCE_PATH_MAX_CHARS:
         raise ValueError(
             "The ONNX resource path is too long for MQL5. "
@@ -376,8 +376,9 @@ def set_live_model_reference(model_dir: Path, live_path: Path = LIVE_MQ5_PATH) -
         raise FileNotFoundError(f"Archived config file not found: {model_config_path(model_dir)}")
 
     text = live_path.read_text(encoding="utf-8")
+    replacement_block = build_live_model_reference_block(model_dir)
     updated_text, replacements = LIVE_MODEL_BLOCK_PATTERN.subn(
-        build_live_model_reference_block(model_dir),
+        lambda _match: replacement_block,
         text,
         count=1,
     )
