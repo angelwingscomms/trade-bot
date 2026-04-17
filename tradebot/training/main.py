@@ -10,7 +10,7 @@ def main() -> None:
     apply_shared_settings(project.values, project=project, shared_config_path=project.config_path)
     # Update module globals from shared module after apply_shared_settings ran
     _keys = [
-        "SHARED", "SEQ_LEN", "TARGET_HORIZON", "FEATURE_ATR_PERIOD",
+        "SHARED", "CURRENT_CONFIG_PATH", "SYMBOL", "SEQ_LEN", "TARGET_HORIZON", "FEATURE_ATR_PERIOD",
         "FEATURE_ATR_RATIO_PERIOD", "FEATURE_BOLLINGER_PERIOD", "FEATURE_DONCHIAN_FAST_PERIOD",
         "FEATURE_DONCHIAN_SLOW_PERIOD", "FEATURE_RET_2_PERIOD", "FEATURE_RET_3_PERIOD",
         "FEATURE_RET_6_PERIOD", "FEATURE_RET_12_PERIOD", "FEATURE_RET_20_PERIOD",
