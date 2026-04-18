@@ -1,0 +1,12 @@
+
+
+want to add features that tell price change/direction since a given moment in time ago
+i.e has price gone up or down since 5400 seconds
+e.g PAST_DIR_5400_S would be a feature that tells how much price has changed 5400 seconds ago
+and PAST_DIR_5400_T would be a feature that tells how much price has changed 5400 ticks ago
+so the user can add multiple arbitrary 'PAST_DIR_*' configs
+now i guess the value has to be normalized somewhat
+so i guess a value between -1 and 1 or 0 and 1, where 0 to .5 is negative change and .5 to 1 is positive change.
+i don't know which one is better for neural networks like this
+
+

@@ -9,6 +9,7 @@ from common.features import (
     EXTRA_FEATURE_COLUMNS,
     GOLD_CONTEXT_FEATURE_COLUMNS,
     MAIN_FEATURE_COLUMNS,
+    MAIN_GOLD_CONTEXT_FEATURE_COLUMNS,
     MINIMAL_FEATURE_COLUMNS,
     feature_macro_name,
     feature_switch_name,

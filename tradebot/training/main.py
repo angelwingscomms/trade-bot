@@ -2,8 +2,20 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 import tradebot.training.shared as _shared
+import keyboard
+
+_stop_requested = False
+
+def _on_ctrl_k():
+    global _stop_requested
+    _stop_requested = True
+    log.warning("CTRL+K pressed - stopping after current epoch...")
+
+keyboard.add_hotkey("ctrl+k", _on_ctrl_k)
 
 def main() -> None:
+    global _stop_requested
+    _stop_requested = False
     t0 = time.time()
     args = parse_args()
     project = args.config_project
@@ -702,6 +714,10 @@ def main() -> None:
             )
             if scheduler is not None:
                 scheduler.step(val_loss)
+
+            if _stop_requested:
+                log.warning("Early stop requested - finishing after epoch %d", epoch)
+                break
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
