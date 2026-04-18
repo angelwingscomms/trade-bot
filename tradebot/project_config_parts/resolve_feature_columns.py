@@ -9,7 +9,12 @@ def resolve_feature_columns(values: dict[str, Scalar], architecture: str) -> tup
         return MINIMAL_FEATURE_COLUMNS
 
     if bool(values.get("USE_MAIN_FEATURE_SET", False)):
-        return MAIN_FEATURE_COLUMNS
+        feature_cols = list(MAIN_FEATURE_COLUMNS)
+        if not bool(values.get("USE_GOLD_CONTEXT", False)):
+            for col in MAIN_GOLD_CONTEXT_FEATURE_COLUMNS:
+                if col in feature_cols:
+                    feature_cols.remove(col)
+        return tuple(feature_cols)
 
     if bool(values.get("USE_MINIMAL_FEATURE_SET", False)):
         selected = tuple(
