@@ -185,6 +185,35 @@ def main() -> None:
                 "Fusion-LSTM uses a single self-attention block; ignoring --attention-layers=%d.",
                 args.attention_layers,
             )
+    if architecture == "tcn":
+        if use_multihead_attention:
+            log.warning("TCN uses global average pooling only; ignoring the -a flag.")
+        use_multihead_attention = False
+        if args.sequence_hidden_size != DEFAULT_SEQUENCE_HIDDEN_SIZE:
+            log.warning(
+                "TCN does not use --sequence-hidden-size; ignoring --sequence-hidden-size=%d.",
+                args.sequence_hidden_size,
+            )
+        if args.sequence_layers != DEFAULT_SEQUENCE_LAYERS:
+            log.warning(
+                "TCN uses fixed dilated blocks; ignoring --sequence-layers=%d.",
+                args.sequence_layers,
+            )
+        if abs(args.sequence_dropout - 0.4) > 1e-12:
+            log.warning(
+                "TCN uses fixed dropout=0.40; ignoring --sequence-dropout=%.3f.",
+                args.sequence_dropout,
+            )
+        if args.tcn_levels != DEFAULT_TCN_LEVELS:
+            log.warning(
+                "TCN uses exactly 3 blocks; ignoring --tcn-levels=%d.",
+                args.tcn_levels,
+            )
+        if args.tcn_kernel_size != DEFAULT_TCN_KERNEL_SIZE:
+            log.warning(
+                "TCN uses kernel size 3; ignoring --tcn-kernel-size=%d.",
+                args.tcn_kernel_size,
+            )
     if architecture == "au":
         au_hidden_size = 64
         au_sequence_layers = 1
@@ -743,15 +772,6 @@ def main() -> None:
                 elif architecture == "tcn":
                     training_model = TCNClassifier(
                         n_features=feature_count,
-                        channels=args.sequence_hidden_size,
-                        hidden=max(args.sequence_hidden_size, feature_count * 4),
-                        dropout=args.sequence_dropout,
-                        n_layers=args.tcn_levels,
-                        kernel_size=args.tcn_kernel_size,
-                        use_multihead_attention=use_multihead_attention,
-                        attention_heads=args.attention_heads,
-                        attention_layers=args.attention_layers,
-                        attention_dropout=args.attention_dropout,
                     ).to(device)
                 elif architecture == "tla":
                     training_model = TemporalLSTMAttentionClassifier(

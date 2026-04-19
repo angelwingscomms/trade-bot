@@ -1,2 +1,9 @@
-when use gold context is false, live.mqh seems to still get sync ticks for gold and jpy
+add new architecture 'tcn', in line with the current pipeline:
 
+Input Layer: Sequence of the last 60 minutes (Shape: [60, Number_of_Features]).
+TCN Block 1: 32 filters, dilation rate = 1 (looks at immediate short-term price action).
+TCN Block 2: 64 filters, dilation rate = 2.
+TCN Block 3: 128 filters, dilation rate = 4 (looks at medium-term structure within the hour).
+Global Average Pooling: Flattens the output while preventing overfitting.
+Dropout Layer (0.4): Heavy dropout is required because 1m pure price data is mostly noise.
+Dense Output Layer: 3 nodes with a Softmax activation function (Outputting probabilities for Buy, Sell, or Sideways).

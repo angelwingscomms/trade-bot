@@ -1,4 +1,0 @@
-create config folders, let each models/{SYMBOL} have its own config files so there are symbol specific config files, so nn.py has arg `--symbol` that specifies which config to use.
-after that look closely at the code, stuff that use metatester and metatrader to compile and test stuff assume the OS is windows. let 'em first check what the OS is and work for linux, throw for macOS. i think onr of the things to update is paths: /home/ed/.wine/drive_c/Program Files/MetaTrader 5/MetaEditor64.exe; /home/ed/.wine/drive_c/Program Files/MetaTrader 5/metatester64.exe, /home/ed/.wine/drive_c/Program Files/MetaTrader 5/terminal64.exe; /home/ed/.wine/drive_c/Program Files/MetaTrader 5/MQL5/Experts; /home/ed/.wine/drive_c/Program Files/MetaTrader 5/MQL5/.
-
-when you're done train and test bilstm multihead attention with all indicators/features on gold with fixed sl tp target of 144 
