@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 def build_ini_file(
     path: Path,
     set_name: str,
@@ -14,7 +15,7 @@ def build_ini_file(
     contents = "\n".join(
         [
             "[Tester]",
-            f"Expert={PROJECT_DIR_NAME}\\live.ex5",
+            f"Expert={PROJECT_DIR_NAME}\\mt5\\compiled\\live.ex5",
             f"ExpertParameters={set_name}",
             f"Symbol={symbol}",
             "Period=H1",

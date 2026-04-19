@@ -9,18 +9,21 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     *)
-      echo "usage: ./i.sh [-i days]" >&2
+      echo "usage: ./scripts/i.sh [-i days]" >&2
       exit 1
       ;;
   esac
 done
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+
 python_bin="python"
-if [[ -x "./env/bin/python" ]]; then
-  python_bin="./env/bin/python"
+if [[ -x "$ROOT_DIR/env/bin/python" ]]; then
+  python_bin="$ROOT_DIR/env/bin/python"
 fi
 
-train_output="$("$python_bin" nn.py)"
+train_output="$("$python_bin" "$SCRIPT_DIR/nn.py")"
 printf '%s\n' "$train_output"
 model_folder="$(printf '%s\n' "$train_output" | awk 'NF {line=$0} END {print line}')"
 if [[ -z "$model_folder" ]]; then
@@ -28,16 +31,16 @@ if [[ -z "$model_folder" ]]; then
   exit 1
 fi
 
-date_range="$("$python_bin" - <<PY
+date_range="$(
+  "$python_bin" -c "
 from datetime import date, timedelta
-days = int(${days})
-end_date = date.today() - timedelta(days=1)
-start_date = end_date - timedelta(days=days - 1)
-print(start_date.isoformat(), end_date.isoformat())
-PY
+d = int('$days')
+end = date.today() - timedelta(days=1)
+start = end - timedelta(days=d - 1)
+print(start.isoformat(), end.isoformat())
+"
 )"
 from_date="$(printf '%s' "$date_range" | awk '{print $1}')"
 to_date="$(printf '%s' "$date_range" | awk '{print $2}')"
 
-"$python_bin" test.py --revision "$model_folder" --from-date "$from_date" --to-date "$to_date"
-
+"$python_bin" "$SCRIPT_DIR/test.py" --revision "$model_folder" --from-date "$from_date" --to-date "$to_date"

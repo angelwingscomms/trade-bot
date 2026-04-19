@@ -1,5 +1,13 @@
 """Shared Python ↔ MQL5 utilities."""
 
+from common.bars import (
+    build_primary_bar_ids,
+    build_tick_bar_ids,
+    build_time_bar_ids,
+    compute_tick_signs,
+    infer_point_size_from_ticks,
+    resolve_imbalance_base_threshold,
+)
 from common.config_io import (
     Scalar,
     load_define_file,
@@ -22,17 +30,12 @@ from common.features import (
     max_feature_lookback,
     minimal_feature_switch_name,
 )
-from common.bars import (
-    compute_tick_signs,
-    build_primary_bar_ids,
-    build_time_bar_ids,
-    build_tick_bar_ids,
-    infer_point_size_from_ticks,
-    resolve_imbalance_base_threshold,
-)
+from common.past_dir_features import parse_past_dir_features, past_dir_lookback_bars
 
 __all__ = [
     "Scalar",
+    "parse_past_dir_features",
+    "past_dir_lookback_bars",
     "ALL_FEATURE_COLUMNS",
     "EXTRA_FEATURE_COLUMNS",
     "GOLD_CONTEXT_FEATURE_COLUMNS",

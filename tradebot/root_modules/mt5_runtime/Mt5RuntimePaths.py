@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 @dataclass(frozen=True)
 class Mt5RuntimePaths:
     host_platform: str
@@ -20,20 +21,20 @@ class Mt5RuntimePaths:
 
     @property
     def deployed_live_mq5(self) -> Path:
-        return self.expert_dir / "live.mq5"
+        return self.expert_dir / "live" / "live.mq5"
 
     @property
     def deployed_live_ex5(self) -> Path:
-        return self.expert_dir / "live.ex5"
+        return self.expert_dir / "mt5" / "compiled" / "live.ex5"
 
     @property
     def deployed_compile_log(self) -> Path:
-        return self.expert_dir / "live.compile.log"
+        return self.expert_dir / "mt5" / "logs" / "live.compile.log"
 
     @property
     def deployed_model_path(self) -> Path:
-        return self.expert_dir / "model.onnx"
+        return self.expert_dir / "artifacts" / "model.onnx"
 
     @property
     def expert_resource_name(self) -> str:
-        return f"{PROJECT_DIR_NAME}\\live.ex5"
+        return f"{PROJECT_DIR_NAME}\\mt5\\compiled\\live.ex5"

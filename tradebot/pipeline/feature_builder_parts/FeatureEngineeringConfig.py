@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 @dataclass(frozen=True)
 class FeatureEngineeringConfig:
     feature_atr_period: int
@@ -30,6 +31,7 @@ class FeatureEngineeringConfig:
     feature_tick_imbalance_slow_period: int
     rv_period: int
     return_period: int
+    primary_bar_seconds: int
     main_short_period: int
     main_medium_period: int
     main_long_period: int
@@ -64,10 +66,15 @@ class FeatureEngineeringConfig:
             feature_stoch_period=int(values["FEATURE_STOCH_PERIOD"]),
             feature_stoch_smooth_period=int(values["FEATURE_STOCH_SMOOTH_PERIOD"]),
             feature_tick_count_period=int(values["FEATURE_TICK_COUNT_PERIOD"]),
-            feature_tick_imbalance_fast_period=int(values["FEATURE_TICK_IMBALANCE_FAST_PERIOD"]),
-            feature_tick_imbalance_slow_period=int(values["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"]),
+            feature_tick_imbalance_fast_period=int(
+                values["FEATURE_TICK_IMBALANCE_FAST_PERIOD"]
+            ),
+            feature_tick_imbalance_slow_period=int(
+                values["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"]
+            ),
             rv_period=int(values["RV_PERIOD"]),
             return_period=int(values["RETURN_PERIOD"]),
+            primary_bar_seconds=int(values.get("PRIMARY_BAR_SECONDS", 0)),
             main_short_period=int(values.get("FEATURE_MAIN_SHORT_PERIOD", 9)),
             main_medium_period=int(values.get("FEATURE_MAIN_MEDIUM_PERIOD", 18)),
             main_long_period=int(values.get("FEATURE_MAIN_LONG_PERIOD", 27)),

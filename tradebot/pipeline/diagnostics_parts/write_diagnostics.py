@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 def write_diagnostics(
     diagnostics_dir: Path,
     *,
@@ -38,8 +39,12 @@ def write_diagnostics(
 ) -> None:
     diagnostics_dir.mkdir(parents=True, exist_ok=True)
 
-    val_predictions = build_prediction_frame(y_val, val_probs, selected_primary_confidence, label_names)
-    test_predictions = build_prediction_frame(y_test, test_probs, selected_primary_confidence, label_names)
+    val_predictions = build_prediction_frame(
+        y_val, val_probs, selected_primary_confidence, label_names
+    )
+    test_predictions = build_prediction_frame(
+        y_test, test_probs, selected_primary_confidence, label_names
+    )
     val_confusion = confusion_matrix_df(
         y_val,
         val_predictions["pred_label"].to_numpy(dtype=np.int64),
@@ -64,7 +69,9 @@ def write_diagnostics(
     val_confusion.to_csv(diagnostics_dir / "validation_confusion_matrix.csv")
     test_confusion.to_csv(diagnostics_dir / "holdout_confusion_matrix.csv")
     (diagnostics_dir / "config.mqh").write_text(model_config_text, encoding="utf-8")
-    (diagnostics_dir / "active_features.txt").write_text("\n".join(feature_columns) + "\n", encoding="utf-8")
+    (diagnostics_dir / "active_features.txt").write_text(
+        "\n".join(feature_columns) + "\n", encoding="utf-8"
+    )
 
     report_lines = [
         "# Model Diagnostics",
@@ -102,6 +109,18 @@ def write_diagnostics(
         f"- point_size: {point_size:.8f}",
         f"- fixed_move_points: {config.default_fixed_move:.2f}",
         f"- fixed_move_price: {fixed_move_price:.8f}",
+        *(
+            [
+                f"- label_fixed_sl_points: {getattr(config, 'label_fixed_sl', 0.0):.2f}",
+                f"- label_fixed_tp_points: {getattr(config, 'label_fixed_tp', 0.0):.2f}",
+            ]
+            if not use_atr_risk
+            and (
+                getattr(config, "label_fixed_sl", 0.0) > 0.0
+                or getattr(config, "label_fixed_tp", 0.0) > 0.0
+            )
+            else []
+        ),
         f"- label_sl_multiplier: {config.label_sl_multiplier:.2f}",
         f"- label_tp_multiplier: {config.label_tp_multiplier:.2f}",
         f"- execution_sl_multiplier: {config.execution_sl_multiplier:.2f}",
@@ -114,8 +133,18 @@ def write_diagnostics(
         "",
         "## Bar Stats",
         f"- bars: {len(bars)}",
-        *[f"- {line}" for line in summarize_numeric(bar_stats["tick_count"].to_numpy(), "ticks_per_bar")],
-        *[f"- {line}" for line in summarize_numeric(bar_stats["duration_ms"].to_numpy(), "bar_duration_ms")],
+        *[
+            f"- {line}"
+            for line in summarize_numeric(
+                bar_stats["tick_count"].to_numpy(), "ticks_per_bar"
+            )
+        ],
+        *[
+            f"- {line}"
+            for line in summarize_numeric(
+                bar_stats["duration_ms"].to_numpy(), "bar_duration_ms"
+            )
+        ],
         "",
         "## Label Counts",
         "- full bars:",
@@ -160,16 +189,24 @@ def write_diagnostics(
         "",
         "## Note",
         *(
-            [f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in {config.current_config_name} to retune them."]
+            [
+                f"- Bars are fixed-duration time buckets aligned to epoch time. Change PRIMARY_BAR_SECONDS in {config.current_config_name} to retune them."
+            ]
             if use_fixed_time_bars
             else (
-                [f"- Fixed-tick bars use PRIMARY_TICK_DENSITY in {config.current_config_name} to set ticks per bar."]
+                [
+                    f"- Fixed-tick bars use PRIMARY_TICK_DENSITY in {config.current_config_name} to set ticks per bar."
+                ]
                 if use_fixed_tick_bars
-                else ["- Imbalance bars are variable by design. Lower imbalance thresholds make smaller bars on average."]
+                else [
+                    "- Imbalance bars are variable by design. Lower imbalance thresholds make smaller bars on average."
+                ]
             )
         ),
         "- In ATR mode, labels use the label_sl_multiplier and label_tp_multiplier settings.",
-        "- In fixed mode, labels use DEFAULT_FIXED_MOVE for both stop loss and take profit.",
+        "- In fixed mode, SL uses DEFAULT_FIXED_SL (falls back to DEFAULT_FIXED_MOVE if unset) and TP uses DEFAULT_FIXED_TP (falls back to DEFAULT_FIXED_MOVE if unset).",
         "- When use_all_windows is 0, the trainer evenly subsamples down to the configured train/eval caps.",
     ]
-    (diagnostics_dir / "report.md").write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+    (diagnostics_dir / "report.md").write_text(
+        "\n".join(report_lines) + "\n", encoding="utf-8"
+    )

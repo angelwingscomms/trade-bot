@@ -1,6 +1,6 @@
 #property script_show_inputs
 
-#include "config.mqh"
+#include "../../config/active.mqh"
 
 input int days_to_export = 60;
 input string output_file = "market_ticks.csv";
@@ -13,7 +13,7 @@ void OnStart() {
    PrintFormat("  - output_file = %s", output_file);
    PrintFormat("  - symbol_to_export = %s", symbol_to_export);
    Print("");
-   
+
    Print("[STEP 2] Attempting to open output file for writing...");
    int file_handle = FileOpen(output_file, FILE_WRITE | FILE_CSV | FILE_ANSI, ",");
    if(file_handle == INVALID_HANDLE) {
@@ -47,7 +47,7 @@ void OnStart() {
    MqlTick ticks[];
    Print("[STEP 5] SUCCESS - MqlTick array declared");
    Print("");
-   
+
    Print("[STEP 6] Calling CopyTicksRange to fetch tick data...");
    PrintFormat("  - Symbol: %s", symbol_to_export);
    PrintFormat("  - Mode: COPY_TICKS_ALL (value=0)");
@@ -55,7 +55,7 @@ void OnStart() {
    PrintFormat("  - End time: %lld ms", end_time);
    int copied = CopyTicksRange(symbol_to_export, ticks, COPY_TICKS_ALL, start_time, end_time);
    PrintFormat("[STEP 6] CopyTicksRange returned: %d ticks", copied);
-   
+
    if(copied <= 0) {
       int error_code = GetLastError();
       PrintFormat("[ERROR] CopyTicksRange failed for %s. Error code: %d", symbol_to_export, error_code);
@@ -91,7 +91,7 @@ void OnStart() {
    FileClose(file_handle);
    PrintFormat("[STEP 8] SUCCESS - File closed (handle %d)", file_handle);
    Print("");
-   
+
    Print("===== DATA EXPORT SCRIPT COMPLETED SUCCESSFULLY =====");
    PrintFormat("Total ticks processed: %d", copied);
    PrintFormat("Valid ticks written: %d", valid_ticks_written);

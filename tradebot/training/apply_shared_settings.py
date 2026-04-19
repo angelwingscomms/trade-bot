@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 def apply_shared_settings(
     shared: dict[str, bool | int | float | str],
     *,
@@ -51,6 +52,8 @@ def apply_shared_settings(
     global PRIMARY_TICK_DENSITY
     global BAR_DURATION_MS
     global DEFAULT_FIXED_MOVE
+    global LABEL_FIXED_SL
+    global LABEL_FIXED_TP
     global LABEL_SL_MULTIPLIER
     global LABEL_TP_MULTIPLIER
     global EXECUTION_SL_MULTIPLIER
@@ -65,6 +68,7 @@ def apply_shared_settings(
     global DEFAULT_LOSS_MODE
 
     import tradebot.training.shared as _sm
+
     _sm.SHARED = dict(shared)
     _sm.ACTIVE_PROJECT = project
     if shared_config_path is not None:
@@ -95,22 +99,37 @@ def apply_shared_settings(
     _sm.FEATURE_STOCH_PERIOD = int(_sm.SHARED["FEATURE_STOCH_PERIOD"])
     _sm.FEATURE_STOCH_SMOOTH_PERIOD = int(_sm.SHARED["FEATURE_STOCH_SMOOTH_PERIOD"])
     _sm.FEATURE_TICK_COUNT_PERIOD = int(_sm.SHARED["FEATURE_TICK_COUNT_PERIOD"])
-    _sm.FEATURE_TICK_IMBALANCE_FAST_PERIOD = int(_sm.SHARED["FEATURE_TICK_IMBALANCE_FAST_PERIOD"])
-    _sm.FEATURE_TICK_IMBALANCE_SLOW_PERIOD = int(_sm.SHARED["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"])
+    _sm.FEATURE_TICK_IMBALANCE_FAST_PERIOD = int(
+        _sm.SHARED["FEATURE_TICK_IMBALANCE_FAST_PERIOD"]
+    )
+    _sm.FEATURE_TICK_IMBALANCE_SLOW_PERIOD = int(
+        _sm.SHARED["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"]
+    )
     _sm.TARGET_ATR_PERIOD = int(_sm.SHARED["TARGET_ATR_PERIOD"])
     _sm.RV_PERIOD = int(_sm.SHARED["RV_PERIOD"])
     _sm.RETURN_PERIOD = int(_sm.SHARED["RETURN_PERIOD"])
-    active_features = project.feature_columns if project is not None else MINIMAL_FEATURE_COLUMNS
+    active_features = (
+        project.feature_columns if project is not None else MINIMAL_FEATURE_COLUMNS
+    )
     _sm.MAX_FEATURE_LOOKBACK = max_feature_lookback(_sm.SHARED, active_features)
     _sm.WARMUP_BARS = _sm.MAX_FEATURE_LOOKBACK
     _sm.IMBALANCE_MIN_TICKS = int(_sm.SHARED["IMBALANCE_MIN_TICKS"])
     _sm.IMBALANCE_EMA_SPAN = int(_sm.SHARED["IMBALANCE_EMA_SPAN"])
     _sm.USE_IMBALANCE_EMA_THRESHOLD = bool(_sm.SHARED["USE_IMBALANCE_EMA_THRESHOLD"])
-    _sm.USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD = bool(_sm.SHARED["USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD"])
+    _sm.USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD = bool(
+        _sm.SHARED["USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD"]
+    )
     _sm.PRIMARY_BAR_SECONDS = int(_sm.SHARED["PRIMARY_BAR_SECONDS"])
-    _sm.PRIMARY_TICK_DENSITY = int(_sm.SHARED.get("PRIMARY_TICK_DENSITY", DEFAULT_PRIMARY_TICK_DENSITY))
+    _sm.PRIMARY_TICK_DENSITY = int(
+        _sm.SHARED.get("PRIMARY_TICK_DENSITY", DEFAULT_PRIMARY_TICK_DENSITY)
+    )
     _sm.BAR_DURATION_MS = _sm.PRIMARY_BAR_SECONDS * 1000
     _sm.DEFAULT_FIXED_MOVE = float(_sm.SHARED["DEFAULT_FIXED_MOVE"])
+    # Separate fixed-point SL/TP for labeling - fall back to DEFAULT_FIXED_MOVE if not defined.
+    _fixed_sl_raw = _sm.SHARED.get("DEFAULT_FIXED_SL", None)
+    _fixed_tp_raw = _sm.SHARED.get("DEFAULT_FIXED_TP", None)
+    _sm.LABEL_FIXED_SL = float(_fixed_sl_raw) if _fixed_sl_raw is not None else 0.0
+    _sm.LABEL_FIXED_TP = float(_fixed_tp_raw) if _fixed_tp_raw is not None else 0.0
     _sm.LABEL_SL_MULTIPLIER = float(_sm.SHARED["LABEL_SL_MULTIPLIER"])
     _sm.LABEL_TP_MULTIPLIER = float(_sm.SHARED["LABEL_TP_MULTIPLIER"])
     _sm.EXECUTION_SL_MULTIPLIER = float(_sm.SHARED["DEFAULT_SL_MULTIPLIER"])

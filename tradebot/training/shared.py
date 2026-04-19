@@ -23,6 +23,12 @@ try:
 except ModuleNotFoundError:
     from .tqdm_fallback import tqdm
 
+from common.bars import resolve_imbalance_base_threshold
+from tradebot.config_io import (
+    load_define_file,
+    read_text_best_effort,
+    render_define_value,
+)
 from tradebot.models.sequence import (
     AuLSTMMultiheadAttentionClassifier,
     FusionLSTMClassifier,
@@ -33,6 +39,63 @@ from tradebot.models.sequence import (
     ScalperMicrostructureClassifier,
     TCNClassifier,
     TemporalLSTMAttentionClassifier,
+)
+from tradebot.pipeline.diagnostics import DiagnosticsConfig
+from tradebot.pipeline.diagnostics import write_diagnostics as write_diagnostics_report
+from tradebot.pipeline.feature_builder import FeatureEngineeringConfig
+from tradebot.pipeline.feature_builder import compute_features as build_feature_array
+from tradebot.pipeline.market_data import (
+    build_market_bars as build_market_bars_frame,
+)
+from tradebot.pipeline.market_data import (
+    fixed_move_price_distance as fixed_move_distance,
+)
+from tradebot.pipeline.market_data import (
+    get_triple_barrier_labels as build_triple_barrier_labels,
+)
+from tradebot.pipeline.mql_config import build_mql_config as render_mql_config
+from tradebot.pipeline.training_utils import (
+    FocalLoss as PipelineFocalLoss,
+)
+from tradebot.pipeline.training_utils import (
+    choose_confidence_threshold as select_confidence_threshold,
+)
+from tradebot.pipeline.training_utils import (
+    evaluate_model as run_model_evaluation,
+)
+from tradebot.pipeline.training_utils import (
+    gate_metrics as compute_gate_metrics,
+)
+from tradebot.pipeline.training_utils import (
+    make_class_weights as build_class_weights,
+)
+from tradebot.pipeline.training_utils import (
+    make_loader as build_loader,
+)
+from tradebot.pipeline.training_utils import (
+    make_sample_weights as build_sample_weights,
+)
+from tradebot.pipeline.training_utils import (
+    softmax as compute_softmax,
+)
+from tradebot.pipeline.training_utils import (
+    summarize_gate as log_gate_summary,
+)
+from tradebot.pipeline.windowing import (
+    build_segment_end_indices,
+    build_windows,
+    maybe_cap_windows,
+)
+from tradebot.project_config import (
+    EXTRA_FEATURE_COLUMNS,
+    GOLD_CONTEXT_FEATURE_COLUMNS,
+    MINIMAL_FEATURE_COLUMNS,
+    ResolvedProjectConfig,
+    max_feature_lookback,
+    resolve_active_project_config,
+)
+from tradebot.project_config import (
+    feature_macro_name as project_feature_macro_name,
 )
 from tradebot.root_modules.castor_lite import CastorClassifier
 from tradebot.root_modules.chronos_backend import (
@@ -45,40 +108,10 @@ from tradebot.root_modules.minirocket_classifier import (
     MiniRocketClassifier,
     MiniRocketMultiAttentionHead,
     fit_minirocket,
-    transform_sequences,
     transform_sequence_tokens,
+    transform_sequences,
 )
 from tradebot.root_modules.mt5_runtime import resolve_mt5_runtime
-from tradebot.config_io import load_define_file, read_text_best_effort, render_define_value
-from tradebot.pipeline.diagnostics import DiagnosticsConfig, write_diagnostics as write_diagnostics_report
-from tradebot.pipeline.feature_builder import FeatureEngineeringConfig, compute_features as build_feature_array
-from tradebot.pipeline.market_data import (
-    build_market_bars as build_market_bars_frame,
-    fixed_move_price_distance as fixed_move_distance,
-    get_triple_barrier_labels as build_triple_barrier_labels,
-)
-from tradebot.pipeline.mql_config import build_mql_config as render_mql_config
-from tradebot.pipeline.training_utils import (
-    FocalLoss as PipelineFocalLoss,
-    choose_confidence_threshold as select_confidence_threshold,
-    evaluate_model as run_model_evaluation,
-    gate_metrics as compute_gate_metrics,
-    make_class_weights as build_class_weights,
-    make_loader as build_loader,
-    make_sample_weights as build_sample_weights,
-    softmax as compute_softmax,
-    summarize_gate as log_gate_summary,
-)
-from tradebot.pipeline.windowing import build_segment_end_indices, build_windows, maybe_cap_windows
-from tradebot.project_config import (
-    EXTRA_FEATURE_COLUMNS,
-    GOLD_CONTEXT_FEATURE_COLUMNS,
-    MINIMAL_FEATURE_COLUMNS,
-    ResolvedProjectConfig,
-    feature_macro_name as project_feature_macro_name,
-    max_feature_lookback,
-    resolve_active_project_config,
-)
 from tradebot.workspace import (
     ACTIVE_CONFIG_PATH,
     ACTIVE_DIAGNOSTICS_DIR,
@@ -91,7 +124,6 @@ from tradebot.workspace import (
     set_live_model_reference,
     symbol_models_dir,
 )
-from common.bars import resolve_imbalance_base_threshold
 
 logging.basicConfig(
     level=logging.INFO,
@@ -188,6 +220,8 @@ PRIMARY_BAR_SECONDS = 0
 PRIMARY_TICK_DENSITY = 0
 BAR_DURATION_MS = 0
 DEFAULT_FIXED_MOVE = 0.0
+LABEL_FIXED_SL = 0.0  # separate fixed-point SL for labeling (price units); 0.0 = use DEFAULT_FIXED_MOVE
+LABEL_FIXED_TP = 0.0  # separate fixed-point TP for labeling (price units); 0.0 = use DEFAULT_FIXED_MOVE
 LABEL_SL_MULTIPLIER = 0.0
 LABEL_TP_MULTIPLIER = 0.0
 EXECUTION_SL_MULTIPLIER = 0.0

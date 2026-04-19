@@ -8,8 +8,8 @@ let short update name be not longer than 3 words
 don't worry if push fails, it's the commit that's important
 after every edit turn do `git add .` and make a long commit exhaustively explain every change you made in a detailed easy to understand way. then push
 
-before ever running `python nn.py`, make sure that .active-config file is set to config/testrun.config, when you're done, set it back to what it was
-in essence, you are only to ever run nn.py as testruns, never to actually change models
+before ever running `python scripts/nn.py`, make sure that config/.active_config file is set to config/testrun.config, when you're done, set it back to what it was
+in essence, you are only to ever run scripts/nn.py as testruns, never to actually change models
 
 never add `.onnx` files to `.gitignore`.
 

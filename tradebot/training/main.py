@@ -1,17 +1,22 @@
 from __future__ import annotations
 
-from .shared import *  # noqa: F401,F403
-import tradebot.training.shared as _shared
 import keyboard
 
+import tradebot.training.shared as _shared
+
+from .shared import *  # noqa: F401,F403
+
 _stop_requested = False
+
 
 def _on_ctrl_k():
     global _stop_requested
     _stop_requested = True
     log.warning("CTRL+K pressed - stopping after current epoch...")
 
+
 keyboard.add_hotkey("ctrl+k", _on_ctrl_k)
+
 
 def main() -> None:
     global _stop_requested
@@ -19,27 +24,67 @@ def main() -> None:
     t0 = time.time()
     args = parse_args()
     project = args.config_project
-    apply_shared_settings(project.values, project=project, shared_config_path=project.config_path)
+    apply_shared_settings(
+        project.values, project=project, shared_config_path=project.config_path
+    )
     # Update module globals from shared module after apply_shared_settings ran
     _keys = [
-        "SHARED", "CURRENT_CONFIG_PATH", "SYMBOL", "SEQ_LEN", "TARGET_HORIZON", "FEATURE_ATR_PERIOD",
-        "FEATURE_ATR_RATIO_PERIOD", "FEATURE_BOLLINGER_PERIOD", "FEATURE_DONCHIAN_FAST_PERIOD",
-        "FEATURE_DONCHIAN_SLOW_PERIOD", "FEATURE_RET_2_PERIOD", "FEATURE_RET_3_PERIOD",
-        "FEATURE_RET_6_PERIOD", "FEATURE_RET_12_PERIOD", "FEATURE_RET_20_PERIOD",
-        "FEATURE_RSI_FAST_PERIOD", "FEATURE_RSI_SLOW_PERIOD", "FEATURE_RV_LONG_PERIOD",
-        "FEATURE_SMA_FAST_PERIOD", "FEATURE_SMA_MID_PERIOD", "FEATURE_SMA_SLOW_PERIOD",
-        "FEATURE_SMA_SLOPE_SHIFT", "FEATURE_SMA_TREND_FAST_PERIOD",
-        "FEATURE_SPREAD_Z_PERIOD", "FEATURE_STOCH_PERIOD", "FEATURE_STOCH_SMOOTH_PERIOD",
-        "FEATURE_TICK_COUNT_PERIOD", "FEATURE_TICK_IMBALANCE_FAST_PERIOD",
-        "FEATURE_TICK_IMBALANCE_SLOW_PERIOD", "TARGET_ATR_PERIOD", "RV_PERIOD",
-        "RETURN_PERIOD", "MAX_FEATURE_LOOKBACK", "WARMUP_BARS",
-        "IMBALANCE_MIN_TICKS", "IMBALANCE_EMA_SPAN", "USE_IMBALANCE_EMA_THRESHOLD",
-        "USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD", "PRIMARY_BAR_SECONDS",
-        "PRIMARY_TICK_DENSITY", "BAR_DURATION_MS", "DEFAULT_FIXED_MOVE",
-        "LABEL_SL_MULTIPLIER", "LABEL_TP_MULTIPLIER", "EXECUTION_SL_MULTIPLIER",
-        "EXECUTION_TP_MULTIPLIER", "USE_ALL_WINDOWS", "DEFAULT_EPOCHS",
-        "DEFAULT_BATCH_SIZE", "DEFAULT_MAX_TRAIN_WINDOWS", "DEFAULT_MAX_EVAL_WINDOWS",
-        "DEFAULT_PATIENCE", "DEFAULT_LOSS_MODE", "ACTIVE_PROJECT",
+        "SHARED",
+        "CURRENT_CONFIG_PATH",
+        "SYMBOL",
+        "SEQ_LEN",
+        "TARGET_HORIZON",
+        "FEATURE_ATR_PERIOD",
+        "FEATURE_ATR_RATIO_PERIOD",
+        "FEATURE_BOLLINGER_PERIOD",
+        "FEATURE_DONCHIAN_FAST_PERIOD",
+        "FEATURE_DONCHIAN_SLOW_PERIOD",
+        "FEATURE_RET_2_PERIOD",
+        "FEATURE_RET_3_PERIOD",
+        "FEATURE_RET_6_PERIOD",
+        "FEATURE_RET_12_PERIOD",
+        "FEATURE_RET_20_PERIOD",
+        "FEATURE_RSI_FAST_PERIOD",
+        "FEATURE_RSI_SLOW_PERIOD",
+        "FEATURE_RV_LONG_PERIOD",
+        "FEATURE_SMA_FAST_PERIOD",
+        "FEATURE_SMA_MID_PERIOD",
+        "FEATURE_SMA_SLOW_PERIOD",
+        "FEATURE_SMA_SLOPE_SHIFT",
+        "FEATURE_SMA_TREND_FAST_PERIOD",
+        "FEATURE_SPREAD_Z_PERIOD",
+        "FEATURE_STOCH_PERIOD",
+        "FEATURE_STOCH_SMOOTH_PERIOD",
+        "FEATURE_TICK_COUNT_PERIOD",
+        "FEATURE_TICK_IMBALANCE_FAST_PERIOD",
+        "FEATURE_TICK_IMBALANCE_SLOW_PERIOD",
+        "TARGET_ATR_PERIOD",
+        "RV_PERIOD",
+        "RETURN_PERIOD",
+        "MAX_FEATURE_LOOKBACK",
+        "WARMUP_BARS",
+        "IMBALANCE_MIN_TICKS",
+        "IMBALANCE_EMA_SPAN",
+        "USE_IMBALANCE_EMA_THRESHOLD",
+        "USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD",
+        "PRIMARY_BAR_SECONDS",
+        "PRIMARY_TICK_DENSITY",
+        "BAR_DURATION_MS",
+        "DEFAULT_FIXED_MOVE",
+        "LABEL_FIXED_SL",
+        "LABEL_FIXED_TP",
+        "LABEL_SL_MULTIPLIER",
+        "LABEL_TP_MULTIPLIER",
+        "EXECUTION_SL_MULTIPLIER",
+        "EXECUTION_TP_MULTIPLIER",
+        "USE_ALL_WINDOWS",
+        "DEFAULT_EPOCHS",
+        "DEFAULT_BATCH_SIZE",
+        "DEFAULT_MAX_TRAIN_WINDOWS",
+        "DEFAULT_MAX_EVAL_WINDOWS",
+        "DEFAULT_PATIENCE",
+        "DEFAULT_LOSS_MODE",
+        "ACTIVE_PROJECT",
     ]
     for _k in _keys:
         globals()[_k] = getattr(_shared, _k)
@@ -49,9 +94,16 @@ def main() -> None:
     requested_model_name = args.name.strip()
     model_name = sanitize_model_name(requested_model_name)
     if requested_model_name and not model_name:
-        log.warning("Model name %r sanitized to empty; using a timestamp-only archive folder.", requested_model_name)
+        log.warning(
+            "Model name %r sanitized to empty; using a timestamp-only archive folder.",
+            requested_model_name,
+        )
     elif requested_model_name and model_name != requested_model_name:
-        log.info("Model folder prefix sanitized from %r to %r.", requested_model_name, model_name)
+        log.info(
+            "Model folder prefix sanitized from %r to %r.",
+            requested_model_name,
+            model_name,
+        )
     use_extended_features = bool(args.use_extended_features)
     use_atr_risk = not bool(args.use_fixed_risk)
     use_fixed_time_bars = bool(args.use_fixed_time_bars)
@@ -59,7 +111,9 @@ def main() -> None:
     use_no_hold = bool(args.no_hold)
     active_label_names = LABEL_NAMES_BINARY if use_no_hold else LABEL_NAMES
     if architecture == "chronos_bolt" and use_extended_features:
-        log.warning("Chronos-Bolt backend uses the minimal live feature pack; ignoring extra feature switches.")
+        log.warning(
+            "Chronos-Bolt backend uses the minimal live feature pack; ignoring extra feature switches."
+        )
         use_extended_features = False
     feature_columns = project.feature_columns
     feature_profile = project.feature_profile
@@ -69,9 +123,13 @@ def main() -> None:
         raise ValueError("Choose only one bar mode: fixed-time or fixed-tick.")
     if architecture == "legacy_lstm_attention":
         if use_multihead_attention:
-            log.info("Legacy LSTM attention architecture has built-in self-attention; the -a flag is redundant.")
+            log.info(
+                "Legacy LSTM attention architecture has built-in self-attention; the -a flag is redundant."
+            )
         else:
-            log.info("Legacy LSTM attention architecture includes self-attention by design.")
+            log.info(
+                "Legacy LSTM attention architecture includes self-attention by design."
+            )
         use_multihead_attention = True
         if args.sequence_hidden_size != DEFAULT_SEQUENCE_HIDDEN_SIZE:
             log.warning(
@@ -95,11 +153,15 @@ def main() -> None:
             )
     if architecture == "ela":
         if not use_multihead_attention:
-            log.info("ELA uses the multihead attention head by design; enabling attention automatically.")
+            log.info(
+                "ELA uses the multihead attention head by design; enabling attention automatically."
+            )
         use_multihead_attention = True
     if architecture == "fusion_lstm":
         if not use_multihead_attention:
-            log.info("Fusion-LSTM includes its residual self-attention block by design; enabling attention automatically.")
+            log.info(
+                "Fusion-LSTM includes its residual self-attention block by design; enabling attention automatically."
+            )
         use_multihead_attention = True
         if args.sequence_hidden_size != DEFAULT_SEQUENCE_HIDDEN_SIZE:
             log.warning(
@@ -107,7 +169,10 @@ def main() -> None:
                 args.sequence_hidden_size,
             )
         if args.sequence_layers != DEFAULT_SEQUENCE_LAYERS:
-            log.warning("Fusion-LSTM uses a single Mish-LSTM layer; ignoring --sequence-layers=%d.", args.sequence_layers)
+            log.warning(
+                "Fusion-LSTM uses a single Mish-LSTM layer; ignoring --sequence-layers=%d.",
+                args.sequence_layers,
+            )
         if abs(args.sequence_dropout - DEFAULT_SEQUENCE_DROPOUT) > 1e-12:
             log.warning(
                 "Fusion-LSTM does not use the recurrent dropout path; ignoring --sequence-dropout=%.3f.",
@@ -126,7 +191,9 @@ def main() -> None:
         au_sequence_dropout = 0.0
         au_attention_dropout = 0.0
         if not use_multihead_attention:
-            log.info("AU includes its attention block by design; enabling attention automatically.")
+            log.info(
+                "AU includes its attention block by design; enabling attention automatically."
+            )
         use_multihead_attention = True
         if args.sequence_hidden_size != au_hidden_size:
             log.warning(
@@ -134,22 +201,41 @@ def main() -> None:
                 args.sequence_hidden_size,
             )
         if args.sequence_layers != au_sequence_layers:
-            log.warning("AU uses a single LSTM layer; ignoring --sequence-layers=%d.", args.sequence_layers)
+            log.warning(
+                "AU uses a single LSTM layer; ignoring --sequence-layers=%d.",
+                args.sequence_layers,
+            )
         if abs(args.sequence_dropout - au_sequence_dropout) > 1e-12:
-            log.warning("AU does not use recurrent dropout; ignoring --sequence-dropout=%.3f.", args.sequence_dropout)
+            log.warning(
+                "AU does not use recurrent dropout; ignoring --sequence-dropout=%.3f.",
+                args.sequence_dropout,
+            )
         if args.attention_heads != au_attention_heads:
-            log.warning("AU fixes its attention heads to 4; ignoring --attention-heads=%d.", args.attention_heads)
+            log.warning(
+                "AU fixes its attention heads to 4; ignoring --attention-heads=%d.",
+                args.attention_heads,
+            )
         if args.attention_layers != au_attention_layers:
-            log.warning("AU uses one attention block; ignoring --attention-layers=%d.", args.attention_layers)
+            log.warning(
+                "AU uses one attention block; ignoring --attention-layers=%d.",
+                args.attention_layers,
+            )
         if abs(args.attention_dropout - au_attention_dropout) > 1e-12:
-            log.warning("AU uses zero attention dropout; ignoring --attention-dropout=%.3f.", args.attention_dropout)
+            log.warning(
+                "AU uses zero attention dropout; ignoring --attention-dropout=%.3f.",
+                args.attention_dropout,
+            )
     if architecture == "chronos_bolt" and use_multihead_attention:
         log.warning("Chronos-Bolt backend ignores multihead-attention settings.")
         use_multihead_attention = False
     if architecture != "chronos_bolt" and (
-        args.chronos_patch_aligned_context or args.chronos_auto_context or args.chronos_ensemble_contexts
+        args.chronos_patch_aligned_context
+        or args.chronos_auto_context
+        or args.chronos_ensemble_contexts
     ):
-        log.warning("Chronos context switches are ignored unless MODEL_ARCHITECTURE is chronos_bolt.")
+        log.warning(
+            "Chronos context switches are ignored unless MODEL_ARCHITECTURE is chronos_bolt."
+        )
     if use_fixed_time_bars and _shared.PRIMARY_BAR_SECONDS <= 0:
         raise ValueError("PRIMARY_BAR_SECONDS must be positive.")
     if use_fixed_tick_bars and args.primary_tick_density <= 0:
@@ -160,7 +246,9 @@ def main() -> None:
     data_path = resolve_local_path(args.data_file)
     archive_only = bool(args.archive_only)
     if archive_only and not args.skip_live_compile:
-        log.info("archive-only mode implies skip-live-compile; local live references will still be updated.")
+        log.info(
+            "archive-only mode implies skip-live-compile; local live references will still be updated."
+        )
 
     requested_device = str(args.device).strip() or "cpu"
     device = torch.device(requested_device)
@@ -176,7 +264,9 @@ def main() -> None:
         TARGET_ATR_PERIOD,
         RV_PERIOD,
         RETURN_PERIOD,
-        "FIXED_TICK" if use_fixed_tick_bars else ("FIXED_TIME" if use_fixed_time_bars else "IMBALANCE"),
+        "FIXED_TICK"
+        if use_fixed_tick_bars
+        else ("FIXED_TIME" if use_fixed_time_bars else "IMBALANCE"),
         IMBALANCE_MIN_TICKS,
         IMBALANCE_EMA_SPAN,
         PRIMARY_BAR_SECONDS,
@@ -210,7 +300,8 @@ def main() -> None:
         imbalance_ema_span=IMBALANCE_EMA_SPAN,
         use_imbalance_ema_threshold=USE_IMBALANCE_EMA_THRESHOLD,
         use_imbalance_min_ticks_div3_threshold=USE_IMBALANCE_MIN_TICKS_DIV3_THRESHOLD,
-        require_gold_context=bool(args.gold_context) and not bool(SHARED.get("USE_MINIMAL_FEATURE_SET", False)),
+        require_gold_context=bool(args.gold_context)
+        and not bool(SHARED.get("USE_MINIMAL_FEATURE_SET", False)),
     )
     fixed_move_price = fixed_move_distance(DEFAULT_FIXED_MOVE, point_size)
     log.info(
@@ -224,6 +315,19 @@ def main() -> None:
         feature_columns=feature_columns,
         config=FeatureEngineeringConfig.from_values(SHARED),
     )
+    # Separate fixed-point SL/TP for labeling: if LABEL_FIXED_SL/TP are set
+    # (> 0) in the config, use them independently; otherwise fall back to
+    # fixed_move_price for both, preserving backward-compatible behaviour.
+    _label_fixed_sl = (
+        fixed_move_distance(LABEL_FIXED_SL, point_size)
+        if LABEL_FIXED_SL > 0.0
+        else None
+    )
+    _label_fixed_tp = (
+        fixed_move_distance(LABEL_FIXED_TP, point_size)
+        if LABEL_FIXED_TP > 0.0
+        else None
+    )
     y_all = build_triple_barrier_labels(
         bars,
         use_atr_risk=use_atr_risk,
@@ -232,6 +336,8 @@ def main() -> None:
         target_atr_period=TARGET_ATR_PERIOD,
         label_tp_multiplier=LABEL_TP_MULTIPLIER,
         label_sl_multiplier=LABEL_SL_MULTIPLIER,
+        fixed_sl_price=_label_fixed_sl,
+        fixed_tp_price=_label_fixed_tp,
     )
 
     x = x_all[WARMUP_BARS:]
@@ -249,18 +355,32 @@ def main() -> None:
 
     median = np.nanmedian(x[: train_range[1]], axis=0)
     median = np.nan_to_num(median, nan=0.0)
-    iqr = np.nanpercentile(x[: train_range[1]], 75, axis=0) - np.nanpercentile(x[: train_range[1]], 25, axis=0)
+    iqr = np.nanpercentile(x[: train_range[1]], 75, axis=0) - np.nanpercentile(
+        x[: train_range[1]], 25, axis=0
+    )
     iqr = np.nan_to_num(iqr, nan=1.0)
     iqr = np.where(iqr < 1e-6, 1.0, iqr)
     x_scaled = np.clip((x - median) / iqr, -10.0, 10.0).astype(np.float32)
     valid_mask = ~np.isnan(x_scaled).any(axis=1)
 
-    train_end_idx_all = build_segment_end_indices(valid_mask, *train_range, SEQ_LEN, TARGET_HORIZON)
-    val_end_idx_all = build_segment_end_indices(valid_mask, *val_range, SEQ_LEN, TARGET_HORIZON)
-    test_end_idx_all = build_segment_end_indices(valid_mask, *test_range, SEQ_LEN, TARGET_HORIZON)
-    train_end_idx = maybe_cap_windows(train_end_idx_all, args.max_train_windows, USE_ALL_WINDOWS)
-    val_end_idx = maybe_cap_windows(val_end_idx_all, args.max_eval_windows, USE_ALL_WINDOWS)
-    test_end_idx = maybe_cap_windows(test_end_idx_all, args.max_eval_windows, USE_ALL_WINDOWS)
+    train_end_idx_all = build_segment_end_indices(
+        valid_mask, *train_range, SEQ_LEN, TARGET_HORIZON
+    )
+    val_end_idx_all = build_segment_end_indices(
+        valid_mask, *val_range, SEQ_LEN, TARGET_HORIZON
+    )
+    test_end_idx_all = build_segment_end_indices(
+        valid_mask, *test_range, SEQ_LEN, TARGET_HORIZON
+    )
+    train_end_idx = maybe_cap_windows(
+        train_end_idx_all, args.max_train_windows, USE_ALL_WINDOWS
+    )
+    val_end_idx = maybe_cap_windows(
+        val_end_idx_all, args.max_eval_windows, USE_ALL_WINDOWS
+    )
+    test_end_idx = maybe_cap_windows(
+        test_end_idx_all, args.max_eval_windows, USE_ALL_WINDOWS
+    )
     if min(len(train_end_idx), len(val_end_idx), len(test_end_idx)) == 0:
         raise ValueError("One or more leakage-safe splits ended up empty.")
     log.info(
@@ -276,7 +396,9 @@ def main() -> None:
     x_train, y_train = build_windows(x_scaled, y, train_end_idx, SEQ_LEN)
     x_val, y_val = build_windows(x_scaled, y, val_end_idx, SEQ_LEN)
     x_test, y_test = build_windows(x_scaled, y, test_end_idx, SEQ_LEN)
-    log.info("Window counts | train=%d val=%d test=%d", len(x_train), len(x_val), len(x_test))
+    log.info(
+        "Window counts | train=%d val=%d test=%d", len(x_train), len(x_val), len(x_test)
+    )
 
     if use_no_hold:
         train_mask = y_train > 0
@@ -300,9 +422,14 @@ def main() -> None:
 
     if architecture == "chronos_bolt":
         if args.loss_mode != "auto":
-            log.warning("Chronos-Bolt backend is zero-shot; ignoring --loss-mode=%s.", args.loss_mode)
+            log.warning(
+                "Chronos-Bolt backend is zero-shot; ignoring --loss-mode=%s.",
+                args.loss_mode,
+            )
         if args.lr > 0.0 or args.weight_decay >= 0.0:
-            log.warning("Chronos-Bolt backend is zero-shot; ignoring optimizer overrides.")
+            log.warning(
+                "Chronos-Bolt backend is zero-shot; ignoring optimizer overrides."
+            )
         log.info(
             "Chronos-Bolt backend | model_id=%s feature_profile=%s prediction_length=%d",
             args.chronos_bolt_model,
@@ -353,7 +480,9 @@ def main() -> None:
 
             for candidate_context_variant in context_variants:
                 export_model.set_context_tail_lengths(candidate_context_variant)
-                candidate_val_logits, candidate_val_labels = run_model_evaluation(export_model, val_loader, device)
+                candidate_val_logits, candidate_val_labels = run_model_evaluation(
+                    export_model, val_loader, device
+                )
                 candidate_val_probs = compute_softmax(candidate_val_logits)
                 candidate_threshold = select_confidence_threshold(
                     candidate_val_probs,
@@ -387,7 +516,9 @@ def main() -> None:
                     best_val_labels = candidate_val_labels
 
             if best_val_logits is None or best_val_labels is None:
-                raise RuntimeError("Chronos auto-context search did not evaluate any candidates.")
+                raise RuntimeError(
+                    "Chronos auto-context search did not evaluate any candidates."
+                )
             export_model.set_context_tail_lengths(selected_context_variant)
             log.info(
                 "Chronos auto-context selected %s.",
@@ -401,10 +532,16 @@ def main() -> None:
                     "Chronos context mode | selected=%s",
                     chronos_context_label(selected_context_variant),
                 )
-            val_logits, val_labels = run_model_evaluation(export_model, val_loader, device)
+            val_logits, val_labels = run_model_evaluation(
+                export_model, val_loader, device
+            )
 
-        model_backend = getattr(export_model, "backend_name", "chronos-bolt-zero-shot-close-barrier")
-        test_logits, test_labels = run_model_evaluation(export_model, test_loader, device)
+        model_backend = getattr(
+            export_model, "backend_name", "chronos-bolt-zero-shot-close-barrier"
+        )
+        test_logits, test_labels = run_model_evaluation(
+            export_model, test_loader, device
+        )
     else:
         scheduler = None
         feature_mean: np.ndarray | None = None
@@ -412,7 +549,9 @@ def main() -> None:
         token_mean: np.ndarray | None = None
         token_std: np.ndarray | None = None
         minirocket_parameters = None
-        train_sample_weights = build_sample_weights(y_train, class_count=len(active_label_names))
+        train_sample_weights = build_sample_weights(
+            y_train, class_count=len(active_label_names)
+        )
 
         if architecture == "minirocket":
             transform_batch_size = max(args.batch_size, DEFAULT_BATCH_SIZE)
@@ -422,7 +561,11 @@ def main() -> None:
                 seed=42,
             )
             learning_rate = args.lr if args.lr > 0.0 else DEFAULT_MINIROCKET_LR
-            weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_MINIROCKET_WEIGHT_DECAY
+            weight_decay = (
+                args.weight_decay
+                if args.weight_decay >= 0.0
+                else DEFAULT_MINIROCKET_WEIGHT_DECAY
+            )
 
             if use_multihead_attention:
                 train_inputs = transform_sequence_tokens(
@@ -445,10 +588,18 @@ def main() -> None:
                 )
 
                 token_mean = train_inputs.mean(axis=0).astype(np.float32)
-                token_std = np.where(train_inputs.std(axis=0) < 1e-6, 1.0, train_inputs.std(axis=0)).astype(np.float32)
-                train_inputs = ((train_inputs - token_mean) / token_std).astype(np.float32, copy=False)
-                val_inputs = ((val_inputs - token_mean) / token_std).astype(np.float32, copy=False)
-                test_inputs = ((test_inputs - token_mean) / token_std).astype(np.float32, copy=False)
+                token_std = np.where(
+                    train_inputs.std(axis=0) < 1e-6, 1.0, train_inputs.std(axis=0)
+                ).astype(np.float32)
+                train_inputs = ((train_inputs - token_mean) / token_std).astype(
+                    np.float32, copy=False
+                )
+                val_inputs = ((val_inputs - token_mean) / token_std).astype(
+                    np.float32, copy=False
+                )
+                test_inputs = ((test_inputs - token_mean) / token_std).astype(
+                    np.float32, copy=False
+                )
 
                 training_model = MiniRocketMultiAttentionHead(
                     num_tokens=train_inputs.shape[1],
@@ -481,15 +632,27 @@ def main() -> None:
                 )
 
                 feature_mean = train_inputs.mean(axis=0).astype(np.float32)
-                feature_std = np.where(train_inputs.std(axis=0) < 1e-6, 1.0, train_inputs.std(axis=0)).astype(np.float32)
-                train_inputs = ((train_inputs - feature_mean) / feature_std).astype(np.float32, copy=False)
-                val_inputs = ((val_inputs - feature_mean) / feature_std).astype(np.float32, copy=False)
-                test_inputs = ((test_inputs - feature_mean) / feature_std).astype(np.float32, copy=False)
+                feature_std = np.where(
+                    train_inputs.std(axis=0) < 1e-6, 1.0, train_inputs.std(axis=0)
+                ).astype(np.float32)
+                train_inputs = ((train_inputs - feature_mean) / feature_std).astype(
+                    np.float32, copy=False
+                )
+                val_inputs = ((val_inputs - feature_mean) / feature_std).astype(
+                    np.float32, copy=False
+                )
+                test_inputs = ((test_inputs - feature_mean) / feature_std).astype(
+                    np.float32, copy=False
+                )
 
-                training_model = nn.Linear(train_inputs.shape[1], len(active_label_names)).to(device)
+                training_model = nn.Linear(
+                    train_inputs.shape[1], len(active_label_names)
+                ).to(device)
                 model_backend = "minirocket-multivariate"
 
-            optimizer = torch.optim.AdamW(training_model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            optimizer = torch.optim.AdamW(
+                training_model.parameters(), lr=learning_rate, weight_decay=weight_decay
+            )
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer,
                 factor=0.5,
@@ -530,7 +693,11 @@ def main() -> None:
                 "gold_new",
             }:
                 learning_rate = args.lr if args.lr > 0.0 else DEFAULT_SEQUENCE_LR
-                weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_SEQUENCE_WEIGHT_DECAY
+                weight_decay = (
+                    args.weight_decay
+                    if args.weight_decay >= 0.0
+                    else DEFAULT_SEQUENCE_WEIGHT_DECAY
+                )
                 if architecture == "legacy_lstm_attention":
                     training_model = LegacyLSTMAttentionClassifier(
                         n_features=feature_count,
@@ -608,7 +775,9 @@ def main() -> None:
                     recurrent_bidirectional = architecture == "bilstm"
                     backend_name = {
                         "ela": "ela-lstm-attention",
-                        "bilstm": "bilstm-attention" if use_multihead_attention else "bilstm",
+                        "bilstm": "bilstm-attention"
+                        if use_multihead_attention
+                        else "bilstm",
                         "gru": "gru-attention" if use_multihead_attention else "gru",
                     }[architecture]
                     training_model = RecurrentSequenceClassifier(
@@ -627,7 +796,11 @@ def main() -> None:
                     ).to(device)
             else:
                 learning_rate = args.lr if args.lr > 0.0 else DEFAULT_MAMBA_LR
-                weight_decay = args.weight_decay if args.weight_decay >= 0.0 else DEFAULT_MAMBA_WEIGHT_DECAY
+                weight_decay = (
+                    args.weight_decay
+                    if args.weight_decay >= 0.0
+                    else DEFAULT_MAMBA_WEIGHT_DECAY
+                )
                 if architecture == "castor":
                     training_model = CastorClassifier(
                         n_features=feature_count,
@@ -644,7 +817,9 @@ def main() -> None:
                         attention_layers=args.attention_layers,
                         attention_dropout=args.attention_dropout,
                     ).to(device)
-            optimizer = torch.optim.AdamW(training_model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+            optimizer = torch.optim.AdamW(
+                training_model.parameters(), lr=learning_rate, weight_decay=weight_decay
+            )
             train_loader = build_loader(
                 x_train,
                 y_train,
@@ -664,13 +839,19 @@ def main() -> None:
                 max(args.batch_size, DEFAULT_BATCH_SIZE),
                 shuffle=False,
             )
-            model_backend = getattr(training_model, "backend_name", "portable-mamba-lite")
+            model_backend = getattr(
+                training_model, "backend_name", "portable-mamba-lite"
+            )
 
-        class_weights = build_class_weights(y_train, class_count=len(active_label_names)).to(device)
+        class_weights = build_class_weights(
+            y_train, class_count=len(active_label_names)
+        ).to(device)
         if loss_mode == "cross-entropy":
             criterion: nn.Module = nn.CrossEntropyLoss(weight=class_weights).to(device)
         else:
-            criterion = PipelineFocalLoss(alpha=class_weights, gamma=args.focal_gamma).to(device)
+            criterion = PipelineFocalLoss(
+                alpha=class_weights, gamma=args.focal_gamma
+            ).to(device)
         log.info(
             "Optimization | loss=%s lr=%.6g weight_decay=%.6g balanced_sampling=1 confidence_search=[%.2f, %.2f]x%d",
             loss_mode,
@@ -688,7 +869,9 @@ def main() -> None:
         for epoch in tqdm(range(args.epochs), desc="Training"):
             training_model.train()
             train_losses = []
-            for xb, yb in tqdm(train_loader, desc=f"Epoch {epoch+1}/{args.epochs}", leave=False):
+            for xb, yb in tqdm(
+                train_loader, desc=f"Epoch {epoch + 1}/{args.epochs}", leave=False
+            ):
                 logits = training_model(xb.to(device))
                 loss = criterion(logits, yb.to(device))
                 optimizer.zero_grad()
@@ -697,7 +880,9 @@ def main() -> None:
                 optimizer.step()
                 train_losses.append(float(loss.item()))
 
-            val_logits, val_labels = run_model_evaluation(training_model, val_loader, device)
+            val_logits, val_labels = run_model_evaluation(
+                training_model, val_loader, device
+            )
             val_loss = float(
                 criterion(
                     torch.tensor(val_logits, dtype=torch.float32, device=device),
@@ -721,7 +906,10 @@ def main() -> None:
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
-                best_state = {k: v.detach().cpu().clone() for k, v in training_model.state_dict().items()}
+                best_state = {
+                    k: v.detach().cpu().clone()
+                    for k, v in training_model.state_dict().items()
+                }
                 wait = 0
             else:
                 wait += 1
@@ -734,12 +922,18 @@ def main() -> None:
         training_model.load_state_dict(best_state)
         training_model.to(device)
 
-        val_logits, val_labels = run_model_evaluation(training_model, val_loader, device)
-        test_logits, test_labels = run_model_evaluation(training_model, test_loader, device)
+        val_logits, val_labels = run_model_evaluation(
+            training_model, val_loader, device
+        )
+        test_logits, test_labels = run_model_evaluation(
+            training_model, test_loader, device
+        )
 
         if architecture == "minirocket":
             if minirocket_parameters is None:
-                raise RuntimeError("MiniRocket export requested without fitted parameters.")
+                raise RuntimeError(
+                    "MiniRocket export requested without fitted parameters."
+                )
             if use_multihead_attention:
                 export_model = MiniRocketClassifier(
                     parameters=minirocket_parameters,
@@ -772,10 +966,14 @@ def main() -> None:
         threshold_max=args.confidence_search_max,
         threshold_steps=args.confidence_search_steps,
     )
-    validation_gate = log_gate_summary("validation", val_probs, val_labels, selected_primary_confidence)
+    validation_gate = log_gate_summary(
+        "validation", val_probs, val_labels, selected_primary_confidence
+    )
 
     test_probs = compute_softmax(test_logits)
-    holdout_gate = log_gate_summary("holdout", test_probs, test_labels, selected_primary_confidence)
+    holdout_gate = log_gate_summary(
+        "holdout", test_probs, test_labels, selected_primary_confidence
+    )
 
     quality_gate_reasons: list[str] = []
     if int(validation_gate["selected_trades"]) < args.min_selected_trades:
@@ -859,6 +1057,8 @@ def main() -> None:
             return_period=RETURN_PERIOD,
             warmup_bars=WARMUP_BARS,
             default_fixed_move=DEFAULT_FIXED_MOVE,
+            label_fixed_sl=LABEL_FIXED_SL,
+            label_fixed_tp=LABEL_FIXED_TP,
             label_sl_multiplier=LABEL_SL_MULTIPLIER,
             label_tp_multiplier=LABEL_TP_MULTIPLIER,
             execution_sl_multiplier=EXECUTION_SL_MULTIPLIER,
@@ -911,7 +1111,9 @@ def main() -> None:
     set_live_model_reference(model_dir)
 
     if not archive_only and not args.skip_live_compile:
-        runtime_paths = resolve_mt5_runtime(metaeditor_path_override=args.metaeditor_path)
+        runtime_paths = resolve_mt5_runtime(
+            metaeditor_path_override=args.metaeditor_path
+        )
         compile_log_path = compile_live_expert(runtime_paths, model_dir=model_dir)
         warnings_match = re.search(
             r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?",

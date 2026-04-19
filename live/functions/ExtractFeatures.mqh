@@ -428,4 +428,106 @@ void ExtractFeatures(int h, float &features[]) {
          );
       #endif
    }
+
+   // ---------------------------------------------------------------------------
+   // PAST_DIR_<N>_T  (bar-count lookback) and PAST_DIR_<N>_S (second lookback)
+   // ---------------------------------------------------------------------------
+   // Training emits  #define FEATURE_IDX_PAST_DIR_<N>_<U> <idx>  for each
+   // enabled feature.  The handler computes tanh(log(close_now/close_then))
+   // which maps any log-return to (-1, 1): near -1 = strong drop, 0 = flat,
+   // near +1 = strong rise.  Blocks are ordered: _T first, then _S.
+   //
+   // ---- _T (bars) -----------------------------------------------------------
+#ifdef FEATURE_IDX_PAST_DIR_1_T
+   features[FEATURE_IDX_PAST_DIR_1_T] = ScaleAndClip((float)PastDirBarAt(h, 1), FEATURE_IDX_PAST_DIR_1_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_2_T
+   features[FEATURE_IDX_PAST_DIR_2_T] = ScaleAndClip((float)PastDirBarAt(h, 2), FEATURE_IDX_PAST_DIR_2_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_3_T
+   features[FEATURE_IDX_PAST_DIR_3_T] = ScaleAndClip((float)PastDirBarAt(h, 3), FEATURE_IDX_PAST_DIR_3_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_5_T
+   features[FEATURE_IDX_PAST_DIR_5_T] = ScaleAndClip((float)PastDirBarAt(h, 5), FEATURE_IDX_PAST_DIR_5_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_9_T
+   features[FEATURE_IDX_PAST_DIR_9_T] = ScaleAndClip((float)PastDirBarAt(h, 9), FEATURE_IDX_PAST_DIR_9_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_12_T
+   features[FEATURE_IDX_PAST_DIR_12_T] = ScaleAndClip((float)PastDirBarAt(h, 12), FEATURE_IDX_PAST_DIR_12_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_18_T
+   features[FEATURE_IDX_PAST_DIR_18_T] = ScaleAndClip((float)PastDirBarAt(h, 18), FEATURE_IDX_PAST_DIR_18_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_27_T
+   features[FEATURE_IDX_PAST_DIR_27_T] = ScaleAndClip((float)PastDirBarAt(h, 27), FEATURE_IDX_PAST_DIR_27_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_36_T
+   features[FEATURE_IDX_PAST_DIR_36_T] = ScaleAndClip((float)PastDirBarAt(h, 36), FEATURE_IDX_PAST_DIR_36_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_54_T
+   features[FEATURE_IDX_PAST_DIR_54_T] = ScaleAndClip((float)PastDirBarAt(h, 54), FEATURE_IDX_PAST_DIR_54_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_72_T
+   features[FEATURE_IDX_PAST_DIR_72_T] = ScaleAndClip((float)PastDirBarAt(h, 72), FEATURE_IDX_PAST_DIR_72_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_100_T
+   features[FEATURE_IDX_PAST_DIR_100_T] = ScaleAndClip((float)PastDirBarAt(h, 100), FEATURE_IDX_PAST_DIR_100_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_144_T
+   features[FEATURE_IDX_PAST_DIR_144_T] = ScaleAndClip((float)PastDirBarAt(h, 144), FEATURE_IDX_PAST_DIR_144_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_200_T
+   features[FEATURE_IDX_PAST_DIR_200_T] = ScaleAndClip((float)PastDirBarAt(h, 200), FEATURE_IDX_PAST_DIR_200_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_288_T
+   features[FEATURE_IDX_PAST_DIR_288_T] = ScaleAndClip((float)PastDirBarAt(h, 288), FEATURE_IDX_PAST_DIR_288_T);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_360_T
+   features[FEATURE_IDX_PAST_DIR_360_T] = ScaleAndClip((float)PastDirBarAt(h, 360), FEATURE_IDX_PAST_DIR_360_T);
+#endif
+   //
+   // ---- _S (seconds) --------------------------------------------------------
+#ifdef FEATURE_IDX_PAST_DIR_60_S
+   features[FEATURE_IDX_PAST_DIR_60_S] = ScaleAndClip((float)PastDirSecondsAt(h, 60), FEATURE_IDX_PAST_DIR_60_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_120_S
+   features[FEATURE_IDX_PAST_DIR_120_S] = ScaleAndClip((float)PastDirSecondsAt(h, 120), FEATURE_IDX_PAST_DIR_120_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_300_S
+   features[FEATURE_IDX_PAST_DIR_300_S] = ScaleAndClip((float)PastDirSecondsAt(h, 300), FEATURE_IDX_PAST_DIR_300_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_600_S
+   features[FEATURE_IDX_PAST_DIR_600_S] = ScaleAndClip((float)PastDirSecondsAt(h, 600), FEATURE_IDX_PAST_DIR_600_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_900_S
+   features[FEATURE_IDX_PAST_DIR_900_S] = ScaleAndClip((float)PastDirSecondsAt(h, 900), FEATURE_IDX_PAST_DIR_900_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_1800_S
+   features[FEATURE_IDX_PAST_DIR_1800_S] = ScaleAndClip((float)PastDirSecondsAt(h, 1800), FEATURE_IDX_PAST_DIR_1800_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_3600_S
+   features[FEATURE_IDX_PAST_DIR_3600_S] = ScaleAndClip((float)PastDirSecondsAt(h, 3600), FEATURE_IDX_PAST_DIR_3600_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_5400_S
+   features[FEATURE_IDX_PAST_DIR_5400_S] = ScaleAndClip((float)PastDirSecondsAt(h, 5400), FEATURE_IDX_PAST_DIR_5400_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_7200_S
+   features[FEATURE_IDX_PAST_DIR_7200_S] = ScaleAndClip((float)PastDirSecondsAt(h, 7200), FEATURE_IDX_PAST_DIR_7200_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_10800_S
+   features[FEATURE_IDX_PAST_DIR_10800_S] = ScaleAndClip((float)PastDirSecondsAt(h, 10800), FEATURE_IDX_PAST_DIR_10800_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_14400_S
+   features[FEATURE_IDX_PAST_DIR_14400_S] = ScaleAndClip((float)PastDirSecondsAt(h, 14400), FEATURE_IDX_PAST_DIR_14400_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_21600_S
+   features[FEATURE_IDX_PAST_DIR_21600_S] = ScaleAndClip((float)PastDirSecondsAt(h, 21600), FEATURE_IDX_PAST_DIR_21600_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_43200_S
+   features[FEATURE_IDX_PAST_DIR_43200_S] = ScaleAndClip((float)PastDirSecondsAt(h, 43200), FEATURE_IDX_PAST_DIR_43200_S);
+#endif
+#ifdef FEATURE_IDX_PAST_DIR_86400_S
+   features[FEATURE_IDX_PAST_DIR_86400_S] = ScaleAndClip((float)PastDirSecondsAt(h, 86400), FEATURE_IDX_PAST_DIR_86400_S);
+#endif
 }

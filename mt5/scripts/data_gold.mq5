@@ -1,6 +1,6 @@
 #property script_show_inputs
 
-#include "config.mqh"
+#include "../../config/active.mqh"
 
 input int days_to_export = 60;
 input string output_file = "market_ticks.csv";

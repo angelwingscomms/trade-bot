@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from common.main_periods import main_periods
+from common.past_dir_features import parse_past_dir_spec, past_dir_lookback_bars
 
 
 def lookback_requirement(values: dict, feature_name: str) -> int:
@@ -27,11 +28,21 @@ def lookback_requirement(values: dict, feature_name: str) -> int:
     feature_stoch_period = int(values["FEATURE_STOCH_PERIOD"])
     feature_stoch_smooth_period = int(values["FEATURE_STOCH_SMOOTH_PERIOD"])
     feature_tick_count_period = int(values["FEATURE_TICK_COUNT_PERIOD"])
-    feature_tick_imbalance_fast_period = int(values["FEATURE_TICK_IMBALANCE_FAST_PERIOD"])
-    feature_tick_imbalance_slow_period = int(values["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"])
+    feature_tick_imbalance_fast_period = int(
+        values["FEATURE_TICK_IMBALANCE_FAST_PERIOD"]
+    )
+    feature_tick_imbalance_slow_period = int(
+        values["FEATURE_TICK_IMBALANCE_SLOW_PERIOD"]
+    )
     return_period = int(values["RETURN_PERIOD"])
     rv_period = int(values["RV_PERIOD"])
-    main_short_period, main_medium_period, main_long_period, main_xlong_period, main_xxlong_period = main_periods(values)
+    (
+        main_short_period,
+        main_medium_period,
+        main_long_period,
+        main_xlong_period,
+        main_xxlong_period,
+    ) = main_periods(values)
     macd_fast_period = int(values.get("FEATURE_MACD_FAST_PERIOD", 12))
     macd_slow_period = int(values.get("FEATURE_MACD_SLOW_PERIOD", 26))
     macd_signal_period = int(values.get("FEATURE_MACD_SIGNAL_PERIOD", 9))
@@ -123,4 +134,17 @@ def lookback_requirement(values: dict, feature_name: str) -> int:
         "minute_cos": 0,
         "day_of_week_scaled": 0,
     }
-    return requirements[feature_name]
+    if feature_name in requirements:
+        return requirements[feature_name]
+
+    # Dynamic PAST_DIR_<N>_S / PAST_DIR_<N>_T features
+    past_dir_spec = parse_past_dir_spec(feature_name)
+    if past_dir_spec is not None:
+        n, unit = past_dir_spec
+        if unit == "T":
+            return n
+        # _S: need bar_seconds to convert wall-clock seconds to bars
+        bar_seconds = int(values.get("PRIMARY_BAR_SECONDS", 0))
+        return past_dir_lookback_bars(feature_name, bar_seconds)
+
+    raise KeyError(f"Unknown feature name: {feature_name!r}")

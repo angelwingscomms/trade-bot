@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-import tradebot.training as _impl
+import sys
+from pathlib import Path
+
+# Bootstrap: ensure the project root (parent of scripts/) is on sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import tradebot.root_modules.join_files as _impl
 
 globals().update(
     {

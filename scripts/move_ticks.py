@@ -4,14 +4,15 @@ import argparse
 import shutil
 from pathlib import Path
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FILES_DIR = PROJECT_ROOT.parent / "Files"
 DATA_DIR = PROJECT_ROOT / "data"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Move tick files from MT5 Files folder to ./data")
+    parser = argparse.ArgumentParser(
+        description="Move tick files from MT5 Files folder to ./data"
+    )
     parser.add_argument("-i", "--input", required=True, help="Filename to move")
     args = parser.parse_args()
 

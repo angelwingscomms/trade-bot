@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 def get_triple_barrier_labels(
     bars: pd.DataFrame,
     *,
@@ -11,7 +12,15 @@ def get_triple_barrier_labels(
     target_atr_period: int,
     label_tp_multiplier: float,
     label_sl_multiplier: float,
+    fixed_sl_price: float | None = None,
+    fixed_tp_price: float | None = None,
 ) -> np.ndarray:
+    """Generate triple-barrier labels.
+
+    In ATR mode: SL/TP are label_sl_multiplier/label_tp_multiplier * ATR.
+    In fixed mode: SL uses fixed_sl_price (falls back to fixed_move_price),
+                   TP uses fixed_tp_price (falls back to fixed_move_price).
+    """
     close = bars["close"].to_numpy(dtype=np.float64, copy=False)
     high = bars["high"].to_numpy(dtype=np.float64, copy=False)
     low = bars["low"].to_numpy(dtype=np.float64, copy=False)
@@ -29,6 +38,9 @@ def get_triple_barrier_labels(
             period=target_atr_period,
         ).to_numpy(dtype=np.float64, copy=False)
 
+    _fixed_sl = fixed_sl_price if fixed_sl_price is not None else fixed_move_price
+    _fixed_tp = fixed_tp_price if fixed_tp_price is not None else fixed_move_price
+
     labels = np.zeros(len(bars), dtype=np.int64)
     for i in range(len(bars) - target_horizon):
         long_entry = close[i] + spread[i]
@@ -42,10 +54,10 @@ def get_triple_barrier_labels(
             short_tp = short_entry - label_tp_multiplier * vol
             short_sl = short_entry + label_sl_multiplier * vol
         else:
-            long_tp = long_entry + fixed_move_price
-            long_sl = long_entry - fixed_move_price
-            short_tp = short_entry - fixed_move_price
-            short_sl = short_entry + fixed_move_price
+            long_tp = long_entry + _fixed_tp
+            long_sl = long_entry - _fixed_sl
+            short_tp = short_entry - _fixed_tp
+            short_sl = short_entry + _fixed_sl
 
         long_result = 0
         short_result = 0

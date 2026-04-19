@@ -2,8 +2,8 @@
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "BTCUSD"
 #define ACTIVE_MODEL_VERSION "18_04_2026-15_17__05-bitco"
-#include "symbols/btcusd/models/18_04_2026-15_17__05-bitco/config.mqh"
-#resource "symbols\\btcusd\\models\\18_04_2026-15_17__05-bitco\\model.onnx" as uchar model_buffer[]
+#include "../symbols/btcusd/models/18_04_2026-15_17__05-bitco/config.mqh"
+#resource "..\\symbols\\btcusd\\models\\18_04_2026-15_17__05-bitco\\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
@@ -18,12 +18,23 @@
 #define MODEL_USE_FIXED_TICK_BARS 0
 #endif
 
+// Allow separate fixed-point SL and TP distances (in points).
+// If the config does not define them they fall back to DEFAULT_FIXED_MOVE.
+#ifndef DEFAULT_FIXED_SL
+#define DEFAULT_FIXED_SL DEFAULT_FIXED_MOVE
+#endif
+#ifndef DEFAULT_FIXED_TP
+#define DEFAULT_FIXED_TP DEFAULT_FIXED_MOVE
+#endif
+
 #define INPUT_BUFFER_SIZE (SEQ_LEN * MODEL_FEATURE_COUNT)
 #define HISTORY_SIZE (REQUIRED_HISTORY_INDEX + 1)
 #define PRIMARY_BAR_MILLISECONDS ((ulong)PRIMARY_BAR_SECONDS * 1000)
 
 input bool R = (MODEL_USE_ATR_RISK == 0);
 input double FIXED_MOVE = DEFAULT_FIXED_MOVE;
+input double FIXED_SL   = DEFAULT_FIXED_SL;   // fixed-mode stop-loss distance (points)
+input double FIXED_TP   = DEFAULT_FIXED_TP;   // fixed-mode take-profit distance (points)
 input double SL_MULTIPLIER = DEFAULT_SL_MULTIPLIER;
 input double TP_MULTIPLIER = DEFAULT_TP_MULTIPLIER;
 input double LOT_SIZE = DEFAULT_LOT_SIZE;
@@ -138,6 +149,8 @@ void DebugPrint(string message);
 string SignalName(int signal);
 double StopDistance();
 double TargetDistance();
+double PastDirBarAt(int h, int n_bars);
+double PastDirSecondsAt(int h, int n_seconds);
 double ResolveMinimumVolume();
 double NormalizeVolume(double volume);
 double CalculateTradeVolume(int signal, double price, double sl);
@@ -145,58 +158,59 @@ void PrintRunSummary();
 double ResolveAuxBid(string symbol, bool &available, double &last_value, double fallback);
 
 
-#include "live/functions/OnInit.mqh"
-#include "live/functions/OnDeinit.mqh"
-#include "live/functions/OnTradeTransaction.mqh"
-#include "live/functions/DebugPrint.mqh"
-#include "live/functions/SignalName.mqh"
-#include "live/functions/BarBucket.mqh"
-#include "live/functions/BarOpenTime.mqh"
-#include "live/functions/StartBar.mqh"
-#include "live/functions/StartImbalanceBar.mqh"
-#include "live/functions/RollFixedTimeBarIfNeeded.mqh"
-#include "live/functions/ResolveImbalanceThresholdBase.mqh"
-#include "live/functions/StopDistance.mqh"
-#include "live/functions/TargetDistance.mqh"
-#include "live/functions/ResolveMinimumVolume.mqh"
-#include "live/functions/NormalizeVolume.mqh"
-#include "live/functions/CalculateTradeVolume.mqh"
-#include "live/functions/PrintRunSummary.mqh"
-#include "live/functions/UpdateTickSign.mqh"
-#include "live/functions/ProcessTick.mqh"
-#include "live/functions/ResolveAuxBid.mqh"
-#include "live/functions/UpdateIndicators.mqh"
-#include "live/functions/ShouldClosePrimaryBar.mqh"
-#include "live/functions/UpdatePrimaryImbalanceThreshold.mqh"
-#include "live/functions/CloseBar.mqh"
-#include "live/functions/OnTick.mqh"
-#include "live/functions/LoadHistory.mqh"
-#include "live/functions/ScaleAndClip.mqh"
-#include "live/functions/SafeLogRatio.mqh"
-#include "live/functions/LogReturnAt.mqh"
-#include "live/functions/ReturnOverBars.mqh"
-#include "live/functions/RollingStdReturn.mqh"
-#include "live/functions/MeanClose.mqh"
-#include "live/functions/StdClose.mqh"
-#include "live/functions/MaxHigh.mqh"
-#include "live/functions/MinLow.mqh"
-#include "live/functions/MeanTickCount.mqh"
-#include "live/functions/StdTickCount.mqh"
-#include "live/functions/MeanTickImbalance.mqh"
-#include "live/functions/MeanSpreadRel.mqh"
-#include "live/functions/StdSpreadRel.mqh"
-#include "live/functions/MeanAtrFeature.mqh"
-#include "live/functions/TrueRangeAt.mqh"
-#include "live/functions/SimpleAtr.mqh"
-#include "live/functions/EmaClose.mqh"
-#include "live/functions/MacdAt.mqh"
-#include "live/functions/TypicalPrice.mqh"
-#include "live/functions/SimpleCci.mqh"
-#include "live/functions/WilliamsR.mqh"
-#include "live/functions/SimpleRsi.mqh"
-#include "live/functions/StochK.mqh"
-#include "live/functions/StochD.mqh"
-#include "live/functions/ExtractFeatures.mqh"
-#include "live/functions/Softmax.mqh"
-#include "live/functions/Predict.mqh"
-#include "live/functions/Execute.mqh"
+#include "functions/OnInit.mqh"
+#include "functions/OnDeinit.mqh"
+#include "functions/OnTradeTransaction.mqh"
+#include "functions/DebugPrint.mqh"
+#include "functions/SignalName.mqh"
+#include "functions/BarBucket.mqh"
+#include "functions/BarOpenTime.mqh"
+#include "functions/StartBar.mqh"
+#include "functions/StartImbalanceBar.mqh"
+#include "functions/RollFixedTimeBarIfNeeded.mqh"
+#include "functions/ResolveImbalanceThresholdBase.mqh"
+#include "functions/StopDistance.mqh"
+#include "functions/TargetDistance.mqh"
+#include "functions/ResolveMinimumVolume.mqh"
+#include "functions/NormalizeVolume.mqh"
+#include "functions/CalculateTradeVolume.mqh"
+#include "functions/PrintRunSummary.mqh"
+#include "functions/UpdateTickSign.mqh"
+#include "functions/ProcessTick.mqh"
+#include "functions/ResolveAuxBid.mqh"
+#include "functions/UpdateIndicators.mqh"
+#include "functions/ShouldClosePrimaryBar.mqh"
+#include "functions/UpdatePrimaryImbalanceThreshold.mqh"
+#include "functions/CloseBar.mqh"
+#include "functions/OnTick.mqh"
+#include "functions/LoadHistory.mqh"
+#include "functions/ScaleAndClip.mqh"
+#include "functions/SafeLogRatio.mqh"
+#include "functions/LogReturnAt.mqh"
+#include "functions/ReturnOverBars.mqh"
+#include "functions/RollingStdReturn.mqh"
+#include "functions/MeanClose.mqh"
+#include "functions/StdClose.mqh"
+#include "functions/MaxHigh.mqh"
+#include "functions/MinLow.mqh"
+#include "functions/MeanTickCount.mqh"
+#include "functions/StdTickCount.mqh"
+#include "functions/MeanTickImbalance.mqh"
+#include "functions/MeanSpreadRel.mqh"
+#include "functions/StdSpreadRel.mqh"
+#include "functions/MeanAtrFeature.mqh"
+#include "functions/TrueRangeAt.mqh"
+#include "functions/SimpleAtr.mqh"
+#include "functions/EmaClose.mqh"
+#include "functions/MacdAt.mqh"
+#include "functions/TypicalPrice.mqh"
+#include "functions/SimpleCci.mqh"
+#include "functions/WilliamsR.mqh"
+#include "functions/SimpleRsi.mqh"
+#include "functions/StochK.mqh"
+#include "functions/StochD.mqh"
+#include "functions/ExtractFeatures.mqh"
+#include "functions/Softmax.mqh"
+#include "functions/Predict.mqh"
+#include "functions/Execute.mqh"
+#include "functions/PastDirAt.mqh"
