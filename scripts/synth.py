@@ -121,6 +121,10 @@ class TickGenerator:
         noise = self._get_noise(num_ticks, pattern_scale)
         return price + noise
     
+    def flat_pattern(self, num_ticks: int) -> np.ndarray:
+        """Constant price - used when randomness=0"""
+        return np.full(num_ticks, self.base_price)
+    
     def random_walk(self, num_ticks: int) -> np.ndarray:
         """Pure random walk - randomness controls pure chaos vs controlled walk
         
@@ -142,7 +146,10 @@ class TickGenerator:
 
     def generate_ticks(self, num_ticks: int, pattern_fn: Callable) -> np.ndarray:
         """Generate bid/ask prices from pattern function"""
-        mid_prices = pattern_fn(num_ticks)
+        if self.randomness <= 0:
+            mid_prices = self.flat_pattern(num_ticks)
+        else:
+            mid_prices = pattern_fn(num_ticks)
         
         if self.spread_variance > 0:
             spread_variation = np.random.normal(0, self.spread_variance, num_ticks)
@@ -243,11 +250,11 @@ def main():
         all_ticks = np.vstack(ticks)
     else:
         pattern_map = {
-            'trend': lambda: gen.trend_pattern(args.count),
-            'mean_reversion': lambda: gen.mean_reversion_pattern(args.count),
-            'reversal': lambda: gen.reversal_pattern(args.count),
-            'oscillation': lambda: gen.multi_scale_oscillation(args.count),
-            'random': lambda: gen.random_walk(args.count)
+            'trend': gen.trend_pattern,
+            'mean_reversion': gen.mean_reversion_pattern,
+            'reversal': gen.reversal_pattern,
+            'oscillation': gen.multi_scale_oscillation,
+            'random': gen.random_walk
         }
         all_ticks = gen.generate_ticks(args.count, pattern_map[args.pattern])
 
