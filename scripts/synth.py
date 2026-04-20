@@ -100,7 +100,7 @@ class TickGenerator:
 def main():
     parser = argparse.ArgumentParser(description="Generate synthetic tick data")
     parser.add_argument('-r', '--randomness', type=float, default=5.0, help='Randomness multiplier (any positive float, >100 warning)')
-    parser.add_argument('-n', '--name', type=str, default='default', help='Custom name for the output file')
+    parser.add_argument('-n', '--name', type=str, default='', help='Custom name for the output file')
     parser.add_argument('-c', '--count', type=int, default=1500, help='Number of ticks to generate')
     parser.add_argument('-p', '--pattern', type=str, default='mixed', choices=['trend', 'mean_reversion', 'reversal', 'oscillation', 'random', 'mixed'], help='Pattern to use')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging')
@@ -119,6 +119,21 @@ def main():
         args.count = 540000
         args.name = f"d{mmss}"
         logging.info(f"No arguments provided, using defaults: randomness={args.randomness}, count={args.count}, name={args.name}")
+
+    # If name still empty, generate d{mm}{ss}
+    if not args.name:
+        current = datetime.datetime.now()
+        args.name = current.strftime("%M%S")
+        args.name = f"d{args.name}"
+
+    # Check if file already exists
+    filename = f'data/synth/{args.name}.csv'
+    # Always add .csv extension (in case user already included it)
+    filename = filename.rstrip('.csv') + '.csv'
+    if os.path.exists(filename):
+        logging.error(f"File already exists: {filename}")
+        print(f"ERROR: File already exists: {filename}")
+        sys.exit(1)
 
     gen = TickGenerator(randomness=args.randomness)
     
@@ -159,7 +174,6 @@ def main():
     os.makedirs('data/synth', exist_ok=True)
 
     # Save to CSV
-    filename = f'data/synth/{args.name}.csv'
     logging.info(f"Saving {len(all_ticks)} ticks to {filename}")
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
