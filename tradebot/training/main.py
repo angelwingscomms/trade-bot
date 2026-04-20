@@ -29,6 +29,7 @@ def main() -> None:
     apply_shared_settings(
         project.values, project=project, shared_config_path=project.config_path
     )
+    log.info("Configuration dump:\n%s", json.dumps(SHARED, indent=2, sort_keys=True))
     # Update module globals from shared module after apply_shared_settings ran
     _keys = [
         "SHARED",
