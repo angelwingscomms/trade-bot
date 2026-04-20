@@ -120,7 +120,7 @@ def main():
     if args.pattern == 'mixed':
         # Generate mixed patterns like scenario 4
         ticks = []
-        patterns = [gen.trend_pattern, gen.mean_reversion_pattern, gen.reversal_pattern]
+        patterns = [gen.trend_pattern, gen.mean_reversion_pattern, gen.reversal_pattern, gen.multi_scale_oscillation]
         segment_ticks = args.count // len(patterns)
         for i, pattern in enumerate(patterns):
             logging.debug(f"Generating segment {i+1} with {segment_ticks} ticks")
