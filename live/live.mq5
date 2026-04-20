@@ -1,9 +1,9 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "BTCUSD"
-#define ACTIVE_MODEL_VERSION "20_04_2026-23_24__49-bitco"
-#include "../symbols/btcusd/models/20_04_2026-23_24__49-bitco/config.mqh"
-#resource "..\symbols\\btcusd\\models\\20_04_2026-23_24__49-bitco\\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_VERSION "20_04_2026-23_27__00-bitco"
+#include "../symbols/btcusd/models/20_04_2026-23_27__00-bitco/config.mqh"
+#resource "..\symbols\\btcusd\\models\\20_04_2026-23_27__00-bitco\\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
