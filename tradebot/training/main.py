@@ -29,6 +29,9 @@ def main() -> None:
     apply_shared_settings(
         project.values, project=project, shared_config_path=project.config_path
     )
+    log.info("Configuration dump:")
+    for k, v in sorted(SHARED.items()):
+        log.info("  %s = %r", k, v)
     # Update module globals from shared module after apply_shared_settings ran
     _keys = [
         "SHARED",
