@@ -118,7 +118,7 @@ def main():
         mmss = current.strftime("%M%S")
         args.randomness = 0
         args.count = 14400000
-        args.name = f"defaultmmss{mmss}"
+        args.name = f"default{mmss}"
         logging.info(f"No arguments provided, using defaults: randomness={args.randomness}, count={args.count}, name={args.name}")
 
     randomness = Randomness(args.randomness)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import keyboard
 
 import tradebot.training.shared as _shared
@@ -23,6 +24,7 @@ def _on_ctrl_k():
 def main() -> None:
     global _stop_requested
     _stop_requested = False
+    logging.basicConfig(level=logging.INFO)
     t0 = time.time()
     args = parse_args()
     project = args.config_project
