@@ -137,7 +137,7 @@ def main():
 
     # Add timestamps
     start_time = int(time.time() * 1000)
-    times = np.arange(args.count) * 100 + start_time  # 100ms intervals
+    times = np.arange(len(all_ticks)) * 100 + start_time  # 100ms intervals
     all_ticks = np.column_stack([times, all_ticks])
 
     # Ensure directory exists
