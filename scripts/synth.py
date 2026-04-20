@@ -116,8 +116,8 @@ def main():
     if len(sys.argv) == 1:
         current = datetime.datetime.now()
         mmss = current.strftime("%M%S")
-        args.count = 14400000
-        args.name = f"default{mmss}"
+        args.count = 540000
+        args.name = f"d{mmss}"
         logging.info(f"No arguments provided, using defaults: randomness={args.randomness}, count={args.count}, name={args.name}")
 
     randomness = Randomness(args.randomness)
@@ -164,6 +164,7 @@ def main():
         writer.writerows(all_ticks)
 
     logging.info("Data generation and saving completed")
+    logging.info(f"Randomness level used: {args.randomness}")
     print(f"Generated {len(all_ticks)} ticks and saved to {filename}")
 
 if __name__ == '__main__':

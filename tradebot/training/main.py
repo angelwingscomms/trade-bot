@@ -7,7 +7,7 @@ import keyboard
 import tradebot.training.shared as _shared
 
 from .shared import *  # noqa: F401,F403
-from .build_dataset_fingerprint import build_dataset_fingerprint
+from .build_dataset_fingerprint import build_dataset_fingerprint as _build_dataset_fingerprint
 
 _stop_requested = False
 
@@ -18,7 +18,10 @@ def _on_ctrl_k():
     log.warning("CTRL+K pressed - stopping after current epoch...")
 
 
-keyboard.add_hotkey("ctrl+i", _on_ctrl_k)
+try:
+    keyboard.add_hotkey("ctrl+i", _on_ctrl_k)
+except ImportError:
+    pass
 
 
 def main() -> None:
@@ -885,6 +888,7 @@ def main() -> None:
 
         best_state = None
         best_val_loss = float("inf")
+        best_train_loss = float("inf")
         wait = 0
 
         for epoch in tqdm(range(args.epochs), desc="Training"):
@@ -901,6 +905,7 @@ def main() -> None:
                 optimizer.step()
                 train_losses.append(float(loss.item()))
 
+            current_train_loss = float(np.mean(train_losses))
             val_logits, val_labels = run_model_evaluation(
                 training_model, val_loader, device
             )
@@ -911,12 +916,14 @@ def main() -> None:
                 ).item()
             )
             log.info(
-                "Epoch %02d | train_loss=%.4f val_loss=%.4f wait=%d/%d",
+                "Epoch %02d | train_loss=%.4f val_loss=%.4f wait=%d/%d | best train_loss=%.4f val_loss=%.4f",
                 epoch,
-                float(np.mean(train_losses)),
+                current_train_loss,
                 val_loss,
                 wait,
                 args.patience,
+                best_train_loss,
+                best_val_loss,
             )
             if scheduler is not None:
                 scheduler.step(val_loss)
@@ -927,6 +934,7 @@ def main() -> None:
 
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
+                best_train_loss = current_train_loss
                 best_state = {
                     k: v.detach().cpu().clone()
                     for k, v in training_model.state_dict().items()
@@ -1022,7 +1030,7 @@ def main() -> None:
     if export_model is None:
         raise RuntimeError("Model export path was not initialized.")
 
-    dataset_fingerprint = build_dataset_fingerprint(data_path)
+    dataset_fingerprint = _build_dataset_fingerprint(data_path)
     completed_at = datetime.now()
     model_dir_name = format_model_dir_name(
         value=completed_at,
@@ -1074,7 +1082,7 @@ def main() -> None:
         config=DiagnosticsConfig(
             current_config_name=CURRENT_CONFIG_PATH.name,
             seq_len=SEQ_LEN,
-            target_horizon=LABEL_TIMEOUT_BARS,
+            label_timeout_bars=LABEL_TIMEOUT_BARS,
             primary_bar_seconds=PRIMARY_BAR_SECONDS,
             imbalance_min_ticks=IMBALANCE_MIN_TICKS,
             imbalance_ema_span=IMBALANCE_EMA_SPAN,
