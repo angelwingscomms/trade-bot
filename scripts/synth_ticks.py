@@ -138,4 +138,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-<parameter name="filePath">synth_ticks.py
