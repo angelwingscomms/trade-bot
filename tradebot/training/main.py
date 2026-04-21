@@ -1197,7 +1197,8 @@ def main() -> None:
         flip=flip,
     )
     if not archive_only:
-        shutil.rmtree(ACTIVE_DIAGNOSTICS_DIR, ignore_errors=True)
+        import subprocess
+        subprocess.run(['rm', '-rf', str(ACTIVE_DIAGNOSTICS_DIR)], capture_output=True)
         shutil.copytree(diagnostics_dir, ACTIVE_DIAGNOSTICS_DIR)
     ensure_default_test_config(model_test_dir, symbol=SYMBOL)
 
