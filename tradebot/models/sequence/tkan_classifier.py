@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import torch
-import torch.nn.functional as F
 from torch import nn
+
+from efficient_kan import KANLinear
+from tradebot.models.sequence.sequence_instance_norm import SequenceInstanceNorm
 
 
 class ScalperMicrostructureClassifier(nn.Module):
@@ -19,7 +21,7 @@ class ScalperMicrostructureClassifier(nn.Module):
         dropout: float = 0.3,
     ):
         super().__init__()
-        self.sequence_norm = nn.InstanceNorm1d(n_features, affine=False)
+        self.sequence_norm = SequenceInstanceNorm(n_features)
 
         self.encoder = nn.LSTM(
             n_features,
@@ -33,12 +35,12 @@ class ScalperMicrostructureClassifier(nn.Module):
 
         classifier_in_dim = latent_dim + n_features
         self.dense_shared = nn.Sequential(
-            nn.Linear(classifier_in_dim, dense_hidden),
+            KANLinear(classifier_in_dim, dense_hidden),
             nn.SiLU(),
             nn.Dropout(dropout),
         )
-        self.state_branch = nn.Linear(dense_hidden, 1)
-        self.direction_branch = nn.Linear(dense_hidden, n_classes)
+        self.state_branch = KANLinear(dense_hidden, 1)
+        self.direction_branch = KANLinear(dense_hidden, n_classes)
         self.l1_lambda = 1e-4
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -56,8 +58,9 @@ class ScalperMicrostructureClassifier(nn.Module):
         return direction_val
 
     def l1_sparsity_penalty(self) -> torch.Tensor:
-        l1 = 0.0
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                l1 += m.weight.abs().sum()
-        return self.l1_lambda * l1
+        return self.l1_lambda * sum(
+            p.abs().sum()
+            for m in self.modules()
+            if isinstance(m, KANLinear)
+            for p in m.parameters()
+        )
