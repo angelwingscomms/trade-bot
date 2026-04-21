@@ -1,9 +1,9 @@
 #include <Trade\Trade.mqh>
 // @active-model-reference begin
 #define ACTIVE_MODEL_SYMBOL "XAUUSD"
-#define ACTIVE_MODEL_VERSION "21_04_2026-17_17__31-i"
-#include "../symbols/xauusd/models/21_04_2026-17_17__31-i/config.mqh"
-#resource "\\Experts\\9\\symbols\\xauusd\\models\\21_04_2026-17_17__31-i\\model.onnx" as uchar model_buffer[]
+#define ACTIVE_MODEL_VERSION "0421-183535-i"
+#include "../symbols/xauusd/models/0421-183535-i/config.mqh"
+#resource "\\Experts\\9\\symbols\\xauusd\\models\\0421-183535-i\\model.onnx" as uchar model_buffer[]
 // @active-model-reference end
 
 #ifndef MODEL_USE_ATR_RISK
@@ -89,7 +89,7 @@ int warmup_count = 0;
 double warmup_sum_feature = 0.0;
 double warmup_sum_trade = 0.0;
 float input_data[INPUT_BUFFER_SIZE];
-float output_data[3];
+float output_data[2];
 int prediction_count = 0;
 int hold_skip_count = 0;
 int confidence_skip_count = 0;
