@@ -38,19 +38,16 @@ LIVE_EX5_PATH = ROOT_DIR / "mt5" / "compiled" / "live.ex5"
 LIVE_COMPILE_LOG_PATH = ROOT_DIR / "mt5" / "logs" / "live.compile.log"
 
 DEFAULT_METAEDITOR_PATH = DEFAULT_WINDOWS_METAEDITOR_PATH
-DEFAULT_MODEL_STAMP_FORMAT = "%d_%m_%Y-%H_%M__%S"
+DEFAULT_MODEL_STAMP_FORMAT = "%m%d-%H%M%S"
 MODEL_STAMP_FORMATS = (
     DEFAULT_MODEL_STAMP_FORMAT,
-    "%d_%m_%Y-%H_%M_%S",
-    "%d__%m__%Y-%H_%M__%S",
-    "%d__%m__%Y-%H_%M_%S",
-    "%Y%m%d_%H%M%S",
+    "%m%d-%H%M_%S",
 )
 MODEL_STAMP_PREFIX_PATTERN = re.compile(
-    r"^(?P<stamp>\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2})(?:-|$)"
+    r"^(?P<stamp>\d{4}-\d{2}\d{2}\d{2})(?:-|$)"
 )
 MODEL_STAMP_SUFFIX_PATTERN = re.compile(
-    r"(?P<stamp>\d{2}_\d{2}_\d{4}-\d{2}_\d{2}(?:__|_)\d{2})(?:-fail)?$"
+    r"(?P<stamp>\d{4}-\d{2}\d{2}\d{2})(?:-fail)?$"
 )
 COMPILE_RESULT_PATTERN = re.compile(r"Result:\s+(\d+)\s+errors?,\s+(\d+)\s+warnings?")
 
