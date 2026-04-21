@@ -3,6 +3,12 @@ from __future__ import annotations
 from .shared import *  # noqa: F401,F403
 
 def make_class_weights(labels: np.ndarray, class_count: int = 3) -> torch.Tensor:
+    class_count = 3
+    if labels.size == 0:
+        return torch.ones(class_count, dtype=torch.float32)
+    labels = labels.copy()
+    labels[np.isnan(labels)] = 2
+    labels = labels.astype(np.int64)
     counts = np.bincount(labels, minlength=class_count).astype(np.float32)
     weights = np.ones(class_count, dtype=np.float32)
     total = counts.sum()

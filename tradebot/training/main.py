@@ -879,9 +879,9 @@ def main() -> None:
                 training_model, "backend_name", "portable-mamba-lite"
             )
 
-        class_weights = build_class_weights(
-            y_train, class_count=len(active_label_names)
-        ).to(device)
+        class_weights = None
+        if len(active_label_names) >= 3:
+            class_weights = build_class_weights(y_train, class_count=3).to(device)
         if loss_mode == "cross-entropy":
             criterion: nn.Module = nn.CrossEntropyLoss(weight=class_weights).to(device)
         else:
