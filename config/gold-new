@@ -1,3 +1,0 @@
-// Architecture-only preset for the upgraded gold head.
-#define MODEL_ARCHITECTURE "gold_new"
-

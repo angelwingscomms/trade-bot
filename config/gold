@@ -1,3 +1,0 @@
-// Architecture-only preset for the legacy gold head.
-#define MODEL_ARCHITECTURE "gold_legacy"
-
