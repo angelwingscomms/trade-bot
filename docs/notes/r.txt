@@ -1,2 +1,0 @@
-add ctrl k behaviour to readme
-add the part_dir thing to readme

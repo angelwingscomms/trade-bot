@@ -20,7 +20,7 @@ def get_triple_barrier_labels(
         ).to_numpy(dtype=np.float64, copy=False)
 
     labels = np.zeros(len(bars), dtype=np.int64)
-    for i in range(len(bars) - TARGET_HORIZON):
+    for i in range(len(bars)):
         long_entry = close[i] + spread[i]
         short_entry = close[i]
         if use_atr_risk:
@@ -39,7 +39,9 @@ def get_triple_barrier_labels(
 
         long_result = 0
         short_result = 0
-        for j in range(i + 1, i + TARGET_HORIZON + 1):
+        # Scan forward up to LABEL_TIMEOUT_BARS bars
+        max_j = min(i + LABEL_TIMEOUT_BARS + 1, len(bars))
+        for j in range(i + 1, max_j):
             if long_result == 0:
                 hit_tp = high[j] >= long_tp
                 hit_sl = low[j] <= long_sl

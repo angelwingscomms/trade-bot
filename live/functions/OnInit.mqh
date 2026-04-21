@@ -36,7 +36,7 @@ int OnInit() {
       StringFormat(
          "init seq=%d horizon=%d history=%d bar_mode=%s imbalance_min_ticks=%d imbalance_span=%d bar_seconds=%d tick_density=%d risk_mode=%s fixed_move=%.2f sl=%.2f tp=%.2f lot=%.2f risk_pct=%.3f primary_conf=%.2f",
          SEQ_LEN,
-         TARGET_HORIZON,
+         LABEL_TIMEOUT_BARS,
          REQUIRED_HISTORY_INDEX,
          (MODEL_USE_FIXED_TICK_BARS != 0 ? "FIXED_TICK" : (MODEL_USE_FIXED_TIME_BARS != 0 ? "FIXED_TIME" : "IMBALANCE")),
          IMBALANCE_MIN_TICKS,

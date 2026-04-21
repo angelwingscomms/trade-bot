@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "deposit": 10000.0,
+  "from_date": "",
+  "leverage": "1:2000",
+  "month": "",
+  "retries": 1,
+  "symbol": "BTCUSD",
+  "timeout_seconds": 600,
+  "to_date": ""
+}

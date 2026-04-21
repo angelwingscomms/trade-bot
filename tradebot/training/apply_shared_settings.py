@@ -14,7 +14,7 @@ def apply_shared_settings(
     global CURRENT_CONFIG_PATH
     global SYMBOL
     global SEQ_LEN
-    global TARGET_HORIZON
+    global LABEL_TIMEOUT_BARS
     global FEATURE_ATR_PERIOD
     global FEATURE_ATR_RATIO_PERIOD
     global FEATURE_BOLLINGER_PERIOD
@@ -76,7 +76,7 @@ def apply_shared_settings(
 
     _sm.SYMBOL = str(_sm.SHARED.get("SYMBOL", "XAUUSD")).strip() or "XAUUSD"
     _sm.SEQ_LEN = int(_sm.SHARED["SEQ_LEN"])
-    _sm.TARGET_HORIZON = int(_sm.SHARED["TARGET_HORIZON"])
+    _sm.LABEL_TIMEOUT_BARS = int(_sm.SHARED["LABEL_TIMEOUT_BARS"])
     _sm.FEATURE_ATR_PERIOD = int(_sm.SHARED["FEATURE_ATR_PERIOD"])
     _sm.FEATURE_ATR_RATIO_PERIOD = int(_sm.SHARED["FEATURE_ATR_RATIO_PERIOD"])
     _sm.FEATURE_BOLLINGER_PERIOD = int(_sm.SHARED["FEATURE_BOLLINGER_PERIOD"])

@@ -7,7 +7,7 @@ from .shared import *  # noqa: F401,F403
 class DiagnosticsConfig:
     current_config_name: str
     seq_len: int
-    target_horizon: int
+    label_timeout_bars: int
     primary_bar_seconds: int
     imbalance_min_ticks: int
     imbalance_ema_span: int

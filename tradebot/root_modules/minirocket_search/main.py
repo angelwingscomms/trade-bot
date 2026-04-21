@@ -17,7 +17,7 @@ def main() -> None:
     x_all = nn.compute_features(bars)
     x = x_all[nn.WARMUP_BARS :]
     n_rows = len(x)
-    embargo = max(nn.SEQ_LEN, nn.TARGET_HORIZON)
+    embargo = max(nn.SEQ_LEN, nn.LABEL_TIMEOUT_BARS)
 
     train_end = int(n_rows * 0.70)
     val_end = int(n_rows * 0.85)

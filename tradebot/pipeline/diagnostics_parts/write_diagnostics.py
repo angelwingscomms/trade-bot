@@ -99,7 +99,7 @@ def write_diagnostics(
         "",
         "## Shared Config",
         f"- seq_len: {config.seq_len}",
-        f"- target_horizon: {config.target_horizon}",
+        f"- label_timeout_bars: {config.label_timeout_bars}",
         f"- bar_mode: {'FIXED_TICK' if use_fixed_tick_bars else ('FIXED_TIME' if use_fixed_time_bars else 'IMBALANCE')}",
         *(
             [f"- primary_bar_seconds: {config.primary_bar_seconds}"]

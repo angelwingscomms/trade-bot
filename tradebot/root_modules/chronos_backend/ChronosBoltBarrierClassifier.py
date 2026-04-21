@@ -30,7 +30,7 @@ class ChronosBoltBarrierClassifier(nn.Module):
         if self.prediction_length > model_prediction_length:
             raise ValueError(
                 f"Chronos-Bolt backend supports prediction_length <= {model_prediction_length}, "
-                f"but TARGET_HORIZON={self.prediction_length}."
+                f"but LABEL_TIMEOUT_BARS={self.prediction_length}."
             )
         self.patch_size = int(getattr(self.bolt.chronos_config, "input_patch_size", 0))
         self.context_tail_lengths = (0,)

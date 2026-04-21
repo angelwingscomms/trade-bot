@@ -1,7 +1,7 @@
 // Default reusable XAUUSD preset.
 
 #define ARCHITECTURE_CONFIG "symbols/xauusd/config/gold.config"
-#define DATA_FILE "data/XAUUSD/ticks.csv"
+#define DATA_FILE "data/gold.csv"
 #define MODEL_NAME "xau-default"
 #define SYMBOL "XAUUSD"
 
@@ -116,7 +116,7 @@
 #define LABEL_TP_MULTIPLIER 5.4
 #define SEQ_LEN 144
 #define TARGET_ATR_PERIOD 9
-#define TARGET_HORIZON 3
+#define LABEL_TIMEOUT_BARS 100
 #define USE_FIXED_TARGETS true
 
 #define DEFAULT_BROKER_MIN_LOT_SIZE 0.01

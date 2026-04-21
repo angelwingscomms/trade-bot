@@ -17,9 +17,9 @@ def train_once(
     min_selected_trades: int,
 ) -> dict[str, float | int]:
     device = torch.device("cpu")
-    train_end_idx_all = nn.build_segment_end_indices(valid_mask, *train_range, nn.SEQ_LEN, nn.TARGET_HORIZON)
-    val_end_idx_all = nn.build_segment_end_indices(valid_mask, *val_range, nn.SEQ_LEN, nn.TARGET_HORIZON)
-    test_end_idx_all = nn.build_segment_end_indices(valid_mask, *test_range, nn.SEQ_LEN, nn.TARGET_HORIZON)
+    train_end_idx_all = nn.build_segment_end_indices(valid_mask, *train_range, nn.SEQ_LEN, nn.LABEL_TIMEOUT_BARS)
+    val_end_idx_all = nn.build_segment_end_indices(valid_mask, *val_range, nn.SEQ_LEN, nn.LABEL_TIMEOUT_BARS)
+    test_end_idx_all = nn.build_segment_end_indices(valid_mask, *test_range, nn.SEQ_LEN, nn.LABEL_TIMEOUT_BARS)
     train_end_idx = nn.choose_evenly_spaced(train_end_idx_all, train_windows)
     val_end_idx = nn.choose_evenly_spaced(val_end_idx_all, eval_windows)
     test_end_idx = nn.choose_evenly_spaced(test_end_idx_all, eval_windows)

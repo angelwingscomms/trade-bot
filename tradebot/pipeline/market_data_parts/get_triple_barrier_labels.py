@@ -8,7 +8,7 @@ def get_triple_barrier_labels(
     *,
     use_atr_risk: bool,
     fixed_move_price: float,
-    target_horizon: int,
+    label_timeout_bars: int,
     target_atr_period: int,
     label_tp_multiplier: float,
     label_sl_multiplier: float,
@@ -16,6 +16,9 @@ def get_triple_barrier_labels(
     fixed_tp_price: float | None = None,
 ) -> np.ndarray:
     """Generate triple-barrier labels.
+
+    Scans forward up to label_timeout_bars bars. If neither TP nor SL is hit,
+    labels the bar as 0 (hold).
 
     In ATR mode: SL/TP are label_sl_multiplier/label_tp_multiplier * ATR.
     In fixed mode: SL uses fixed_sl_price (falls back to fixed_move_price),
@@ -42,7 +45,7 @@ def get_triple_barrier_labels(
     _fixed_tp = fixed_tp_price if fixed_tp_price is not None else fixed_move_price
 
     labels = np.zeros(len(bars), dtype=np.int64)
-    for i in range(len(bars) - target_horizon):
+    for i in range(len(bars)):
         long_entry = close[i] + spread[i]
         short_entry = close[i]
         if use_atr_risk:
@@ -61,7 +64,9 @@ def get_triple_barrier_labels(
 
         long_result = 0
         short_result = 0
-        for j in range(i + 1, i + target_horizon + 1):
+        # Scan forward up to label_timeout_bars bars for TP/SL hits
+        max_j = min(i + label_timeout_bars + 1, len(bars))
+        for j in range(i + 1, max_j):
             if long_result == 0:
                 hit_tp = high[j] >= long_tp
                 hit_sl = low[j] <= long_sl

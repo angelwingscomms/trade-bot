@@ -1,10 +1,43 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 from common.past_dir_features import parse_past_dir_spec
 
+from tradebot.training.wavelet_regime_timing import (
+    denoise_ohlc_dataframe,
+    compute_regime_features,
+    add_intrabar_timing_features,
+    add_usdx_regime_features,
+    add_usdjpy_regime_features,
+    WAVELET_REGIME_TIMING_FEATURES,
+)
+
 from .shared import *  # noqa: F401,F403
+
+
+def _apply_wavelet_regime_timing_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Apply wavelet denoising, regime features, and timing features to bars."""
+    df = df.copy()
+
+    time_open = df["time_open"].astype(np.int64)
+    df["_time_index"] = pd.to_datetime(time_open, unit="ms", utc=True)
+    df = df.set_index("_time_index")
+
+    ohlc_cols = ['open', 'high', 'low', 'close']
+    available_ohlc = [c for c in ohlc_cols if c in df.columns]
+    if len(available_ohlc) == len(ohlc_cols):
+        df = denoise_ohlc_dataframe(df, price_columns=ohlc_cols)
+
+    df = compute_regime_features(df, close_col='close')
+    df = add_usdx_regime_features(df, usdx_col='usdx_bid')
+    df = add_usdjpy_regime_features(df, usdjpy_col='usdjpy_bid')
+    df = add_intrabar_timing_features(df)
+
+    df = df.reset_index(drop=True)
+
+    return df
 
 
 def compute_feature_frame(
@@ -12,6 +45,12 @@ def compute_feature_frame(
     feature_columns: tuple[str, ...],
     config: FeatureEngineeringConfig,
 ) -> pd.DataFrame:
+    needs_wavelet_regime_timing = any(
+        feat in WAVELET_REGIME_TIMING_FEATURES for feat in feature_columns
+    )
+    if needs_wavelet_regime_timing:
+        df = _apply_wavelet_regime_timing_features(df)
+
     close = df["close"].astype(float)
     open_price = df["open"].astype(float)
     high = df["high"].astype(float)
