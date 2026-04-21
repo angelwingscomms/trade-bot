@@ -1,5 +1,5 @@
 // SECTION 1: MODEL IDENTITY
-#define MODEL_ARCHITECTURE "i"
+#define MODEL_ARCHITECTURE "i9"
 #define DATA_FILE "data/gold.csv"
 #define MODEL_NAME "i"
 #define SYMBOL "XAUUSD"
