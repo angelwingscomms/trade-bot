@@ -40,6 +40,7 @@ from tradebot.models.sequence import (
     TCNClassifier,
     TemporalLSTMAttentionClassifier,
     TKAN,
+    EmbTCNClassifier,
 )
 from tradebot.pipeline.diagnostics import DiagnosticsConfig
 from tradebot.pipeline.diagnostics import write_diagnostics as write_diagnostics_report

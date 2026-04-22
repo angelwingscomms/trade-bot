@@ -758,6 +758,17 @@ def main() -> None:
                     training_model = TCNClassifier(
                         n_features=feature_count,
                     ).to(device)
+                elif architecture == "embtcn":
+                    training_model = EmbTCNClassifier(
+                        n_features=feature_count,
+                        channels=64,
+                        hidden=64,
+                        dense_hidden=48,
+                        n_classes=len(active_label_names),
+                        attention_heads=2,
+                        attention_dropout=args.attention_dropout,
+                        dropout=args.sequence_dropout,
+                    ).to(device)
                 elif architecture == "tla":
                     training_model = TemporalLSTMAttentionClassifier(
                         n_features=feature_count,

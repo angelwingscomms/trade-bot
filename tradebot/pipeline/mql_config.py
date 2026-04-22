@@ -68,6 +68,7 @@ def build_mql_config(
         ("MODEL_USE_BILSTM", 1 if architecture == "bilstm" else 0),
         ("MODEL_USE_GRU", 1 if architecture == "gru" else 0),
         ("MODEL_USE_TCN", 1 if architecture == "tcn" else 0),
+        ("MODEL_USE_EMBTCN", 1 if architecture == "embtcn" else 0),
         ("MODEL_USE_TLA", 1 if architecture == "tla" else 0),
         ("MODEL_USE_LEGACY_LSTM_ATTENTION", 1 if architecture == "legacy_lstm_attention" else 0),
         ("MODEL_USE_CHRONOS", 1 if architecture == "chronos_bolt" else 0),
