@@ -43,10 +43,10 @@ class TKAN(nn.Module):
         self.latent_norm = nn.LayerNorm(256)
 
         self.head = nn.Sequential(
-            KANLinear(256, proj_dim, grid_size=5, spline_order=3),
+            KANLinear(256, proj_dim, grid_size=3, spline_order=2),
             nn.SiLU(),
             nn.Dropout(dropout),
-            KANLinear(proj_dim, n_classes, grid_size=5, spline_order=3),
+            KANLinear(proj_dim, n_classes, grid_size=3, spline_order=2),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

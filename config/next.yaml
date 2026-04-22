@@ -8,7 +8,7 @@ system:
   use_chronos_auto_context: false
   use_chronos_ensemble_contexts: false
   use_chronos_patch_aligned_context: false
-  use_custom_learning_rate: false
+  use_custom_learning_rate: true
   use_custom_weight_decay: false
   use_max_bars: false
   use_confidence_threshold: false
@@ -29,7 +29,7 @@ architecture:
     sequence_hidden_size: 64
     sequence_layers: 1
   kan:
-    kan_proj_dim: 512
+    kan_proj_dim: 32
     l1_lambda: 0.0001
   attention:
     attention_dim: 64
@@ -69,7 +69,7 @@ training:
   default_max_train_windows: 54000
   default_patience: 27
   focal_gamma: 2.0
-  learning_rate: 0.0
+  learning_rate: 0.00001
   loss_mode: auto
   minirocket_features: 10080
   min_selected_trades: 15

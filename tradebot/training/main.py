@@ -940,6 +940,8 @@ def main() -> None:
                         yb_flipped[yb == 1] = 2
                         yb_flipped[yb == 2] = 1
                 loss = criterion(logits, yb_flipped.to(device))
+                if architecture == "tkan":
+                    loss = loss + training_model.l1_sparsity_penalty()
                 optimizer.zero_grad()
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(training_model.parameters(), 1.0)
