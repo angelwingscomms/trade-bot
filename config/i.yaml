@@ -1,0 +1,186 @@
+system:
+  device: cpu
+  flip: true
+  max_bars: 0
+  metaeditor_path: ""
+  skip_live_compile: true
+  use_all_windows: false
+  use_chronos_auto_context: false
+  use_chronos_ensemble_contexts: false
+  use_chronos_patch_aligned_context: false
+  use_custom_learning_rate: false
+  use_custom_weight_decay: false
+  use_max_bars: false
+  use_confidence_threshold: true
+  use_no_hold: true
+  use_balanced_sampling: true
+  label_smoothing: 0.0
+
+model_identity:
+  data_file: data/gold.csv
+  model_name: i
+  symbol: XAUUSD
+
+architecture:
+  main:
+    model_architecture: tkan
+  sequence:
+    sequence_droput: 0.15
+    sequence_hidden_size: 64
+    sequence_layers: 1
+  kan:
+    kan_proj_dim: 512
+    l1_lambda: 0.0001
+  attention:
+    attention_dim: 64
+    attention_dropout: 0.10
+    attention_heads: 4
+    attention_layers: 1
+    use_multihead_attention: true
+
+target:
+  default_fixed_move: 3600
+  label_timeout_bars: 9
+  label_sl_multiplier: 1.0
+  label_tp_multiplier: 1.2
+  seq_len: 9
+  target_atr_period: 9
+  use_fixed_targets: true
+
+trade_sizing:
+  default_broker_min_lot_size: 0.01
+  default_lot_size: 0.10
+  default_lot_size_cap: 0.10
+  default_risk_percent: 0.00
+  default_sl_multiplier: 2.0
+  default_tp_multiplier: 2.5
+  use_broker_min_lot_size: false
+  use_lot_size_cap: true
+  use_risk_percent: false
+
+training:
+  confidence_search_max: 0.99
+  confidence_search_min: 0.40
+  confidence_search_steps: 40
+  default_batch_size: 32
+  default_epochs: 54
+  default_loss_mode: cross-entropy
+  default_max_eval_windows: 1440
+  default_max_train_windows: 14400
+  default_patience: 3
+  focal_gamma: 2.0
+  learning_rate: 0.0
+  loss_mode: auto
+  minirocket_features: 10080
+  min_selected_trades: 15
+  min_trade_precision: 0.52
+  weight_decay: 0.0
+
+features:
+  toggles:
+    price_action:
+      feature_body_rel: true
+      feature_close_in_range: true
+      feature_close_rel_sma_20: true
+      feature_close_rel_sma_3: true
+      feature_close_rel_sma_9: true
+      feature_high_rel_prev: true
+      feature_lower_wick_rel: true
+      feature_low_rel_prev: true
+      feature_open_rel_prev: true
+      feature_range_rel: true
+      feature_ret1: true
+      feature_ret_12: true
+      feature_ret_2: true
+      feature_ret_20: true
+      feature_ret_3: true
+      feature_ret_6: true
+      feature_return_n: true
+      feature_rv: true
+      feature_rv_18: true
+      feature_tick_count_chg: true
+      feature_tick_count_rel_9: true
+      feature_tick_count_z_9: true
+      feature_tick_imbalance: true
+      feature_tick_imbalance_sma_5: true
+      feature_tick_imbalance_sma_9: true
+      feature_upper_wick_rel: true
+      feature_usdjpy_ret1: true
+      feature_usdx_ret1: true
+    oscillators:
+      feature_stoch_d_3: true
+      feature_stoch_gap: true
+      feature_stoch_k_9: true
+      feature_rsi_14: true
+      feature_rsi_6: true
+    volatility:
+      feature_atr_ratio_20: true
+      feature_atr_rel: true
+      feature_bollinger_pos_20: true
+      feature_bollinger_width_20: true
+      feature_donchian_pos_20: true
+      feature_donchian_pos_9: true
+      feature_donchian_width_20: true
+      feature_donchian_width_9: true
+      feature_sma_3_9_gap: true
+      feature_sma_5_20_gap: true
+      feature_sma_9_20_gap: true
+      feature_sma_slope_20: true
+      feature_sma_slope_9: true
+      feature_spread_rel: true
+      feature_spread_z_9: true
+  periods:
+    price_action:
+      feature_ret_12_period: 12
+      feature_ret_20_period: 20
+      feature_ret_2_period: 2
+      feature_ret_3_period: 3
+      feature_ret_6_period: 6
+      feature_rv_long_period: 14
+      feature_tick_count_period: 7
+      feature_tick_imbalance_fast_period: 4
+      feature_tick_imbalance_slow_period: 8
+      feature_main_short_period: 7
+      feature_main_medium_period: 14
+      feature_main_long_period: 21
+      feature_main_xlong_period: 42
+      feature_main_xxlong_period: 84
+      feature_macd_fast_period: 12
+      feature_macd_slow_period: 26
+      feature_macd_signal_period: 9
+      return_period: 5
+      rv_period: 5
+    oscillators:
+      feature_rsi_fast_period: 6
+      feature_rsi_slow_period: 14
+      feature_stoch_period: 7
+      feature_stoch_smooth_period: 3
+    volatility:
+      feature_atr_period: 7
+      feature_atr_ratio_period: 14
+      feature_bollinger_period: 14
+      feature_donchian_fast_period: 7
+      feature_donchian_slow_period: 14
+      feature_sma_fast_period: 2
+      feature_sma_mid_period: 5
+      feature_sma_slope_shift: 2
+      feature_sma_slow_period: 12
+      feature_sma_trend_fast_period: 4
+      feature_spread_z_period: 7
+  sets:
+    use_main_feature_set: false
+    use_minimal_feature_set: true
+    use_gold_context: true
+
+bars:
+  imbalance:
+    imbalance_ema_span: 3
+    imbalance_min_ticks: 3
+  density:
+    primary_bar_seconds: 3
+    primary_tick_density: 144
+  options:
+    use_fixed_tick_bars: true
+    use_imbalance_ema_threshold: true
+    use_imbalance_min_ticks_div3_threshold: true
+    use_fixed_time_bars: false

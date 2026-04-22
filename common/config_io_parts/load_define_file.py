@@ -7,16 +7,45 @@ from .shared import DEFINE_PATTERN, Scalar
 
 
 def load_define_file(path: Path) -> dict[str, Scalar]:
-    """Load all `#define` entries from a config file or directory.
+    """Load all `#define` entries from a config file, directory, or YAML file.
 
-    If path is a file, loads that single file.
-    If path is a directory, recursively loads all .mqh files in alphabetical order,
-    then all non-file/non-directory items (config files without extension).
-    Directories are processed first in alphabetical order, then files.
+    If path is a .yaml file, loads YAML and flattens nested keys.
+    If path is a directory, recursively loads all config files.
+    If path is a .mqh/.ini file, loads #define entries.
     """
+    if path.suffix in (".yaml", ".yml"):
+        return _load_yaml_file(path)
     if path.is_dir():
         return _load_config_dir(path)
     return _load_config_file(path)
+
+
+def _load_yaml_file(path: Path) -> dict[str, Scalar]:
+    """Load a YAML file and flatten nested keys to uppercase with underscores."""
+    import yaml
+
+    with open(path, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    if not data:
+        return {}
+
+    result: dict[str, Scalar] = {}
+    _flatten_yaml(data, "", result)
+    return result
+
+
+def _flatten_yaml(obj: dict | list | any, prefix: str, result: dict[str, Scalar]) -> None:
+    """Recursively flatten nested YAML into flat uppercase keys."""
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            new_prefix = f"{prefix}_{key}".upper() if prefix else key.upper()
+            _flatten_yaml(value, new_prefix, result)
+    elif isinstance(obj, list):
+        for i, item in enumerate(obj):
+            _flatten_yaml(item, f"{prefix}_{i}", result)
+    else:
+        result[prefix] = obj
 
 
 def _load_config_dir(dir_path: Path) -> dict[str, Scalar]:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .shared import *  # noqa: F401,F403
 
+
 def build_mql_config(
     project: ResolvedProjectConfig,
     median: np.ndarray,
@@ -17,7 +18,13 @@ def build_mql_config(
     use_fixed_tick_bars: bool,
     flip: bool,
 ) -> str:
-    base_text = project.config_path.read_text(encoding="utf-8").rstrip()
+    from common.config_io_parts import load_define_file
+
+    if project.config_path.suffix in (".yaml", ".yml") or project.config_path.is_dir():
+        base_values = load_define_file(project.config_path)
+        base_text = "\n".join(f"#define {k} {render_define_value(v)}" for k, v in sorted(base_values.items()))
+    else:
+        base_text = project.config_path.read_text(encoding="utf-8").rstrip()
     def override_define(name: str, value: bool | int | float | str) -> list[str]:
         return [
             f"#ifdef {name}",

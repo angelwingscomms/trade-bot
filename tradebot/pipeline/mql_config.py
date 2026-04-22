@@ -32,7 +32,7 @@ def build_mql_config(
     flip: bool = False,
 ) -> str:
     from tradebot.config_io import load_define_file, render_define_value as render_val
-    if project.config_path.is_dir():
+    if project.config_path.suffix in (".yaml", ".yml") or project.config_path.is_dir():
         base_values = load_define_file(project.config_path)
         base_text = "\n".join(f"#define {k} {render_val(v)}" for k, v in sorted(base_values.items()))
     else:
