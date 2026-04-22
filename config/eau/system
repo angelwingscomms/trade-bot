@@ -10,5 +10,5 @@
 #define USE_CUSTOM_LEARNING_RATE false
 #define USE_CUSTOM_WEIGHT_DECAY false
 #define USE_MAX_BARS false
-#define USE_CONFIDENCE_THRESHOLD true
+#define USE_CONFIDENCE_THRESHOLD false
 #define USE_NO_HOLD false
