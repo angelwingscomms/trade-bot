@@ -12,3 +12,5 @@
 #define USE_MAX_BARS false
 #define USE_CONFIDENCE_THRESHOLD true
 #define USE_NO_HOLD true
+#define USE_BALANCED_SAMPLING true
+#define LABEL_SMOOTHING 0.0

@@ -548,9 +548,11 @@ def main() -> None:
         token_mean: np.ndarray | None = None
         token_std: np.ndarray | None = None
         minirocket_parameters = None
-        train_sample_weights = build_sample_weights(
-            y_train, class_count=len(active_label_names)
-        )
+        train_sample_weights = None
+        if args.use_balanced_sampling:
+            train_sample_weights = build_sample_weights(
+                y_train, class_count=len(active_label_names)
+            )
 
         if architecture == "minirocket":
             transform_batch_size = max(args.batch_size, DEFAULT_BATCH_SIZE)
@@ -859,16 +861,21 @@ def main() -> None:
         if len(active_label_names) >= 3:
             class_weights = build_class_weights(y_train, class_count=3).to(device)
         if loss_mode == "cross-entropy":
-            criterion: nn.Module = nn.CrossEntropyLoss(weight=class_weights).to(device)
+            criterion: nn.Module = nn.CrossEntropyLoss(
+                weight=class_weights,
+                label_smoothing=args.label_smoothing,
+            ).to(device)
         else:
             criterion = PipelineFocalLoss(
                 alpha=class_weights, gamma=args.focal_gamma
             ).to(device)
         log.info(
-            "Optimization | loss=%s lr=%.6g weight_decay=%.6g balanced_sampling=1 confidence_search=[%.2f, %.2f]x%d",
+            "Optimization | loss=%s lr=%.6g weight_decay=%.6g balanced_sampling=%d label_smoothing=%.2f confidence_search=[%.2f, %.2f]x%d",
             loss_mode,
             learning_rate,
             weight_decay,
+            int(args.use_balanced_sampling),
+            args.label_smoothing,
             args.confidence_search_min,
             args.confidence_search_max,
             args.confidence_search_steps,
