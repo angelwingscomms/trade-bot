@@ -30,7 +30,11 @@ def _override_from_argv() -> None:
         if config_path.exists():
             set_override_config_path(config_path)
         else:
-            raise FileNotFoundError(f"Config not found: {config_path}")
+            config_yaml = config_path.with_suffix(".yaml")
+            if config_yaml.exists():
+                set_override_config_path(config_yaml)
+            else:
+                raise FileNotFoundError(f"Config not found: {config_path}")
 
 
 if __name__ == "__main__":

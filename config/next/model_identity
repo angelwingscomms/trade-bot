@@ -1,3 +1,0 @@
-#define DATA_FILE "data/gold.csv"
-#define MODEL_NAME "next"
-#define SYMBOL "XAUUSD"

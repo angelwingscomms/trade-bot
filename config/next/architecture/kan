@@ -1,2 +1,0 @@
-#define KAN_PROJ_DIM 512
-#define L1_LAMBDA 0.0001

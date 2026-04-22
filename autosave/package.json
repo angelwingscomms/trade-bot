@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sinelaw/fresh/main/crates/fresh-editor/plugins/schemas/package.schema.json",
+  "name": "autosave",
+  "version": "0.1.0",
+  "description": "autosaves files after a given number of milliseconds",
+  "type": "plugin",
+  "author": "54",
+  "license": "MIT",
+  "fresh": {
+    "main": "plugin.ts"
+  }
+}
