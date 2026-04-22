@@ -136,6 +136,14 @@ def parse_config_spec() -> ConfigCategory:
                     make_int("FEATURE_MAIN_XLONG_PERIOD", 54, "Main xlong period"),
                 ],
             ),
+            "Normalization": ConfigCategory(
+                name="Normalization",
+                config_values=[
+                    make_bool("FEATURE_CLOSE_Z_250", True, "Close Z-score 250"),
+                    make_bool("FEATURE_RET_Z_250", True, "Return Z-score 250"),
+                    make_int("FEATURE_NORMALIZE_PERIOD", 250, "Normalize period"),
+                ],
+            ),
             "Bollinger": ConfigCategory(
                 name="Bollinger",
                 config_values=[

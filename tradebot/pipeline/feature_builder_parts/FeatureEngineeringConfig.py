@@ -7,6 +7,7 @@ from .shared import *  # noqa: F401,F403
 class FeatureEngineeringConfig:
     feature_atr_period: int
     feature_atr_ratio_period: int
+    feature_normalize_period: int
     feature_bollinger_period: int
     feature_donchian_fast_period: int
     feature_donchian_slow_period: int
@@ -46,6 +47,7 @@ class FeatureEngineeringConfig:
         return cls(
             feature_atr_period=int(values["FEATURE_ATR_PERIOD"]),
             feature_atr_ratio_period=int(values["FEATURE_ATR_RATIO_PERIOD"]),
+            feature_normalize_period=int(values.get("FEATURE_NORMALIZE_PERIOD", 250)),
             feature_bollinger_period=int(values["FEATURE_BOLLINGER_PERIOD"]),
             feature_donchian_fast_period=int(values["FEATURE_DONCHIAN_FAST_PERIOD"]),
             feature_donchian_slow_period=int(values["FEATURE_DONCHIAN_SLOW_PERIOD"]),

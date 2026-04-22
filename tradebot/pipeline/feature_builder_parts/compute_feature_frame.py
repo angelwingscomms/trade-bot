@@ -59,6 +59,10 @@ def compute_feature_frame(
     tick_imbalance = df["tick_imbalance"].astype(float)
     prev_close = close.shift(1)
     ret1 = np.log(close / (prev_close + EPS))
+
+    close_z_250 = rolling_zscore(close, config.feature_normalize_period)
+    ret_z_250 = rolling_zscore(ret1, config.feature_normalize_period)
+
     atr_feature = wilder_atr(high, low, close, period=config.feature_atr_period)
     spread_rel = df["spread"] / (close + EPS)
     spread_abs = df.get("spread_mean", df["spread"]).astype(float)
@@ -156,6 +160,8 @@ def compute_feature_frame(
     feat["rv_3"] = rv_3
     feat["rv_6"] = rv_6
     feat["rv_18"] = rv_18
+    feat["close_z_250"] = close_z_250
+    feat["ret_z_250"] = ret_z_250
     feat["donchian_pos_9"] = (close - low_fast) / (high_fast - low_fast + EPS)
     feat["donchian_width_9"] = (high_fast - low_fast) / (close + EPS)
     feat["donchian_pos_20"] = (close - low_slow) / (high_slow - low_slow + EPS)
