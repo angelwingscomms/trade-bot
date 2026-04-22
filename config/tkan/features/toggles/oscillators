@@ -1,0 +1,5 @@
+#define FEATURE_STOCH_D_3 true
+#define FEATURE_STOCH_GAP true
+#define FEATURE_STOCH_K_9 true
+#define FEATURE_RSI_14 true
+#define FEATURE_RSI_6 true

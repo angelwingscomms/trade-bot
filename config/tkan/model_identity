@@ -1,0 +1,3 @@
+#define DATA_FILE "data/gold.csv"
+#define MODEL_NAME "tkan"
+#define SYMBOL "XAUUSD"

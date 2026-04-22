@@ -1,0 +1,3 @@
+#define USE_MAIN_FEATURE_SET true
+#define USE_MINIMAL_FEATURE_SET false
+#define USE_GOLD_CONTEXT true
