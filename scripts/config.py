@@ -141,7 +141,7 @@ def parse_config_spec() -> ConfigCategory:
                 config_values=[
                     make_bool("FEATURE_CLOSE_Z_250", True, "Close Z-score 250"),
                     make_bool("FEATURE_RET_Z_250", True, "Return Z-score 250"),
-                    make_int("FEATURE_NORMALIZE_PERIOD", 250, "Normalize period"),
+                    make_int("FEATURE_NORMALIZE_PERIOD", 270, "Normalize period"),
                 ],
             ),
             "Bollinger": ConfigCategory(
