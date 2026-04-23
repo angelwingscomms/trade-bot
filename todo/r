@@ -1,0 +1,14 @@
+use min.yaml config
+walk through everything step by step, do one at a time.
+
+create new module ./i/
+contents: 
+        split - makes bars from ticks and splits em into train/val/test sets, use simplest way to make bars w/o data leakage
+        ticks
+        time
+        imbalance
+    train.py
+    validate.py
+    test.py
+the only modules this new module would use from tradebot is tradebot/models/sequence and parse_args
+
